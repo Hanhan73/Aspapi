@@ -150,6 +150,12 @@
                     Berita
                 </a>
 
+                {{-- Blog --}}
+                <a href="{{ route('blog.index') }}"
+                   class="nav-link {{ request()->routeIs('blog.*') ? 'nav-link-active' : '' }}">
+                    Blog
+                </a>
+
                 {{-- Download --}}
                 <a href="{{ route('documents.index') }}"
                    class="nav-link {{ request()->routeIs('documents.*') ? 'nav-link-active' : '' }}">

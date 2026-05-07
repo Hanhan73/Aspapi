@@ -40,14 +40,14 @@
             <div id="editor-toolbar"
                 style="display:flex;flex-wrap:wrap;gap:0.25rem;padding:0.5rem;background:#F8FAFC;border:1.5px solid #D6E8F7;border-bottom:none;border-radius:4px 4px 0 0;">
                 @foreach ([
-                ['cmd' => 'bold', 'label' => 'B', 'style' => 'font-weight:700;'],
-                ['cmd' => 'italic', 'label' => 'I', 'style' => 'font-style:italic;'],
-                ['cmd' => 'underline', 'label' => 'U', 'style' => 'text-decoration:underline;'],
-                ['cmd' => 'insertOrderedList', 'label' => 'OL', 'style' => ''],
-                ['cmd' => 'insertUnorderedList', 'label' => 'UL', 'style' => ''],
-                ['cmd' => 'justifyLeft', 'label' => '⬅', 'style' => ''],
-                ['cmd' => 'justifyCenter', 'label' => '↔', 'style' => ''],
-                ['cmd' => 'justifyRight', 'label' => '➡', 'style' => ''],
+                    ['cmd' => 'bold',               'label' => 'B',  'style' => 'font-weight:700;'],
+                    ['cmd' => 'italic',             'label' => 'I',  'style' => 'font-style:italic;'],
+                    ['cmd' => 'underline',          'label' => 'U',  'style' => 'text-decoration:underline;'],
+                    ['cmd' => 'insertOrderedList',  'label' => 'OL', 'style' => ''],
+                    ['cmd' => 'insertUnorderedList','label' => 'UL', 'style' => ''],
+                    ['cmd' => 'justifyLeft',        'label' => '⬅',  'style' => ''],
+                    ['cmd' => 'justifyCenter',      'label' => '↔',  'style' => ''],
+                    ['cmd' => 'justifyRight',       'label' => '➡', 'style' => ''],
                 ] as $btn)
                 <button type="button" onclick="document.execCommand('{{ $btn['cmd'] }}', false, null)"
                     style="padding:0.25rem 0.5rem;border:1px solid #D6E8F7;border-radius:3px;background:#fff;cursor:pointer;font-size:0.8rem;{{ $btn['style'] }}min-width:28px;">
@@ -69,8 +69,7 @@
             </div>
             <div id="editor" contenteditable="true"
                 style="min-height:320px;padding:1rem;border:1.5px solid #D6E8F7;border-radius:0 0 4px 4px;font-size:0.9rem;color:#1A2A3A;line-height:1.8;outline:none;"
-                onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'">{!! old('body',
-                $news->body ?? '') !!}</div>
+                onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'">{!! old('body', $news->body ?? '') !!}</div>
             <textarea name="body" id="body-input" style="display:none;">{{ old('body', $news->body ?? '') }}</textarea>
             @error('body') <p style="font-size:0.75rem;color:#C0392B;margin-top:0.375rem;">{{ $message }}</p> @enderror
         </div>
@@ -82,25 +81,23 @@
 
         {{-- Publish --}}
         <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
-            <p
-                style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">
-                Publikasi</p>
+            <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">
+                Publikasi
+            </p>
 
             <div style="margin-bottom:1rem;">
-                <label
-                    style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Status</label>
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
+                    Status
+                </label>
                 <select name="status"
                     style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;">
-                    <option value="draft"
-                        {{ old('status', $news->status ?? 'draft') === 'draft'     ? 'selected' : '' }}>Draft</option>
-                    <option value="published"
-                        {{ old('status', $news->status ?? 'draft') === 'published' ? 'selected' : '' }}>Tayang</option>
+                    <option value="draft"     {{ old('status', $news->status ?? 'draft') === 'draft'     ? 'selected' : '' }}>Draft</option>
+                    <option value="published" {{ old('status', $news->status ?? 'draft') === 'published' ? 'selected' : '' }}>Tayang</option>
                 </select>
             </div>
 
             <div style="margin-bottom:1rem;">
-                <label
-                    style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
                     Tanggal Tayang <span style="font-weight:400;color:#B0CCDF;">(opsional)</span>
                 </label>
                 <input type="datetime-local" name="published_at"
@@ -110,23 +107,11 @@
                 <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.25rem;">Kosongkan = otomatis saat ditayangkan.</p>
             </div>
 
-            <div style="display:flex;gap:0.75rem;">
-                <button type="submit"
-                    style="flex:1;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
-                    {{ $isEdit ? 'Simpan Perubahan' : 'Tambah Berita' }}
-                </button>
-            </div>
-
-            @if ($isEdit)
-            <form method="POST" action="{{ route('admin.news.destroy', $news) }}"
-                onsubmit="return confirm('Hapus berita ini secara permanen?')" style="margin-top:0.75rem;">
-                @csrf @method('DELETE')
-                <button type="submit"
-                    style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#C0392B;cursor:pointer;">
-                    Hapus Berita
-                </button>
-            </form>
-            @endif
+            {{-- Tombol submit saja — tombol hapus ada di edit.blade.php di luar form ini --}}
+            <button type="submit"
+                style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
+                {{ $isEdit ? 'Simpan Perubahan' : 'Tambah Berita' }}
+            </button>
         </div>
 
         {{-- Kategori --}}
@@ -148,21 +133,19 @@
                 Thumbnail <span style="font-weight:400;color:#B0CCDF;">(opsional)</span>
             </label>
 
-            {{-- Preview --}}
             <div id="thumbnail-preview"
                 style="width:100%;height:160px;background:#EEF4FB;border-radius:4px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px dashed #D6E8F7;">
                 @if ($isEdit && $news->thumbnail)
-                <img src="{{ Storage::url($news->thumbnail) }}" id="preview-img"
-                    style="width:100%;height:100%;object-fit:cover;" />
+                    <img src="{{ Storage::url($news->thumbnail) }}"
+                         style="width:100%;height:100%;object-fit:cover;" />
                 @else
-                <div id="preview-placeholder" style="text-align:center;">
-                    <svg style="width:32px;height:32px;color:#B0CCDF;margin:0 auto;" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p style="font-size:0.72rem;color:#B0CCDF;margin-top:0.375rem;">Belum ada gambar</p>
-                </div>
+                    <div style="text-align:center;">
+                        <svg style="width:32px;height:32px;color:#B0CCDF;margin:0 auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p style="font-size:0.72rem;color:#B0CCDF;margin-top:0.375rem;">Belum ada gambar</p>
+                    </div>
                 @endif
             </div>
 
@@ -175,7 +158,6 @@
 </div>
 
 <script>
-// Scope ke form yang benar — ambil dari editor, bukan querySelector global
 document.getElementById('editor').closest('form').addEventListener('submit', function() {
     document.getElementById('body-input').value = document.getElementById('editor').innerHTML;
 });
