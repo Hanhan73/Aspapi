@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Ethnocentric';
+    src: url('../../../public/fonts/ethnocentric-rg.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ─────────────────────────────────────────
+   BASE
+───────────────────────────────────────── */
+@layer base {
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply bg-neutral-50 text-navy font-sans antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply text-navy leading-tight;
+    }
+
+    a {
+        @apply transition-colors duration-200;
+    }
+}
+
+/* ─────────────────────────────────────────
+   COMPONENTS
+───────────────────────────────────────── */
+@layer components {
+
+    /* ── Section Label ── */
+    .section-label {
+        @apply text-2xs font-bold tracking-widest uppercase text-accent-red;
+    }
+
+    .section-title {
+        @apply font-display text-3xl text-navy leading-tight;
+    }
+
+    .section-divider {
+        @apply w-12 h-0.5 bg-accent-yellow mt-3 mb-4;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2
+               px-5 py-2.5
+               text-xs font-bold tracking-widest uppercase
+               rounded-sm border-2
+               transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+
+    .btn-primary {
+        @apply bg-primary border-primary text-white
+               hover:bg-primary-600 hover:border-primary-600
+               focus:ring-primary;
+    }
+
+    .btn-outline {
+        @apply bg-transparent border-primary text-primary
+               hover:bg-primary hover:text-white
+               focus:ring-primary;
+    }
+
+    .btn-accent-red {
+        @apply bg-accent-red border-accent-red text-white
+               hover:bg-accent-red-dark hover:border-accent-red-dark
+               focus:ring-accent-red;
+    }
+
+    .btn-accent-yellow {
+        @apply bg-accent-yellow border-accent-yellow text-navy
+               hover:bg-accent-yellow-dark hover:border-accent-yellow-dark
+               focus:ring-accent-yellow;
+    }
+
+    .btn-ghost {
+        @apply bg-transparent border-transparent text-neutral-500
+               hover:text-primary hover:border-primary-200 hover:bg-primary-100
+               focus:ring-primary;
+    }
+
+    .btn-sm {
+        @apply px-3 py-1.5 text-2xs;
+    }
+
+    .btn-lg {
+        @apply px-8 py-3.5 text-xs;
+    }
+
+    .btn-danger {
+        @apply bg-accent-red border-accent-red text-white
+               hover:bg-accent-red-dark hover:border-accent-red-dark
+               focus:ring-accent-red;
+    }
+
+    /* ── Cards ── */
+    .card {
+        @apply bg-white border border-neutral-200 rounded-md
+               shadow-card transition-all duration-200;
+    }
+
+    .card-hover {
+        @apply hover:shadow-card-hover hover:-translate-y-0.5;
+    }
+
+    .card-top-blue   { @apply border-t-4 border-t-primary; }
+    .card-top-red    { @apply border-t-4 border-t-accent-red; }
+    .card-top-yellow { @apply border-t-4 border-t-accent-yellow; }
+
+    /* ── Badges ── */
+    .badge {
+        @apply inline-flex items-center
+               px-2.5 py-0.5
+               text-2xs font-bold tracking-widest uppercase
+               rounded-sm;
+    }
+
+    .badge-blue   { @apply bg-primary-100 text-primary; }
+    .badge-red    { @apply bg-red-50 text-accent-red; }
+    .badge-yellow { @apply bg-yellow-50 text-yellow-700; }
+    .badge-green  { @apply bg-green-50 text-green-700; }
+    .badge-gray   { @apply bg-neutral-100 text-neutral-500 border border-neutral-200; }
+
+    /* ── Alerts ── */
+    .alert {
+        @apply p-4 rounded text-sm border-l-4;
+    }
+
+    .alert-info    { @apply bg-primary-100 border-primary text-primary-600; }
+    .alert-warning { @apply bg-yellow-50 border-accent-yellow text-yellow-800; }
+    .alert-danger  { @apply bg-red-50 border-accent-red text-red-800; }
+    .alert-success { @apply bg-green-50 border-green-500 text-green-800; }
+
+    /* ── Form ── */
+    .form-label {
+        @apply block text-2xs font-bold tracking-wider uppercase text-neutral-500 mb-1.5;
+    }
+
+    .form-input {
+        @apply w-full px-3.5 py-2.5
+               text-sm text-navy
+               bg-white border border-neutral-200 rounded
+               transition-all duration-200
+               focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20
+               placeholder:text-neutral-300;
+    }
+
+    .form-input-error {
+        @apply border-accent-red focus:border-accent-red focus:ring-accent-red;
+    }
+
+    .form-hint  { @apply text-xs text-neutral-400 mt-1; }
+    .form-error { @apply text-xs text-accent-red mt-1 font-medium; }
+
+    /* ── Nav Link ── */
+    .nav-link {
+        @apply text-2xs font-bold tracking-widest uppercase text-neutral-500
+               pb-0.5 border-b-2 border-transparent
+               hover:text-primary hover:border-accent-yellow
+               transition-all duration-200;
+    }
+
+    .nav-link-active {
+        @apply text-primary border-accent-yellow;
+    }
+
+    /* ── Page Header (Hero Strip) ── */
+    .page-header {
+        @apply relative bg-gradient-to-br from-navy-dark via-primary-600 to-primary
+               pt-12 pb-10 px-6 overflow-hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        @apply absolute inset-x-0 top-0 h-1
+               bg-gradient-to-r from-accent-red via-accent-yellow to-accent-yellow;
+    }
+
+    /* ── Board Member Card ── */
+    .member-card {
+        @apply card card-hover card-top-blue
+               flex flex-col items-center text-center p-6;
+    }
+
+    .member-card-photo {
+        @apply w-24 h-24 rounded-full object-cover
+               border-4 border-primary-200
+               mb-4 bg-primary-100;
+    }
+
+    .member-card-photo-placeholder {
+        @apply w-24 h-24 rounded-full
+               border-4 border-primary-200
+               mb-4 bg-primary-100
+               flex items-center justify-center
+               text-2xl font-bold text-primary;
+    }
+
+    .member-card-name {
+        @apply text-sm font-bold text-navy mb-1 leading-snug;
+    }
+
+    .member-card-role {
+        @apply badge badge-red mb-2;
+    }
+
+    .member-card-institution {
+        @apply text-xs text-neutral-400 leading-relaxed;
+    }
+
+    /* ── Table ── */
+    .tbl {
+        @apply w-full border-collapse;
+    }
+
+    .tbl thead tr {
+        @apply bg-primary-100;
+    }
+
+    .tbl thead th {
+        @apply px-4 py-3 text-left text-2xs font-bold tracking-wider uppercase text-primary;
+    }
+
+    .tbl tbody td {
+        @apply px-4 py-3 text-sm text-neutral-500 border-b border-neutral-100;
+    }
+
+    .tbl tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .tbl tbody tr:hover td {
+        @apply bg-neutral-50;
+    }
+
+    /* ── Pagination ── */
+    .page-btn {
+        @apply inline-flex items-center justify-center
+               w-8 h-8 text-xs font-bold
+               border border-neutral-200 rounded-sm text-neutral-500
+               transition-all duration-200
+               hover:bg-primary hover:border-primary hover:text-white;
+    }
+
+    .page-btn-active {
+        @apply bg-primary border-primary text-white;
+    }
+
+    /* ── Divider ── */
+    .divider {
+        @apply border-t border-neutral-200 my-8;
+    }
+
+    /* ── Admin Sidebar ── */
+    .sidebar-link {
+        @apply flex items-center gap-3
+               px-4 py-2.5
+               text-xs font-semibold tracking-wide
+               text-neutral-300 rounded
+               transition-all duration-200
+               hover:bg-white/10 hover:text-white;
+    }
+
+    .sidebar-link-active {
+        @apply bg-primary text-white shadow-sm;
+    }
+
+    .sidebar-section-title {
+        @apply text-2xs font-bold tracking-widest uppercase
+               text-neutral-500 px-4 pt-5 pb-1.5;
+    }
+}
+
+/* ─────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────── */
+@layer utilities {
+    .text-balance { text-wrap: balance; }
+}
