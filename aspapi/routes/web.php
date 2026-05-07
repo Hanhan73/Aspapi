@@ -22,14 +22,15 @@ use App\Http\Controllers\Admin\NewsAdminController;
 use App\Http\Controllers\Admin\BlogAdminController;
 use App\Http\Controllers\Admin\DocumentAdminController;
 use App\Http\Controllers\Admin\MemberAdminController;
-use App\Http\Controllers\Admin\RegionAdminController;
 
 use App\Http\Controllers\Member\DashboardController as MemberDashboard;
 use App\Http\Controllers\Member\BiodataController;
 use App\Http\Controllers\Member\PaymentController;
 use App\Http\Controllers\Member\CardController;
 use App\Http\Controllers\Bendahara\BendaharaController;
-use App\Http\Controllers\RegionStaff\RegionMemberController;
+use App\Http\Controllers\Daerah\RegionMemberController;
+
+use App\Http\Controllers\Admin\RegionController as AdminRegionController;
 
 /* ─────────────────────────────────────────
    PUBLIC ROUTES
@@ -169,6 +170,9 @@ Route::prefix('admin')
             ->names('blogs')
             ->parameters(['blog' => 'blog']);
 
+        Route::get('dokumen/sort',              [DocumentAdminController::class, 'sortIndex'])->name('documents.sort');
+        Route::post('dokumen/sort/documents',   [DocumentAdminController::class, 'sortDocuments'])->name('documents.sort.documents');
+        Route::post('dokumen/sort/categories',  [DocumentAdminController::class, 'sortCategories'])->name('documents.sort.categories');
         // Dokumen
         Route::resource('dokumen', DocumentAdminController::class)
             ->names('documents')
@@ -180,9 +184,15 @@ Route::prefix('admin')
             ->parameters(['anggota' => 'member']);
 
         // ASPAPI Daerah
-        Route::resource('daerah', RegionAdminController::class)
+        Route::resource('daerah', AdminRegionController::class)
             ->names('regions')
             ->parameters(['daerah' => 'region']);
+        Route::get('daerah/{region}/account', [AdminRegionController::class, 'manageAccount'])
+            ->name('regions.account');
+        Route::post('daerah/{region}/account', [AdminRegionController::class, 'storeAccount'])
+            ->name('regions.account.store');
+        Route::post('daerah/{region}/account/reset-password', [AdminRegionController::class, 'resetPassword'])
+            ->name('regions.account.reset-password');
 
         // Verifikasi anggota
         Route::get('/verifikasi-anggota', [\App\Http\Controllers\Admin\MemberVerificationController::class, 'index'])
@@ -194,3 +204,4 @@ Route::prefix('admin')
         Route::post('/verifikasi-anggota/{id}/approve-old', [\App\Http\Controllers\Admin\MemberVerificationController::class, 'approveOldMember'])
             ->name('member.verify.approve-old');
     });
+

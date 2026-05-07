@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.bendahara')
 @php $title = 'Verifikasi Pembayaran'; @endphp
 
 @section('content')

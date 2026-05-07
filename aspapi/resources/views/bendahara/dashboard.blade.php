@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.bendahara')
 @php $title = 'Dashboard Bendahara'; @endphp
 
 @section('content')

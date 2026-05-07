@@ -50,6 +50,7 @@ class BiodataController extends Controller
         // Reset verifikasi biodata kalau ada perubahan
         if ($member->biodata_status === 'verified') {
             $data['biodata_status'] = 'pending';
+            return back()->with('warning', 'Biodata diperbarui. Status verifikasi direset, Admin perlu memverifikasi ulang.');
         }
 
         $member->update($data);

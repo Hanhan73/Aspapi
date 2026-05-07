@@ -1,36 +1,84 @@
-@extends('layouts.admin')
-@php $title = 'Dashboard ' . $region->name; @endphp
+@extends('layouts.daerah')
+@php $title = 'Dashboard — ASPAPI ' . $region->province; @endphp
 
 @section('content')
 
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
-    <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;border-top:3px solid #2A7FC1;">
-        <p style="font-size:2rem;font-family:'DM Serif Display',serif;color:#1A2A3A;">{{ $memberCount }}</p>
-        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-top:0.25rem;">Total Anggota</p>
+{{-- Statistik --}}
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white border border-neutral-200 rounded-lg p-5 border-t-4 border-t-primary">
+        <p class="text-3xl font-bold text-navy font-serif">{{ $stats['total_members'] }}</p>
+        <p class="text-2xs uppercase tracking-widest text-neutral-400 mt-1">Total Anggota</p>
     </div>
-    <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;border-top:3px solid #276749;">
-        <p style="font-size:2rem;font-family:'DM Serif Display',serif;color:#1A2A3A;">{{ $paidCount }}</p>
-        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-top:0.25rem;">Sudah Bayar Iuran</p>
+    <div class="bg-white border border-neutral-200 rounded-lg p-5 border-t-4 border-t-green-600">
+        <p class="text-3xl font-bold text-navy font-serif">{{ $stats['active_members'] }}</p>
+        <p class="text-2xs uppercase tracking-widest text-neutral-400 mt-1">Anggota Aktif</p>
     </div>
-    <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;border-top:3px solid #C0392B;">
-        <p style="font-size:2rem;font-family:'DM Serif Display',serif;color:#1A2A3A;">{{ $memberCount - $paidCount }}</p>
-        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-top:0.25rem;">Belum Bayar</p>
+    <div class="bg-white border border-neutral-200 rounded-lg p-5 border-t-4 border-t-accent-yellow">
+        <p class="text-3xl font-bold text-navy font-serif">{{ $stats['pending'] }}</p>
+        <p class="text-2xs uppercase tracking-widest text-neutral-400 mt-1">Menunggu Verifikasi</p>
     </div>
 </div>
 
-<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-    <a href="{{ route('daerah.members') }}"
-       style="padding:0.75rem 1.25rem;background:#fff;border:1.5px solid #2A7FC1;color:#2A7FC1;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;">
-        Lihat Data Anggota
-    </a>
-    <a href="{{ route('daerah.batch.form') }}"
-       style="padding:0.75rem 1.25rem;background:#2A7FC1;color:#fff;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;">
-        + Daftar Anggota Baru (Batch)
-    </a>
-    <a href="{{ route('daerah.pay.form') }}"
-       style="padding:0.75rem 1.25rem;background:#E8B84B;color:#1A2A3A;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;">
-        Bayar Iuran Kolektif
-    </a>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    {{-- Informasi Daerah --}}
+    <div class="bg-white border border-neutral-200 rounded-lg p-6">
+        <p class="text-2xs font-bold uppercase tracking-widest text-neutral-400 mb-4">Informasi Daerah</p>
+        <div class="space-y-3">
+            <div>
+                <p class="text-2xs text-neutral-400 mb-0.5">Ketua</p>
+                <p class="text-sm font-semibold text-navy">{{ $region->chairman_name ?? '—' }}</p>
+                @if ($region->chairman_title)
+                    <p class="text-xs text-neutral-500">{{ $region->chairman_title }}</p>
+                @endif
+            </div>
+            <div>
+                <p class="text-2xs text-neutral-400 mb-0.5">Periode</p>
+                <p class="text-sm font-semibold text-navy">{{ $region->period ?? '—' }}</p>
+            </div>
+            @if ($region->email)
+            <div>
+                <p class="text-2xs text-neutral-400 mb-0.5">Email</p>
+                <p class="text-sm text-navy">{{ $region->email }}</p>
+            </div>
+            @endif
+            @if ($region->website_url)
+            <div>
+                <p class="text-2xs text-neutral-400 mb-0.5">Website</p>
+                <a href="{{ $region->website_url }}" target="_blank"
+                   class="text-xs text-primary hover:underline">{{ $region->website_url }}</a>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Anggota Terbaru --}}
+    <div class="bg-white border border-neutral-200 rounded-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-2xs font-bold uppercase tracking-widest text-neutral-400">Anggota Terbaru</p>
+            <a href="{{ route('daerah.members') }}" class="text-2xs font-bold text-primary hover:underline">Lihat Semua →</a>
+        </div>
+        @if ($recentMembers->isNotEmpty())
+        <div class="divide-y divide-neutral-100">
+            @foreach ($recentMembers as $member)
+            <div class="flex items-center justify-between py-3">
+                <div>
+                    <p class="text-sm font-medium text-navy">{{ $member->full_name }}</p>
+                    <p class="text-xs text-neutral-400">{{ $member->institution ?? '—' }}</p>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold
+                    {{ $member->status === 'active'  ? 'bg-green-50 text-green-700' :
+                       ($member->status === 'pending' ? 'bg-yellow-50 text-yellow-700' : 'bg-neutral-100 text-neutral-500') }}">
+                    {{ match($member->status) { 'active' => 'Aktif', 'pending' => 'Pending', default => ucfirst($member->status) } }}
+                </span>
+            </div>
+            @endforeach
+        </div>
+        @else
+        <p class="text-sm text-neutral-400 py-4 text-center">Belum ada anggota terdaftar.</p>
+        @endif
+    </div>
+
 </div>
 
 @endsection

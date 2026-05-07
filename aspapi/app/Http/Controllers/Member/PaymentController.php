@@ -28,7 +28,7 @@ class PaymentController extends Controller
 
         $request->validate([
             'type'    => 'required|in:uang_pangkal,iuran_tahunan',
-            'receipt' => 'required|image|mimes:jpg,jpeg,png,pdf|max:3072',
+            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:3072',
         ]);
 
         // Cek kalau anggota baru sudah pernah bayar uang pangkal

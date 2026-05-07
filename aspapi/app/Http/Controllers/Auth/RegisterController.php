@@ -12,13 +12,13 @@ use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
-    // Form anggota BARU
+    // ── Form anggota BARU ─────────────────────────────────────────────────────
+
     public function showForm()
     {
         return view('auth.register');
     }
 
-    // Simpan anggota baru — butuh verifikasi email
     public function store(Request $request)
     {
         $request->validate([
@@ -27,15 +27,16 @@ class RegisterController extends Controller
             'password'  => 'required|min:8|confirmed',
         ]);
 
+        // Token disimpan di kolom tersendiri, BUKAN remember_token
         $token = Str::random(64);
 
         $user = User::create([
-            'name'           => $request->full_name,
-            'email'          => $request->email,
-            'password'       => Hash::make($request->password),
-            'role'           => 'anggota',
-            'email_verified' => false,
-            'remember_token' => $token,
+            'name'                => $request->full_name,
+            'email'               => $request->email,
+            'password'            => Hash::make($request->password),
+            'role'                => 'anggota',
+            'email_verified'      => false,
+            'email_verify_token'  => $token,   // ← kolom baru
         ]);
 
         Member::create([
@@ -48,28 +49,34 @@ class RegisterController extends Controller
         ]);
 
         // Kirim email verifikasi
-        Mail::send('emails.verify', ['token' => $token, 'name' => $request->full_name], function ($m) use ($request) {
-            $m->to($request->email)->subject('Verifikasi Email — ASPAPI');
-        });
+        $verifyUrl = route('verify.email', ['token' => $token]);
+
+        Mail::send(
+            'emails.verify',
+            ['verifyUrl' => $verifyUrl, 'name' => $request->full_name],
+            function ($m) use ($request) {
+                $m->to($request->email)->subject('Verifikasi Email — ASPAPI');
+            }
+        );
 
         return redirect()->route('login')
             ->with('success', 'Pendaftaran berhasil! Cek email Anda untuk verifikasi akun.');
     }
 
-    // Form anggota LAMA
+    // ── Form anggota LAMA ─────────────────────────────────────────────────────
+
     public function showOldForm()
     {
         return view('auth.register-old');
     }
 
-    // Simpan anggota lama — langsung aktif, tunggu verifikasi admin
     public function storeOld(Request $request)
     {
         $request->validate([
-            'full_name'        => 'required|string|max:255',
-            'email'            => 'required|email|unique:users,email',
-            'password'         => 'required|min:8|confirmed',
-            'claimed_join_year'=> 'required|integer|min:2010|max:' . now()->year,
+            'full_name'         => 'required|string|max:255',
+            'email'             => 'required|email|unique:users,email',
+            'password'          => 'required|min:8|confirmed',
+            'claimed_join_year' => 'required|integer|min:2010|max:' . now()->year,
         ]);
 
         $user = User::create([
@@ -77,7 +84,7 @@ class RegisterController extends Controller
             'email'          => $request->email,
             'password'       => Hash::make($request->password),
             'role'           => 'anggota',
-            'email_verified' => true, // langsung aktif tapi tunggu admin
+            'email_verified' => true, // anggota lama tidak perlu verif email
         ]);
 
         Member::create([
@@ -91,27 +98,39 @@ class RegisterController extends Controller
             'biodata_status'     => 'pending',
         ]);
 
-        // Notif admin via email
-        Mail::send('emails.notify-admin-old-member', ['name' => $request->full_name, 'year' => $request->claimed_join_year], function ($m) {
-            $m->to(config('mail.admin_email', 'admin@aspapi.or.id'))
-              ->subject('Klaim Anggota Lama Baru — ASPAPI');
-        });
+        // Notif admin
+        Mail::send(
+            'emails.notify-admin-old-member',
+            ['name' => $request->full_name, 'year' => $request->claimed_join_year],
+            function ($m) {
+                $m->to(config('mail.admin_email', 'admin@aspapi.or.id'))
+                  ->subject('Klaim Anggota Lama Baru — ASPAPI');
+            }
+        );
 
         return redirect()->route('login')
             ->with('success', 'Pendaftaran anggota lama berhasil! Tunggu verifikasi dari Admin ASPAPI.');
     }
 
-    // Verifikasi email
+    // ── Verifikasi Email ──────────────────────────────────────────────────────
+
     public function verifyEmail(string $token)
     {
-        $user = User::where('remember_token', $token)->firstOrFail();
+        // Cari dari kolom email_verify_token, bukan remember_token
+        $user = User::where('email_verify_token', $token)->first();
+
+        if (! $user) {
+            return redirect()->route('login')
+                ->with('error', 'Link verifikasi tidak valid atau sudah pernah digunakan.');
+        }
+
         $user->update([
-            'email_verified'    => true,
-            'email_verified_at' => now(),
-            'remember_token'    => null,
+            'email_verified'     => true,
+            'email_verified_at'  => now(),
+            'email_verify_token' => null, // hapus token setelah dipakai
         ]);
 
         return redirect()->route('login')
-            ->with('success', 'Email berhasil diverifikasi! Silakan login.');
+            ->with('success', 'Email berhasil diverifikasi! Silakan login dan lengkapi biodata Anda.');
     }
 }

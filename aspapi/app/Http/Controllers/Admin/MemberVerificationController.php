@@ -32,7 +32,7 @@ class MemberVerificationController extends Controller
         $member = Member::findOrFail($id);
         $member->update([
             'biodata_status' => 'verified',
-            'status'         => 'active',
+            'status'         => 'pending',
             'registered_at'  => $member->registered_at ?? now(),
         ]);
 
@@ -80,7 +80,7 @@ class MemberVerificationController extends Controller
         $member = Member::findOrFail($id);
         $member->update([
             'biodata_status'    => 'verified',
-            'status'            => 'active',
+            'status'            => 'pending',
             'registration_type' => 'lama',
             'registered_at'     => now()->setYear($member->claimed_join_year),
         ]);

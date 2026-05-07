@@ -11,6 +11,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ProvinceSeeder::class,
             RegionSeeder::class,
+            AdvisorSeeder::class,
+            ExpertSeeder::class,
+            BoardSeeder::class,
+            MemberImportSeeder::class,
         ]);
 
         // Admin user

@@ -25,9 +25,9 @@
         </p>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">
             @foreach ([
-                ['label' => 'Fungsi',    'text' => 'Memberikan masukan kepada Pengurus Pusat dalam mengambil keputusan organisasi.'],
-                ['label' => 'Tugas',     'text' => 'Memastikan pelaksanaan program kerja ASPAPI sesuai dengan visi dan misi.'],
-                ['label' => 'Wewenang',  'text' => 'Melakukan pengawasan terhadap pelaksanaan program kerja ASPAPI.'],
+                ['label' => 'Fungsi',   'text' => 'Memberikan masukan kepada Pengurus Pusat dalam mengambil keputusan organisasi.'],
+                ['label' => 'Tugas',    'text' => 'Memastikan pelaksanaan program kerja ASPAPI sesuai dengan visi dan misi.'],
+                ['label' => 'Wewenang', 'text' => 'Melakukan pengawasan terhadap pelaksanaan program kerja ASPAPI.'],
             ] as $item)
             <div style="background:#EEF4FB;border-left:3px solid #2A7FC1;border-radius:0 4px 4px 0;padding:1rem 1.125rem;">
                 <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#2A7FC1;margin-bottom:0.375rem;">{{ $item['label'] }}</p>
@@ -46,14 +46,12 @@
             <div class="section-divider mx-auto"></div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;">
             @forelse ($advisors as $person)
             @php
                 $initial = strtoupper(substr(preg_replace('/^(Prof\.|Dr\.|Drs\.|Dra\.)\s*/i', '', $person->name), 0, 1));
             @endphp
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;overflow:hidden;border-top:3px solid #2A7FC1;text-align:center;">
-
-                {{-- Foto --}}
                 <div style="width:100%;height:220px;background:#EEF4FB;overflow:hidden;display:flex;align-items:center;justify-content:center;">
                     @if ($person->photo)
                         <img src="{{ Storage::url($person->photo) }}"
@@ -68,12 +66,12 @@
                         </div>
                     @endif
                 </div>
-
-                {{-- Info --}}
                 <div style="padding:1.25rem;">
                     <div style="width:32px;height:3px;background:#E8B84B;border-radius:2px;margin:0 auto 0.75rem;"></div>
                     <p style="font-size:0.9rem;font-weight:700;color:#1A2A3A;line-height:1.4;">{{ $person->name }}</p>
+                    @if ($person->institution)
                     <p style="font-size:0.775rem;color:#4A6580;margin-top:0.375rem;">{{ $person->institution }}</p>
+                    @endif
                     @if ($person->position)
                     <span style="display:inline-block;margin-top:0.625rem;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.25rem 0.625rem;border-radius:2px;background:#EEF4FB;color:#2A7FC1;">
                         {{ $person->position }}
