@@ -69,6 +69,7 @@
                 <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Anggota</th>
                 <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">No. Anggota</th>
                 <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Tipe</th>
+                <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">ASPAPI Daerah</th>
                 <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Biodata</th>
                 <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Status</th>
                 <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Daftar</th>
@@ -124,6 +125,16 @@
                         <span style="font-size:0.6rem;color:#B8860B;display:block;margin-top:2px;">
                             Klaim sejak {{ $member->claimed_join_year }}
                         </span>
+                    @endif
+                </td>
+
+                <td style="padding:0.875rem 1rem;">
+                    @if ($member->registeredByRegion)
+                        <span style="font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:2px;background:#D6E8F7;color:#2A7FC1;">
+                            {{ $member->registeredByRegion->name }}
+                        </span>
+                    @else
+                        <span style="color:#B0CCDF;font-size:0.8rem;">—</span>
                     @endif
                 </td>
 

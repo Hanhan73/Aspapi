@@ -14,7 +14,7 @@
 </div>
 @endif
 
-@if ($member?->member_number)
+@if ($member?->member_number && $member?->canGenerateCard())
 {{-- Preview Kartu --}}
 <div style="margin-bottom:1.5rem;">
     <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Preview Kartu Anggota</p>
