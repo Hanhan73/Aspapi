@@ -12,6 +12,7 @@ use App\Http\Controllers\Public\LspController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\BlogController;
 use App\Http\Controllers\Public\DocumentController;
+use App\Http\Controllers\Public\PartnerController;
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\NewsAdminController;
 use App\Http\Controllers\Admin\BlogAdminController;
 use App\Http\Controllers\Admin\DocumentAdminController;
 use App\Http\Controllers\Admin\MemberAdminController;
+use App\Http\Controllers\Admin\PartnerController as AdminPartnerController;
 
 use App\Http\Controllers\Member\DashboardController as MemberDashboard;
 use App\Http\Controllers\Member\BiodataController;
@@ -140,6 +142,8 @@ Route::prefix('download')->name('documents.')->group(function () {
     Route::get('/{id}/unduh',  [DocumentController::class, 'download'])->name('download');
 });
 
+Route::get('/mitra', [App\Http\Controllers\PartnerController::class, 'index'])->name('partners.index');
+
 
 /* ─────────────────────────────────────────
    ADMIN ROUTES
@@ -201,6 +205,10 @@ Route::prefix('admin')
             ->name('regions.account.store');
         Route::post('daerah/{region}/account/reset-password', [AdminRegionController::class, 'resetPassword'])
             ->name('regions.account.reset-password');
+
+        Route::resource('admin/mitra', App\Http\Controllers\Admin\PartnerController::class)
+     ->names('admin.partners')
+     ->parameters(['mitra' => 'partner']);
 
         // Verifikasi anggota
         Route::get('/verifikasi-anggota', [\App\Http\Controllers\Admin\MemberVerificationController::class, 'index'])

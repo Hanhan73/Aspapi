@@ -166,7 +166,7 @@
 
     /* ── Nav Link ── */
     .nav-link {
-        @apply text-2xs font-bold tracking-widest uppercase text-neutral-500
+        @apply text-sm font-bold tracking-widest uppercase text-neutral-500
                pb-0.5 border-b-2 border-transparent
                hover:text-primary hover:border-accent-yellow
                transition-all duration-200;
