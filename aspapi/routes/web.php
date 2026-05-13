@@ -45,6 +45,14 @@ Route::get('/verifikasi-email/{token}', [RegisterController::class, 'verifyEmail
 Route::get('/login',           [App\Http\Controllers\Admin\AuthController::class, 'showLogin'])->name('login');
 Route::post('/login',          [App\Http\Controllers\Admin\AuthController::class, 'loginMember'])->name('login.member');
 
+Route::get('/api/cities/{provinceId}', function ($provinceId) {
+    return response()->json(
+        \App\Models\City::where('province_id', $provinceId)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+    );
+});
+
 // ── MEMBER PORTAL ──
 Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->group(function () {
     Route::get('/',                [MemberDashboard::class, 'index'])->name('dashboard');

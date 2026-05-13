@@ -8,7 +8,7 @@
         ['done' => true,                                         'label' => 'Buat Akun',           'desc' => 'Akun berhasil dibuat'],
         ['done' => $member?->biodata_status === 'verified',     'label' => 'Verifikasi Biodata',  'desc' => 'Lengkapi biodata, tunggu verifikasi Admin'],
         ['done' => $member?->dues_paid,                         'label' => 'Pembayaran',          'desc' => 'Upload bukti transfer ke BNI 1661531545'],
-        ['done' => (bool)$member?->member_number,               'label' => 'Generate Kartu',      'desc' => 'Generate dan download KTA'],
+        ['done' => (bool)$member?->member_number && $member?->canGenerateCard(), 'label' => 'Generate Kartu',      'desc' => 'Generate dan download KTA'],
     ];
 @endphp
 

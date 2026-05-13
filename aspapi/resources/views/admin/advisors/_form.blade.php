@@ -60,12 +60,6 @@
             <button type="submit" style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
                 {{ $isEdit ? 'Simpan Perubahan' : 'Tambah' }}
             </button>
-            @if ($isEdit)
-            <form method="POST" action="{{ route('admin.advisors.destroy', $item) }}" onsubmit="return confirm('Hapus?')" style="margin-top:0.75rem;">
-                @csrf @method('DELETE')
-                <button type="submit" style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;color:#C0392B;cursor:pointer;">Hapus</button>
-            </form>
-            @endif
         </div>
 
         <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">

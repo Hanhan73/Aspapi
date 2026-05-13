@@ -40,7 +40,6 @@
 @php
 $grouped = $experts->groupBy('expertise');
 
-// Mapping expertise ke label section & warna
 $sectionMap = [
     'Pimpinan'     => ['title' => 'Pimpinan Dewan Pakar',                      'color' => '#2A7FC1', 'bg' => '#EEF4FB'],
     'Guru Besar'   => ['title' => 'Anggota Dewan Pakar — Unsur Guru Besar',     'color' => '#C0392B', 'bg' => '#FDECEA'],
@@ -69,11 +68,11 @@ $defaultSection = ['title' => 'Anggota Dewan Pakar', 'color' => '#2A7FC1', 'bg' 
                     $initial = strtoupper(substr(preg_replace('/^(Prof\.|Dr\.|Drs\.|Dra\.)\s*/i', '', $person->name), 0, 1));
                 @endphp
                 <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;overflow:hidden;border-top:3px solid {{ $color }};">
-                    <div style="width:100%;height:180px;background:{{ $bg }};overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                    <div style="width:100%;aspect-ratio:3/4;max-height:260px;background:{{ $bg }};overflow:hidden;display:flex;align-items:center;justify-content:center;">
                         @if ($person->photo)
                             <img src="{{ Storage::url($person->photo) }}"
                                  alt="{{ $person->name }}"
-                                 style="width:100%;height:100%;object-fit:cover;object-position:top;"/>
+                                 style="width:100%;height:100%;object-fit:cover;object-position:center top;"/>
                         @else
                             <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
                                 <div style="width:70px;height:70px;border-radius:50%;background:{{ $color }};display:flex;align-items:center;justify-content:center;">

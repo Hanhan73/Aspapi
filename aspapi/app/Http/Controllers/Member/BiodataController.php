@@ -21,40 +21,47 @@ class BiodataController extends Controller
         return view('member.biodata', compact('member', 'provinces', 'cities'));
     }
 
-    public function update(Request $request)
-    {
-        $member = auth()->user()->member;
 
-        $request->validate([
-            'full_name'     => 'required|string|max:255',
-            'phone'         => 'required|string|max:20',
-            'nik'           => 'required|string|size:16',
-            'gender'        => 'required|in:L,P',
-            'province_id'   => 'required|exists:provinces,id',
-            'city_id'       => 'required|exists:cities,id',
-            'address'       => 'required|string',
-            'institution'   => 'nullable|string|max:255',
-            'study_program' => 'nullable|string|max:255',
-            'position'      => 'nullable|string|max:255',
-            'member_type'   => 'required|in:biasa,luar_biasa,kehormatan',
-            'photo'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
 
-        $data = $request->except('photo');
+// Ini hanya potongan bagian update() — sesuaikan dengan controller kamu yang ada
 
-        if ($request->hasFile('photo')) {
-            if ($member->photo) Storage::disk('public')->delete($member->photo);
-            $data['photo'] = $request->file('photo')->store('members', 'public');
+public function update(Request $request)
+{
+    $validated = $request->validate([
+        'full_name'      => 'required|string|max:255',
+        'nik'            => 'required|digits:16',
+        'birth_place'    => 'required|string|max:100',
+        'birth_date'     => 'required|date|before:today',
+        'phone'          => 'required|string|max:20',
+        'email'          => 'required|email|max:255',
+        'gender'         => 'required|in:L,P',
+        'last_education' => 'required|in:sd,smp,sma,d3,s1,s2,s3,profesi,lainnya',
+        'province_id'    => 'required|exists:provinces,id',
+        'city_id'        => 'required|exists:cities,id',
+        'address'        => 'required|string|max:500',
+        'occupation'     => 'nullable|string|max:150',
+        'institution'    => 'nullable|string|max:255',
+        'position'       => 'nullable|string|max:150',
+        'photo'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    $member = auth()->user()->member;
+
+    if ($request->hasFile('photo')) {
+        // Hapus foto lama jika ada
+        if ($member->photo) {
+            Storage::delete($member->photo);
         }
-
-        // Reset verifikasi biodata kalau ada perubahan
-        if ($member->biodata_status === 'verified') {
-            $data['biodata_status'] = 'pending';
-            return back()->with('warning', 'Biodata diperbarui. Status verifikasi direset, Admin perlu memverifikasi ulang.');
-        }
-
-        $member->update($data);
-
-        return back()->with('success', 'Biodata berhasil disimpan. Menunggu verifikasi dari Admin.');
+        $validated['photo'] = $request->file('photo')->store('member-photos', 'public');
     }
+
+    // Reset status ke pending setiap kali biodata diubah
+    $validated['biodata_status']        = 'pending';
+    $validated['biodata_reject_reason'] = null;
+
+    $member->update($validated);
+
+    return redirect()->route('member.biodata')
+        ->with('success', 'Biodata berhasil disimpan. Menunggu verifikasi admin.');
+}
 }

@@ -65,11 +65,11 @@ $defaultBg    = '#EEF4FB';
                     $initial = strtoupper(substr(preg_replace('/^(Prof\.|Dr\.|Drs\.|Dra\.)\s*/i', '', $member->name), 0, 1));
                 @endphp
                 <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;overflow:hidden;border-top:3px solid {{ $color }};">
-                    <div style="width:100%;height:180px;background:{{ $bg }};overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                    <div style="width:100%;aspect-ratio:3/4;max-height:260px;background:{{ $bg }};overflow:hidden;display:flex;align-items:center;justify-content:center;">
                         @if ($member->photo)
                             <img src="{{ Storage::url($member->photo) }}"
                                  alt="{{ $member->name }}"
-                                 style="width:100%;height:100%;object-fit:cover;object-position:top;"/>
+                                 style="width:100%;height:100%;object-fit:cover;object-position:center top;"/>
                         @else
                             <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
                                 <div style="width:70px;height:70px;border-radius:50%;background:{{ $color }};display:flex;align-items:center;justify-content:center;">

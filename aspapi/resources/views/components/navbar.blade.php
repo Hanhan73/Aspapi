@@ -166,6 +166,9 @@
                 <a href="{{ route('members.register') }}" class="btn btn-primary btn-sm">
                     Daftar Anggota
                 </a>
+                <a href="{{ route('login') }}" class="btn btn-secondary btn-sm">
+                    Login
+                </a>    
             </div>
 
             {{-- ── MOBILE MENU BUTTON ── --}}

@@ -13,11 +13,12 @@ class Member extends Model
 
     protected $fillable = [
         'user_id', 'member_number', 'full_name', 'email', 'phone', 'nik',
+        'birth_place', 'birth_date', 'gender', 'last_education',
         'member_type', 'registration_type', 'claims_old_member', 'claimed_join_year',
         'biodata_status', 'biodata_reject_reason',
-        'institution', 'study_program', 'position',
+        'institution', 'occupation', 'position',
         'province_id', 'city_id', 'province', 'city', 'address',
-        'gender', 'photo',
+        'photo',
         'status', 'registered_at', 'active_until',
         'dues_paid', 'dues_paid_at', 'dues_receipt',
         'is_batch', 'registered_by_region_id',
@@ -30,6 +31,7 @@ class Member extends Model
         'registered_at'     => 'date',
         'active_until'      => 'date',
         'dues_paid_at'      => 'date',
+        'birth_date'        => 'date',
     ];
 
     // ── Relations ──────────────────────────────────────────────────────────────
@@ -92,6 +94,22 @@ class Member extends Model
         };
     }
 
+    public function getLastEducationLabelAttribute(): string
+    {
+        return match ($this->last_education) {
+            'sd'       => 'SD',
+            'smp'      => 'SMP',
+            'sma'      => 'SMA/SMK',
+            'd3'       => 'D3',
+            's1'       => 'S1',
+            's2'       => 'S2',
+            's3'       => 'S3',
+            'profesi'  => 'Profesi',
+            'lainnya'  => 'Lainnya',
+            default    => $this->last_education ?? '-',
+        };
+    }
+
     // ── Payment Helpers ────────────────────────────────────────────────────────
 
     public function hasPaidUangPangkal(): bool
@@ -135,10 +153,6 @@ class Member extends Model
     /**
      * Build nomor anggota 11 digit:
      * [2 Kode Prov][2 Kode Kota][1 Gender][2 Tahun][4 Urutan]
-     *
-     * Contoh: 3273 1 26 0001
-     *         ↑↑↑↑ ↑ ↑↑ ↑↑↑↑
-     *         prov kota gender tahun urut
      */
     public static function buildMemberNumber(
         string $provinceCode,
@@ -156,8 +170,6 @@ class Member extends Model
 
     /**
      * Generate & simpan nomor anggota secara atomic (aman dari race condition).
-     * Harus dipanggil di dalam DB::transaction() dari luar, atau method ini
-     * akan membuat transaction sendiri.
      */
     public function assignMemberNumber(): void
     {
@@ -179,7 +191,6 @@ class Member extends Model
         $prefix     = $province->code . $city->code . $genderCode . substr((string) $year, -2);
 
         DB::transaction(function () use ($prefix, $province, $city, $year) {
-            // Lock baris terakhir dengan prefix yang sama supaya tidak ada duplikat
             $lastNumber = static::where('member_number', 'like', $prefix . '%')
                 ->lockForUpdate()
                 ->orderBy('member_number', 'desc')
@@ -204,7 +215,10 @@ class Member extends Model
     {
         return filled($this->nik)
             && filled($this->full_name)
+            && filled($this->birth_place)
+            && filled($this->birth_date)
             && filled($this->gender)
+            && filled($this->last_education)
             && filled($this->address)
             && filled($this->phone)
             && filled($this->province_id)
