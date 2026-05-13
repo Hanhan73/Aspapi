@@ -142,7 +142,7 @@ Route::prefix('download')->name('documents.')->group(function () {
     Route::get('/{id}/unduh',  [DocumentController::class, 'download'])->name('download');
 });
 
-Route::get('/mitra', [App\Http\Controllers\PartnerController::class, 'index'])->name('partners.index');
+Route::get('/mitra', [PartnerController::class, 'index'])->name('partners.index');
 
 
 /* ─────────────────────────────────────────
@@ -206,11 +206,11 @@ Route::prefix('admin')
         Route::post('daerah/{region}/account/reset-password', [AdminRegionController::class, 'resetPassword'])
             ->name('regions.account.reset-password');
 
-        Route::resource('mitra', App\Http\Controllers\Admin\PartnerController::class)
-     ->names('admin.partners')
-     ->parameters(['mitra' => 'partner']);
-     Route::post('mitra/reorder', [App\Http\Controllers\Admin\PartnerController::class, 'reorder'])
-     ->name('admin.partners.reorder');
+        Route::resource('mitra', AdminPartnerController::class)
+            ->names('admin.partners')
+            ->parameters(['mitra' => 'partner']);
+        Route::post('mitra/reorder', [AdminPartnerController::class, 'reorder'])
+            ->name('admin.partners.reorder');
 
         // Verifikasi anggota
         Route::get('/verifikasi-anggota', [\App\Http\Controllers\Admin\MemberVerificationController::class, 'index'])

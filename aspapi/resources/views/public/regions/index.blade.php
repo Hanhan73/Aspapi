@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('title', 'ASPAPI Daerah')
 
+@php use Illuminate\Support\Facades\Storage; @endphp
+
 @section('content')
 
 {{-- Hero --}}
@@ -26,24 +28,33 @@
     <div class="max-w-7xl mx-auto px-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($regions as $region)
-            <div class="card hover:shadow-lg transition-shadow duration-300 flex flex-col overflow-hidden">
+            <div class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
 
-                {{-- Cover Image --}}
-                <div class="relative h-36 bg-navy overflow-hidden">
-                    @if ($region->cover_image)
-                        <img src="{{ Storage::url($region->cover_image) }}"
-                             alt="Cover {{ $region->province }}"
-                             class="w-full h-full object-cover opacity-80">
+                {{-- Foto Ketua sebagai hero card --}}
+                <div class="relative h-48 bg-navy overflow-hidden">
+                    @if ($region->photo)
+                        <img src="{{ Storage::url($region->photo) }}"
+                             alt="Foto Ketua {{ $region->province }}"
+                             class="w-full h-full object-cover object-top">
+                        {{-- Gradient bawah supaya teks nama provinsi terbaca --}}
+                        <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-transparent"></div>
                     @else
-                        {{-- Placeholder pattern --}}
+                        {{-- Placeholder jika belum ada foto --}}
                         <div class="absolute inset-0 opacity-10"
                              style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 12px 12px;"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-navy/90 to-navy/30"></div>
+                        {{-- Inisial sebagai placeholder tengah --}}
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center">
+                                <span class="text-white/60 font-black text-2xl">
+                                    {{ strtoupper(substr($region->province, 0, 2)) }}
+                                </span>
+                            </div>
+                        </div>
                     @endif
-                    {{-- Gradient overlay --}}
-                    <div class="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent"></div>
 
-                    {{-- Badge status di pojok kanan atas --}}
-                    <div class="absolute top-3 right-3">
+                    {{-- Badge status pojok kanan atas --}}
+                    <div class="absolute top-3 right-3 z-10">
                         @if ($region->period_is_active)
                             <span class="badge badge-success text-2xs">Aktif</span>
                         @else
@@ -51,44 +62,28 @@
                         @endif
                     </div>
 
-                    {{-- Logo/foto daerah mengambang di bawah cover --}}
-                    <div class="absolute -bottom-7 left-5">
-                        <div class="w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-white">
-                            @if ($region->photo)
-                                <img src="{{ Storage::url($region->photo) }}"
-                                     alt="Logo {{ $region->province }}"
-                                     class="w-full h-full object-cover">
-                            @else
-                                {{-- Inisial sebagai fallback --}}
-                                <div class="w-full h-full bg-primary-600 flex items-center justify-center">
-                                    <span class="text-white font-bold text-sm">
-                                        {{ strtoupper(substr($region->province, 0, 2)) }}
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Body — ada top-padding ekstra karena avatar mengambang --}}
-                <div class="pt-10 px-5 pb-5 flex flex-col flex-1">
-
-                    {{-- Nama provinsi --}}
-                    <div>
-                        <p class="text-2xs font-bold uppercase tracking-widest text-primary-400">ASPAPI</p>
-                        <h3 class="text-base font-bold text-navy mt-0.5 leading-tight">
+                    {{-- Nama provinsi overlay di bawah foto --}}
+                    <div class="absolute bottom-0 left-0 right-0 px-5 pb-4 z-10">
+                        <p class="text-2xs font-bold uppercase tracking-widest text-primary-300">ASPAPI</p>
+                        <h3 class="text-lg font-bold text-white leading-tight mt-0.5">
                             {{ $region->province }}
                         </h3>
                     </div>
+                </div>
+
+                {{-- Body --}}
+                <div class="p-5 flex flex-col flex-1">
 
                     {{-- Ketua --}}
-                    <div class="mt-3 flex-1">
+                    <div class="flex-1">
                         <p class="text-2xs font-bold uppercase tracking-widest text-neutral-400 mb-1">Ketua</p>
                         <p class="font-semibold text-navy text-sm leading-snug">
                             {{ $region->chairman_name ?? '—' }}
                         </p>
                         @if ($region->chairman_title)
-                            <p class="text-xs text-neutral-500 mt-0.5">{{ $region->chairman_title }}</p>
+                            <p class="text-xs text-neutral-500 mt-0.5 leading-relaxed">
+                                {{ $region->chairman_title }}
+                            </p>
                         @endif
                     </div>
 
