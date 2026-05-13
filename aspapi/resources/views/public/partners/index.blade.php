@@ -33,7 +33,6 @@
 
 {{-- Tab Section --}}
 @php
-    {{-- Hanya tampilkan kategori yang punya data --}}
     $activeCategories = $categories->filter(fn($label, $key) => $partners->has($key));
     $firstTab = $activeCategories->keys()->first() ?? '';
 @endphp
