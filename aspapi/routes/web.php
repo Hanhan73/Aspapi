@@ -207,7 +207,7 @@ Route::prefix('admin')
             ->name('regions.account.reset-password');
 
         Route::resource('mitra', AdminPartnerController::class)
-            ->names('admin.partners')
+            ->names('partners')
             ->parameters(['mitra' => 'partner']);
         Route::post('mitra/reorder', [AdminPartnerController::class, 'reorder'])
             ->name('admin.partners.reorder');

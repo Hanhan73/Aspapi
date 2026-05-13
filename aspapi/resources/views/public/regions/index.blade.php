@@ -31,26 +31,26 @@
             <div class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
 
                 {{-- Foto Ketua sebagai hero card --}}
-                <div class="relative h-48 bg-navy overflow-hidden">
+                <div class="relative overflow-hidden bg-neutral-100">
                     @if ($region->photo)
+                        {{-- object-contain: foto tidak dicrop sama sekali, wajah selalu utuh --}}
                         <img src="{{ Storage::url($region->photo) }}"
                              alt="Foto Ketua {{ $region->province }}"
-                             class="w-full h-full object-cover object-top">
-                        {{-- Gradient bawah supaya teks nama provinsi terbaca --}}
-                        <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-transparent"></div>
+                             class="w-full h-56 object-contain object-center bg-neutral-100">
+                        {{-- Gradient tipis di bawah untuk overlay teks --}}
+                        <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-navy/80 to-transparent"></div>
                     @else
                         {{-- Placeholder jika belum ada foto --}}
-                        <div class="absolute inset-0 opacity-10"
-                             style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 12px 12px;"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-navy/90 to-navy/30"></div>
-                        {{-- Inisial sebagai placeholder tengah --}}
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center">
+                        <div class="h-56 bg-navy flex flex-col items-center justify-center">
+                            <div class="opacity-10 absolute inset-0"
+                                 style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 12px 12px;"></div>
+                            <div class="w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center relative z-10">
                                 <span class="text-white/60 font-black text-2xl">
                                     {{ strtoupper(substr($region->province, 0, 2)) }}
                                 </span>
                             </div>
                         </div>
+                        <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-navy/80 to-transparent"></div>
                     @endif
 
                     {{-- Badge status pojok kanan atas --}}

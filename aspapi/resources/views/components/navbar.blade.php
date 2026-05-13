@@ -21,7 +21,7 @@
                     <p style="font-family: 'Ethnocentric', serif; color: #d70100; font-size: 0.95rem; line-height: 1; letter-spacing: 0.02em;">
                         ASPAPI
                     </p>
-                    <p class="text-2xs text-neutral-900 tracking-widest mt-0.5 hidden sm:block">
+                    <p class="text-xs text-primary-900 tracking-widest mt-0.5 hidden sm:block">
                         Competent · Competitive · Collaborative
                     </p>
                 </div>

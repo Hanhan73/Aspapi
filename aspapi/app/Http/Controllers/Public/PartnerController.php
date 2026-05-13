@@ -17,6 +17,6 @@ class PartnerController extends Controller
 
         $categories = Partner::categories();
 
-        return view('partners.index', compact('partners', 'categories'));
+        return view('public.partners.index', compact('partners', 'categories'));
     }
 }
