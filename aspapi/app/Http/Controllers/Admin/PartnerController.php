@@ -93,4 +93,18 @@ class PartnerController extends Controller
         return redirect()->route('admin.partners.index')
                          ->with('success', 'Mitra berhasil dihapus.');
     }
+
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'integer|exists:partners,id',
+        ]);
+ 
+        foreach ($request->ids as $order => $id) {
+            Partner::where('id', $id)->update(['sort_order' => $order]);
+        }
+ 
+        return response()->json(['success' => true]);
+    }
 }

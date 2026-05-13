@@ -206,9 +206,11 @@ Route::prefix('admin')
         Route::post('daerah/{region}/account/reset-password', [AdminRegionController::class, 'resetPassword'])
             ->name('regions.account.reset-password');
 
-        Route::resource('admin/mitra', App\Http\Controllers\Admin\PartnerController::class)
+        Route::resource('mitra', App\Http\Controllers\Admin\PartnerController::class)
      ->names('admin.partners')
      ->parameters(['mitra' => 'partner']);
+     Route::post('mitra/reorder', [App\Http\Controllers\Admin\PartnerController::class, 'reorder'])
+     ->name('admin.partners.reorder');
 
         // Verifikasi anggota
         Route::get('/verifikasi-anggota', [\App\Http\Controllers\Admin\MemberVerificationController::class, 'index'])
