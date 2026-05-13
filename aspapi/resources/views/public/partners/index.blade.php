@@ -33,7 +33,7 @@
 
 {{-- Tab Section --}}
 @php
-    $activeCategories = $categories->filter(fn($label, $key) => $partners->has($key));
+    $activeCategories = collect($categories)->filter(fn($label, $key) => $partners->has($key));
     $firstTab = $activeCategories->keys()->first() ?? '';
 @endphp
 

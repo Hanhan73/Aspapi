@@ -55,14 +55,14 @@ class Partner extends Model
     /**
      * Daftar kategori untuk select/filter
      */
-    public static function categories(): array
+    public static function categories(): \Illuminate\Support\Collection
     {
-        return [
+        return collect([
             'perguruan_tinggi' => 'Perguruan Tinggi',
             'sekolah'          => 'Sekolah',
             'industri'         => 'Industri',
             'pemerintahan'     => 'Pemerintahan',
-        ];
+        ]);
     }
 
     // Scope: hanya yang aktif
