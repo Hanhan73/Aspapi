@@ -97,16 +97,6 @@
                 style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
                 {{ $isEdit ? 'Simpan Perubahan' : 'Tambah Blog' }}
             </button>
-            @if ($isEdit)
-            <form method="POST" action="{{ route('admin.blogs.destroy', $blog) }}"
-                onsubmit="return confirm('Hapus blog ini secara permanen?')" style="margin-top:0.75rem;">
-                @csrf @method('DELETE')
-                <button type="submit"
-                    style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#C0392B;cursor:pointer;">
-                    Hapus Blog
-                </button>
-            </form>
-            @endif
         </div>
 
         <div style="margin-bottom:1rem;">
