@@ -210,7 +210,7 @@ Route::prefix('admin')
             ->names('partners')
             ->parameters(['mitra' => 'partner']);
         Route::post('mitra/reorder', [AdminPartnerController::class, 'reorder'])
-            ->name('admin.partners.reorder');
+            ->name('partners.reorder');
 
         // Verifikasi anggota
         Route::get('/verifikasi-anggota', [\App\Http\Controllers\Admin\MemberVerificationController::class, 'index'])
