@@ -20,14 +20,26 @@ class BendaharaController extends Controller
         return view('bendahara.dashboard', compact('pendingPayments', 'pendingBatches', 'totalVerified'));
     }
 
+    /**
+     * List pembayaran mandiri — filter: status, type, method, search, year
+     */
     public function payments(Request $request)
     {
         $payments = Payment::with(['member', 'verifier'])
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->when($request->type,   fn($q) => $q->where('type', $request->type))
-            ->when($request->method, fn($q) => $q->where('payment_method', $request->method))
+            ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
+            ->when($request->filled('type'),   fn($q) => $q->where('type', $request->type))
+            ->when($request->filled('method'), fn($q) => $q->where('payment_method', $request->method))
+            ->when($request->filled('year'),   fn($q) => $q->where('payment_year', $request->year))
+            // FIX: tambah filter search nama/email anggota
+            ->when($request->filled('search'), fn($q) =>
+                $q->whereHas('member', fn($sub) =>
+                    $sub->where('full_name', 'like', '%' . $request->search . '%')
+                        ->orWhere('email', 'like', '%' . $request->search . '%')
+                )
+            )
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString(); // FIX: pertahankan filter saat paginasi
 
         return view('bendahara.payments', compact('payments'));
     }
@@ -41,8 +53,7 @@ class BendaharaController extends Controller
             'verified_at' => now(),
         ]);
 
-        // Update status dues di member
-        if ($payment->type === 'uang_pangkal' || $payment->type === 'iuran_tahunan') {
+        if (in_array($payment->type, ['uang_pangkal', 'iuran_tahunan'])) {
             $payment->member->update([
                 'dues_paid'    => true,
                 'dues_paid_at' => now(),
@@ -56,9 +67,13 @@ class BendaharaController extends Controller
             'note'        => 'Pembayaran ' . $payment->type_label . ' diverifikasi',
         ]);
 
-        Mail::send('emails.payment-verified', ['payment' => $payment], function ($m) use ($payment) {
-            $m->to($payment->member->email)->subject('Pembayaran Anda Telah Diverifikasi — ASPAPI');
-        });
+        try {
+            Mail::send('emails.payment-verified', ['payment' => $payment], function ($m) use ($payment) {
+                $m->to($payment->member->email)->subject('Pembayaran Anda Telah Diverifikasi — ASPAPI');
+            });
+        } catch (\Exception $e) {
+            \Log::error('Email payment verified gagal: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Pembayaran berhasil diverifikasi.');
     }
@@ -78,28 +93,36 @@ class BendaharaController extends Controller
         return back()->with('success', 'Pembayaran ditolak.');
     }
 
+    /**
+     * List batch kolektif — filter: status, region, year
+     */
     public function batches(Request $request)
     {
         $batches = PaymentBatch::with(['region', 'submitter', 'verifier'])
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->when($request->filled('status'),    fn($q) => $q->where('status', $request->status))
+            // FIX: tambah filter wilayah dan tahun
+            ->when($request->filled('region_id'), fn($q) => $q->where('region_id', $request->region_id))
+            ->when($request->filled('year'),      fn($q) => $q->where('payment_year', $request->year))
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString(); // FIX: pertahankan filter saat paginasi
 
-        return view('bendahara.batches', compact('batches'));
+        // Untuk dropdown filter wilayah
+        $regions = \App\Models\Region::orderBy('province')->get();
+
+        return view('bendahara.batches', compact('batches', 'regions'));
     }
 
     public function verifyBatch(Request $request, int $id)
     {
         $batch = PaymentBatch::with('payments.member')->findOrFail($id);
 
-        // Verifikasi semua payment dalam batch
         $batch->payments()->update([
             'status'      => 'verified',
             'verified_by' => auth()->id(),
             'verified_at' => now(),
         ]);
 
-        // Update dues semua member dalam batch
         foreach ($batch->payments as $payment) {
             $payment->member->update(['dues_paid' => true, 'dues_paid_at' => now()]);
         }
@@ -110,6 +133,6 @@ class BendaharaController extends Controller
             'verified_at' => now(),
         ]);
 
-        return back()->with('success', 'Batch pembayaran berhasil diverifikasi. ' . $batch->member_count . ' anggota diperbarui.');
+        return back()->with('success', 'Batch berhasil diverifikasi. ' . $batch->member_count . ' anggota diperbarui.');
     }
 }

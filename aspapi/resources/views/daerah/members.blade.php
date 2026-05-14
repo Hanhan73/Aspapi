@@ -5,19 +5,32 @@
 
 {{-- Filter --}}
 <div class="bg-white border border-neutral-200 rounded-lg px-5 py-4 mb-5">
-    <form method="GET" class="flex flex-wrap gap-3 items-center">
+    <form method="GET" action="{{ route('daerah.members') }}" class="flex flex-wrap gap-3 items-center">
+        {{-- FIX: name="search" — sesuai controller --}}
         <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="Cari nama atau institusi..."
+               placeholder="Cari nama, email, institusi..."
                class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary w-64"/>
+
+        {{-- FIX: filter status diimplementasikan di controller --}}
         <select name="status"
                 class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
             <option value="">Semua Status</option>
-            <option value="active"  {{ request('status') === 'active'  ? 'selected' : '' }}>Aktif</option>
-            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+            <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>Aktif</option>
+            <option value="pending"  {{ request('status') === 'pending'  ? 'selected' : '' }}>Pending</option>
             <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
         </select>
+
+        {{-- FIX: tambah filter iuran --}}
+        <select name="dues"
+                class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
+            <option value="">Semua Iuran</option>
+            <option value="lunas" {{ request('dues') === 'lunas' ? 'selected' : '' }}>Lunas</option>
+            <option value="belum" {{ request('dues') === 'belum' ? 'selected' : '' }}>Belum Lunas</option>
+        </select>
+
         <button type="submit" class="btn btn-primary btn-sm">Filter</button>
         <a href="{{ route('daerah.members') }}" class="btn btn-ghost btn-sm">Reset</a>
+
         <div class="ml-auto flex gap-2">
             <a href="{{ route('daerah.batch.form') }}" class="btn btn-sm"
                style="background:#E8B84B;color:#1A2A3A;border:none;">
@@ -26,6 +39,16 @@
         </div>
     </form>
 </div>
+
+{{-- Info hasil filter --}}
+@if (request()->hasAny(['search', 'status', 'dues']))
+<div class="mb-4 text-sm text-neutral-500">
+    Menampilkan <strong class="text-navy">{{ $members->total() }}</strong> anggota
+    @if(request('search')) dengan kata kunci "<em>{{ request('search') }}</em>" @endif
+    @if(request('status')) — status: <em>{{ request('status') }}</em> @endif
+    @if(request('dues')) — iuran: <em>{{ request('dues') }}</em> @endif
+</div>
+@endif
 
 {{-- Tabel --}}
 <div class="bg-white border border-neutral-200 rounded-lg overflow-hidden">
@@ -57,10 +80,22 @@
                     @endif
                 </td>
                 <td class="px-4 py-3.5">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold
-                        {{ $member->status === 'active'   ? 'bg-green-50 text-green-700'   :
-                           ($member->status === 'pending'  ? 'bg-yellow-50 text-yellow-700' : 'bg-neutral-100 text-neutral-500') }}">
-                        {{ match($member->status) { 'active' => 'Aktif', 'pending' => 'Pending', default => ucfirst($member->status) } }}
+                    @php
+                        $statusClass = match($member->status) {
+                            'active'   => 'bg-green-50 text-green-700',
+                            'pending'  => 'bg-yellow-50 text-yellow-700',
+                            'inactive' => 'bg-neutral-100 text-neutral-500',
+                            default    => 'bg-neutral-100 text-neutral-500',
+                        };
+                        $statusLabel = match($member->status) {
+                            'active'   => 'Aktif',
+                            'pending'  => 'Pending',
+                            'inactive' => 'Tidak Aktif',
+                            default    => ucfirst($member->status),
+                        };
+                    @endphp
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold {{ $statusClass }}">
+                        {{ $statusLabel }}
                     </span>
                 </td>
                 <td class="px-4 py-3.5 text-sm text-neutral-500">{{ $member->created_at->format('d M Y') }}</td>
@@ -68,7 +103,12 @@
             @empty
             <tr>
                 <td colspan="6" class="px-4 py-12 text-center text-sm text-neutral-400">
-                    Belum ada anggota di wilayah ini.
+                    @if (request()->hasAny(['search', 'status', 'dues']))
+                        Tidak ada anggota yang cocok dengan filter.
+                        <a href="{{ route('daerah.members') }}" class="text-primary font-semibold">Reset filter</a>
+                    @else
+                        Belum ada anggota di wilayah ini.
+                    @endif
                 </td>
             </tr>
             @endforelse
@@ -77,6 +117,7 @@
 </div>
 
 @if ($members->hasPages())
+{{-- FIX: withQueryString() di controller memastikan filter dipertahankan saat paginasi --}}
 <div class="mt-4 flex justify-end">{{ $members->links() }}</div>
 @endif
 

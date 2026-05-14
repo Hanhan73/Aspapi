@@ -30,17 +30,37 @@ class RegionMemberController extends Controller
     }
 
     /**
-     * Daftar anggota di wilayah ini
+     * Daftar anggota di wilayah ini — filter: search, status, dues
      */
     public function members(Request $request)
     {
-        $region  = auth()->user()->region;
+        $region = auth()->user()->region;
         abort_unless($region, 403);
 
         $members = Member::where('registered_by_region_id', $region->id)
-            ->when($request->q, fn($q) => $q->where('full_name', 'like', '%'.$request->q.'%'))
+            // FIX: blade pakai name="search", bukan name="q"
+            ->when($request->filled('search'), fn($q) =>
+                $q->where(fn($sub) =>
+                    $sub->where('full_name', 'like', '%' . $request->search . '%')
+                        ->orWhere('email', 'like', '%' . $request->search . '%')
+                        ->orWhere('institution', 'like', '%' . $request->search . '%')
+                )
+            )
+            // FIX: filter status yang sebelumnya tidak diimplementasi
+            ->when($request->filled('status'), fn($q) =>
+                $q->where('status', $request->status)
+            )
+            // Filter iuran (opsional, untuk ekspansi)
+            ->when($request->filled('dues'), function ($q) use ($request) {
+                if ($request->dues === 'lunas') {
+                    $q->where('dues_paid', true);
+                } elseif ($request->dues === 'belum') {
+                    $q->where('dues_paid', false);
+                }
+            })
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString(); // FIX: pertahankan filter saat ganti halaman
 
         return view('daerah.members', compact('region', 'members'));
     }
@@ -58,11 +78,9 @@ class RegionMemberController extends Controller
 
     /**
      * Simpan pendaftaran batch (dari Excel)
-     * TODO: implementasi lengkap dengan import Excel
      */
     public function batchStore(Request $request)
     {
-        // Placeholder — akan diimplementasi bersama fitur batch
         return back()->with('info', 'Fitur batch sedang dalam pengembangan.');
     }
 
@@ -88,11 +106,9 @@ class RegionMemberController extends Controller
 
     /**
      * Simpan pembayaran kolektif
-     * TODO: implementasi lengkap dengan PaymentBatch
      */
     public function payBatchStore(Request $request)
     {
-        // Placeholder — akan diimplementasi bersama fitur pembayaran kolektif
         return back()->with('info', 'Fitur pembayaran kolektif sedang dalam pengembangan.');
     }
 }
