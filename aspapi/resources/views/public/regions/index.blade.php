@@ -33,10 +33,14 @@
 
                 {{-- Foto Ketua --}}
                 <div
-                    style="position:relative;width:100%;height:224px;background:linear-gradient(135deg,#111E2A,#1A5F9A);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                    style="position:relative;width:100%;height:240px;overflow:hidden;flex-shrink:0;background:#111E2A;">
                     @if ($region->photo)
+                    {{-- Background blur sebagai filler sisi kosong --}}
+                    <img src="{{ Storage::url($region->photo) }}" alt="" aria-hidden="true"
+                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(16px) brightness(0.4);transform:scale(1.1);">
+                    {{-- Foto utama di atas --}}
                     <img src="{{ Storage::url($region->photo) }}" alt="Foto Ketua {{ $region->province }}"
-                        style="width:100%;height:100%;object-fit:cover;object-position:center 15%;transform:scale(0.85);transform-origin:center 15%;">
+                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;">
                     @else
                     <div
                         style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
