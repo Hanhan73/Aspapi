@@ -1,27 +1,142 @@
 @extends('layouts.member')
-@php $title = 'Biodata Saya'; @endphp
+@php
+    $title = 'Biodata Saya';
+    // Terkunci jika pending atau verified (sudah pernah submit ke admin)
+    $isLocked = in_array($member?->biodata_status, ['pending', 'verified']);
+    $isVerified = $member?->biodata_status === 'verified';
+    $isPending  = $member?->biodata_status === 'pending';
+    $isRejected = $member?->biodata_status === 'rejected';
+    $isDraft    = $member?->biodata_status === 'draft' || $member?->biodata_status === null;
+@endphp
 
 @section('content')
 
-@if ($member?->biodata_status === 'rejected')
-<div style="background:#FDECEA;border-left:4px solid #C0392B;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.875rem;color:#922B21;">
-    <strong>Biodata ditolak:</strong> {{ $member->biodata_reject_reason }}. Silakan perbaiki dan simpan ulang.
+{{-- ── Banner Status ── --}}
+@if ($isVerified)
+<div style="background:#F0FFF4;border-left:4px solid #276749;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+    <div>
+        <p style="font-size:0.875rem;font-weight:700;color:#276749;">✓ Biodata Terverifikasi</p>
+        <p style="font-size:0.8rem;color:#4A6580;margin-top:0.25rem;">Biodata Anda telah diverifikasi oleh Admin. Untuk mengubah, klik tombol Buka Kunci dan verifikasi ulang diperlukan.</p>
+    </div>
+</div>
+@elseif ($isPending)
+<div style="background:#FEF8EC;border-left:4px solid #E8B84B;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+    <div>
+        <p style="font-size:0.875rem;font-weight:700;color:#8B6914;">⏳ Menunggu Verifikasi Admin</p>
+        <p style="font-size:0.8rem;color:#4A6580;margin-top:0.25rem;">Biodata Anda sedang ditinjau oleh Admin. Untuk mengubah, klik tombol Buka Kunci — Anda perlu verifikasi ulang setelahnya.</p>
+    </div>
+</div>
+@elseif ($isRejected)
+<div style="background:#FDECEA;border-left:4px solid #C0392B;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.5rem;">
+    <p style="font-size:0.875rem;font-weight:700;color:#C0392B;">✗ Biodata Ditolak</p>
+    <p style="font-size:0.8rem;color:#922B21;margin-top:0.25rem;"><strong>Alasan:</strong> {{ $member->biodata_reject_reason }}</p>
+    <p style="font-size:0.8rem;color:#922B21;margin-top:0.25rem;">Silakan perbaiki dan simpan ulang untuk mengajukan verifikasi kembali.</p>
 </div>
 @endif
 
-<form method="POST" action="{{ route('member.biodata.update') }}" enctype="multipart/form-data">
+{{-- ── Modal Konfirmasi Unlock ── --}}
+@if ($isLocked)
+<div id="unlock-modal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:2rem;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="text-align:center;margin-bottom:1.5rem;">
+            <div style="width:56px;height:56px;background:#FEF8EC;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                <svg style="width:28px;height:28px;color:#E8B84B;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h3 style="font-size:1rem;font-weight:700;color:#1A2A3A;">Buka Kunci Biodata?</h3>
+        </div>
+        <div style="background:#FEF8EC;border-radius:6px;padding:1rem;margin-bottom:1.5rem;font-size:0.825rem;color:#8B6914;line-height:1.6;">
+            <p style="font-weight:700;margin-bottom:0.5rem;">⚠ Perhatian sebelum melanjutkan:</p>
+            <ul style="list-style:disc;padding-left:1.25rem;display:flex;flex-direction:column;gap:0.375rem;">
+                <li>Status biodata akan kembali ke <strong>Draft</strong></li>
+                <li>Setelah mengubah data, Anda <strong>wajib mengajukan verifikasi ulang</strong> ke Admin</li>
+                @if ($isVerified)
+                <li>Kartu anggota yang sudah terbit <strong>tidak akan berubah</strong> sampai verifikasi baru disetujui</li>
+                @endif
+                @if ($isPending)
+                <li>Proses verifikasi yang sedang berjalan akan <strong>dibatalkan</strong></li>
+                @endif
+            </ul>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+            <button onclick="closeUnlockModal()"
+                    style="flex:1;padding:0.75rem;background:#F0F4F8;color:#4A6580;border:none;border-radius:4px;font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
+                Batal
+            </button>
+            <form method="POST" action="{{ route('member.biodata.unlock') }}" style="flex:1;">
+                @csrf
+                <button type="submit"
+                        style="width:100%;padding:0.75rem;background:#C0392B;color:#fff;border:none;border-radius:4px;font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
+                    Ya, Buka Kunci
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+
+{{-- ── Form ── --}}
+<form method="POST" action="{{ route('member.biodata.update') }}" enctype="multipart/form-data" id="biodata-form">
     @csrf
 
     <div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start;">
 
-        {{-- Kiri --}}
+        {{-- ── Kolom Kiri ── --}}
         <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+            {{-- Overlay kunci visual kalau locked --}}
+            @if ($isLocked)
+            <div style="background:#F8FAFC;border:2px dashed #D6E8F7;border-radius:8px;padding:2rem;text-align:center;color:#4A6580;">
+                <svg style="width:36px;height:36px;margin:0 auto 0.75rem;color:#B0CCDF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                <p style="font-size:0.875rem;font-weight:700;color:#1A2A3A;margin-bottom:0.375rem;">Biodata Terkunci</p>
+                <p style="font-size:0.8rem;color:#4A6580;margin-bottom:1.25rem;">
+                    @if ($isVerified) Biodata sudah terverifikasi.
+                    @else Biodata sedang dalam proses verifikasi.
+                    @endif
+                    Klik "Buka Kunci" di sebelah kanan untuk mengubah.
+                </p>
+
+                {{-- Preview data (read-only) --}}
+                <div style="text-align:left;background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 1.5rem;">
+                    @foreach ([
+                        'Nama Lengkap'  => $member?->full_name,
+                        'NIK'           => $member?->nik,
+                        'Tempat Lahir'  => $member?->birth_place,
+                        'Tanggal Lahir' => $member?->birth_date?->format('d M Y'),
+                        'No. Telepon'   => $member?->phone,
+                        'Email'         => $member?->email,
+                        'Jenis Kelamin' => $member?->gender === 'L' ? 'Laki-laki' : 'Perempuan',
+                        'Pendidikan'    => $member?->last_education_label,
+                        'Provinsi'      => $member?->provinceModel?->name,
+                        'Kota'          => $member?->cityModel?->name,
+                        'Pekerjaan'     => $member?->occupation,
+                        'Institusi'     => $member?->institution,
+                    ] as $label => $val)
+                    <div>
+                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#B0CCDF;">{{ $label }}</p>
+                        <p style="font-size:0.8rem;color:#1A2A3A;margin-top:0.125rem;">{{ $val ?: '—' }}</p>
+                    </div>
+                    @endforeach
+                    <div style="grid-column:1/-1;">
+                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#B0CCDF;">Alamat</p>
+                        <p style="font-size:0.8rem;color:#1A2A3A;margin-top:0.125rem;">{{ $member?->address ?: '—' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            @else
+            {{-- ── Form editable (draft / rejected) ── --}}
 
             {{-- Data Pribadi --}}
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
                 <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Data Pribadi</p>
 
-                {{-- Nama & NIK --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Nama Lengkap *</label>
@@ -37,7 +152,6 @@
                     </div>
                 </div>
 
-                {{-- Tempat & Tanggal Lahir --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tempat Lahir *</label>
@@ -54,7 +168,6 @@
                     </div>
                 </div>
 
-                {{-- Telepon, Jenis Kelamin, Pendidikan --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">No. Telepon *</label>
@@ -76,21 +189,14 @@
                         <select name="last_education" required
                                 style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
                             <option value="">Pilih</option>
-                            <option value="sd"      {{ old('last_education', $member?->last_education) === 'sd'      ? 'selected' : '' }}>SD</option>
-                            <option value="smp"     {{ old('last_education', $member?->last_education) === 'smp'     ? 'selected' : '' }}>SMP</option>
-                            <option value="sma"     {{ old('last_education', $member?->last_education) === 'sma'     ? 'selected' : '' }}>SMA/SMK</option>
-                            <option value="d3"      {{ old('last_education', $member?->last_education) === 'd3'      ? 'selected' : '' }}>D3</option>
-                            <option value="s1"      {{ old('last_education', $member?->last_education) === 's1'      ? 'selected' : '' }}>S1</option>
-                            <option value="s2"      {{ old('last_education', $member?->last_education) === 's2'      ? 'selected' : '' }}>S2</option>
-                            <option value="s3"      {{ old('last_education', $member?->last_education) === 's3'      ? 'selected' : '' }}>S3</option>
-                            <option value="profesi" {{ old('last_education', $member?->last_education) === 'profesi' ? 'selected' : '' }}>Profesi</option>
-                            <option value="lainnya" {{ old('last_education', $member?->last_education) === 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+                            @foreach(['sd'=>'SD','smp'=>'SMP','sma'=>'SMA/SMK','d3'=>'D3','s1'=>'S1','s2'=>'S2','s3'=>'S3','profesi'=>'Profesi','lainnya'=>'Lainnya'] as $val => $label)
+                            <option value="{{ $val }}" {{ old('last_education', $member?->last_education) === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
 
-                {{-- Email --}}
-                <div style="margin-bottom:0;">
+                <div>
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Email *</label>
                     <input type="email" name="email" value="{{ old('email', $member?->email ?? $member?->user?->email) }}" required
                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
@@ -142,7 +248,6 @@
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
                 <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Data Profesi / Akademik</p>
 
-                {{-- Pekerjaan --}}
                 <div style="margin-bottom:1rem;">
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Pekerjaan / Profesi</label>
                     <input type="text" name="occupation" value="{{ old('occupation', $member?->occupation) }}"
@@ -151,7 +256,6 @@
                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
                 </div>
 
-                {{-- Institusi & Jabatan --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Institusi / Universitas</label>
@@ -169,31 +273,63 @@
                     </div>
                 </div>
             </div>
+            @endif {{-- end else (editable) --}}
 
         </div>
 
-        {{-- Kanan --}}
+        {{-- ── Kolom Kanan ── --}}
         <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
-            {{-- Simpan --}}
+            {{-- Status & Aksi --}}
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
-                <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Status Biodata</p>
-                <span style="display:inline-block;font-size:0.72rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:3px;margin-bottom:1rem;
-                    {{ $member?->biodata_status === 'verified' ? 'background:#F0FFF4;color:#276749;' : ($member?->biodata_status === 'rejected' ? 'background:#FDECEA;color:#C0392B;' : 'background:#FEF8EC;color:#B8860B;') }}">
-                    {{ $member?->biodata_status === 'verified' ? 'Terverifikasi' : ($member?->biodata_status === 'rejected' ? 'Ditolak' : 'Menunggu Verifikasi') }}
+                <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:0.75rem;">Status Biodata</p>
+
+                @php
+                    $badgeStyle = match($member?->biodata_status) {
+                        'verified' => 'background:#F0FFF4;color:#276749;',
+                        'rejected' => 'background:#FDECEA;color:#C0392B;',
+                        'pending'  => 'background:#FEF8EC;color:#B8860B;',
+                        default    => 'background:#EEF4FB;color:#4A6580;',
+                    };
+                    $badgeLabel = match($member?->biodata_status) {
+                        'verified' => '✓ Terverifikasi',
+                        'rejected' => '✗ Ditolak',
+                        'pending'  => '⏳ Menunggu Verifikasi',
+                        default    => '✎ Draft — Belum Diajukan',
+                    };
+                @endphp
+                <span style="display:inline-block;font-size:0.72rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:3px;margin-bottom:1rem;{{ $badgeStyle }}">
+                    {{ $badgeLabel }}
                 </span>
-                <button type="submit"
-                        style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
-                    Simpan Biodata
-                </button>
-                <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.5rem;text-align:center;">Setelah disimpan, Admin akan memverifikasi biodata Anda.</p>
+
+                @if ($isLocked)
+                    {{-- Tombol buka kunci --}}
+                    <button type="button" onclick="openUnlockModal()"
+                            style="width:100%;padding:0.75rem;background:#fff;color:#C0392B;border:1.5px solid #C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                        </svg>
+                        Buka Kunci & Edit
+                    </button>
+                    <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.5rem;text-align:center;">Perlu verifikasi ulang setelah diedit.</p>
+                @else
+                    {{-- Tombol simpan & ajukan verifikasi --}}
+                    <button type="submit"
+                            style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
+                        {{ $isRejected ? 'Simpan & Ajukan Ulang' : 'Simpan & Ajukan Verifikasi' }}
+                    </button>
+                    <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.5rem;text-align:center;">
+                        Admin akan memverifikasi biodata Anda.
+                    </p>
+                @endif
             </div>
 
             {{-- Pas Foto --}}
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
                 <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:0.75rem;">Pas Foto</label>
                 <div id="photo-preview"
-                     style="width:100%;height:200px;background:#EEF4FB;border-radius:4px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px dashed #D6E8F7;">
+                     style="width:100%;height:200px;background:#EEF4FB;border-radius:4px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px {{ $isLocked ? 'solid #D6E8F7' : 'dashed #D6E8F7' }};">
                     @if ($member?->photo)
                         <img src="{{ Storage::url($member->photo) }}" style="width:100%;height:100%;object-fit:cover;"/>
                     @else
@@ -205,10 +341,14 @@
                         </div>
                     @endif
                 </div>
+                @if (!$isLocked)
                 <input type="file" name="photo" accept="image/*"
                        style="width:100%;font-size:0.8rem;color:#4A6580;"
                        onchange="previewPhoto(this)"/>
                 <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.375rem;">JPG, PNG. Latar belakang putih. Maks 2MB.</p>
+                @else
+                <p style="font-size:0.72rem;color:#B0CCDF;text-align:center;">Buka kunci untuk mengubah foto.</p>
+                @endif
             </div>
 
         </div>
@@ -217,6 +357,19 @@
 
 @push('scripts')
 <script>
+function openUnlockModal() {
+    const modal = document.getElementById('unlock-modal');
+    modal.style.display = 'flex';
+}
+function closeUnlockModal() {
+    const modal = document.getElementById('unlock-modal');
+    modal.style.display = 'none';
+}
+// Tutup modal kalau klik di luar
+document.getElementById('unlock-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeUnlockModal();
+});
+
 function previewPhoto(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -231,7 +384,6 @@ function previewPhoto(input) {
 function loadCities(provinceId) {
     const select = document.getElementById('city-select');
     select.innerHTML = '<option value="">Memuat...</option>';
-
     fetch('/api/cities/' + provinceId)
         .then(r => r.json())
         .then(cities => {

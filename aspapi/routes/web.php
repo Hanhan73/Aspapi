@@ -60,6 +60,7 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
     Route::get('/',                [MemberDashboard::class, 'index'])->name('dashboard');
     Route::get('/biodata',         [BiodataController::class, 'edit'])->name('biodata');
     Route::post('/biodata',        [BiodataController::class, 'update'])->name('biodata.update');
+    Route::post('/biodata/unlock', [BiodataController::class, 'unlock'])->name('biodata.unlock');
     Route::get('/pembayaran',      [PaymentController::class, 'index'])->name('payment');
     Route::post('/pembayaran',     [PaymentController::class, 'store'])->name('payment.store');
     Route::get('/kartu',           [CardController::class, 'show'])->name('card');
@@ -68,7 +69,7 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
 });
 
 // ── BENDAHARA PORTAL ──
-Route::prefix('bendahara')->name('bendahara.')->middleware(['auth', 'role:bendahara,admin'])->group(function () {
+Route::prefix('bendahara')->name('ben   dahara.')->middleware(['auth', 'role:bendahara,admin'])->group(function () {
     Route::get('/',                          [BendaharaController::class, 'index'])->name('dashboard');
     Route::get('/pembayaran',                [BendaharaController::class, 'payments'])->name('payments');
     Route::post('/pembayaran/{id}/verify',   [BendaharaController::class, 'verify'])->name('payment.verify');
