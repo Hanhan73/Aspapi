@@ -9,7 +9,7 @@
     <meta name="description" content="{{ $description ?? 'ASPAPI adalah asosiasi profesi yang menghimpun sarjana dan praktisi administrasi perkantoran Indonesia. Competent, Competitive and Collaborative.' }}" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-aspapi.png') }}" />
 
     <!-- Fonts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

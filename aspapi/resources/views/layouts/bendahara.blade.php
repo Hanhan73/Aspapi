@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 
     <title>{{ isset($title) ? $title . ' — Bendahara ASPAPI' : 'Bendahara — ASPAPI' }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-aspapi.png') }}" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 

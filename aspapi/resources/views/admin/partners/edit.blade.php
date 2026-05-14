@@ -11,98 +11,161 @@
 
 @section('content')
 
-<div class="max-w-2xl">
-    <form method="POST" action="{{ route('admin.partners.update', $partner) }}" enctype="multipart/form-data">
-        @csrf @method('PUT')
+<div style="margin-bottom:1.5rem;">
+    <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#C0392B;">Kelola Kemitraan</p>
+    <h2 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#1A2A3A;margin-top:0.125rem;">Edit Mitra</h2>
+</div>
 
-        <div class="card p-6 flex flex-col gap-5">
+<form method="POST" action="{{ route('admin.partners.update', $partner) }}" enctype="multipart/form-data">
+    @csrf @method('PUT')
+
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start;">
+
+        {{-- Kiri --}}
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
             {{-- Nama --}}
-            <div>
-                <label class="form-label">Nama Mitra <span class="text-accent-red">*</span></label>
-                <input type="text" name="name" value="{{ old('name', $partner->name) }}"
-                       class="input @error('name') border-accent-red @enderror" required />
-                @error('name') <p class="form-error">{{ $message }}</p> @enderror
+            <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
+                    Nama Mitra <span style="color:#C0392B;">*</span>
+                </label>
+                <input type="text" name="name" value="{{ old('name', $partner->name) }}" required
+                       style="width:100%;padding:0.75rem 1rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                       onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                @error('name') <p style="font-size:0.75rem;color:#C0392B;margin-top:0.375rem;">{{ $message }}</p> @enderror
             </div>
 
             {{-- Kategori --}}
-            <div>
-                <label class="form-label">Kategori <span class="text-accent-red">*</span></label>
-                <select name="category" class="input @error('category') border-accent-red @enderror" required>
+            <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
+                    Kategori <span style="color:#C0392B;">*</span>
+                </label>
+                <select name="category" required
+                        style="width:100%;padding:0.75rem 1rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;background:#fff;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'">
                     <option value="">— Pilih Kategori —</option>
                     @foreach ($categories as $value => $label)
-                        <option value="{{ $value }}"
-                            {{ old('category', $partner->category) === $value ? 'selected' : '' }}>
+                        <option value="{{ $value }}" {{ old('category', $partner->category) === $value ? 'selected' : '' }}>
                             {{ $label }}
                         </option>
                     @endforeach
                 </select>
-                @error('category') <p class="form-error">{{ $message }}</p> @enderror
-            </div>
-
-            {{-- Logo --}}
-            <div>
-                <label class="form-label">Logo</label>
-
-                {{-- Preview logo saat ini --}}
-                @if ($partner->logo)
-                <div class="mb-2 flex items-center gap-3">
-                    <img src="{{ Storage::url($partner->logo) }}"
-                         alt="Logo {{ $partner->name }}"
-                         class="h-14 w-24 object-contain rounded border border-neutral-200 bg-white p-1.5">
-                    <span class="text-2xs text-neutral-400">Logo saat ini</span>
-                </div>
-                @endif
-
-                <input type="file" name="logo" accept="image/*"
-                       class="input @error('logo') border-accent-red @enderror" />
-                <p class="text-2xs text-neutral-400 mt-1">Kosongkan jika tidak ingin mengganti logo. Maks 2MB.</p>
-                @error('logo') <p class="form-error">{{ $message }}</p> @enderror
+                @error('category') <p style="font-size:0.75rem;color:#C0392B;margin-top:0.375rem;">{{ $message }}</p> @enderror
             </div>
 
             {{-- Profil Singkat --}}
-            <div>
-                <label class="form-label">Profil Singkat</label>
-                <textarea name="profile" rows="4"
-                          class="input @error('profile') border-accent-red @enderror"
-                          placeholder="Deskripsi singkat tentang mitra...">{{ old('profile', $partner->profile) }}</textarea>
-                @error('profile') <p class="form-error">{{ $message }}</p> @enderror
+            <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
+                    Profil Singkat
+                </label>
+                <textarea name="profile" rows="5"
+                          placeholder="Deskripsi singkat tentang mitra..."
+                          style="width:100%;padding:0.75rem 1rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;resize:vertical;box-sizing:border-box;"
+                          onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'">{{ old('profile', $partner->profile) }}</textarea>
+                @error('profile') <p style="font-size:0.75rem;color:#C0392B;margin-top:0.375rem;">{{ $message }}</p> @enderror
             </div>
 
             {{-- Website --}}
-            <div>
-                <label class="form-label">URL Website</label>
+            <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
+                    URL Website
+                </label>
                 <input type="url" name="website_url" value="{{ old('website_url', $partner->website_url) }}"
-                       class="input @error('website_url') border-accent-red @enderror"
-                       placeholder="https://example.ac.id" />
-                @error('website_url') <p class="form-error">{{ $message }}</p> @enderror
+                       placeholder="https://example.ac.id"
+                       style="width:100%;padding:0.75rem 1rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                       onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                @error('website_url') <p style="font-size:0.75rem;color:#C0392B;margin-top:0.375rem;">{{ $message }}</p> @enderror
             </div>
 
-            {{-- Sort & Status --}}
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="form-label">Urutan Tampil</label>
-                    <input type="number" name="sort_order" value="{{ old('sort_order', $partner->sort_order) }}"
-                           min="0" class="input" />
-                </div>
-                <div class="flex items-end pb-1">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="hidden" name="is_active" value="0">
+        </div>
+
+        {{-- Kanan --}}
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+            {{-- Pengaturan + Simpan --}}
+            <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
+                <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Pengaturan</p>
+
+                <div style="margin-bottom:1rem;">
+                    <label style="display:flex;align-items:center;gap:0.625rem;cursor:pointer;">
+                        <input type="hidden" name="is_active" value="0"/>
                         <input type="checkbox" name="is_active" value="1"
                                {{ old('is_active', $partner->is_active) ? 'checked' : '' }}
-                               class="w-4 h-4 accent-primary" />
-                        <span class="text-sm text-neutral-700">Aktif / Tampilkan di website</span>
+                               style="width:16px;height:16px;accent-color:#2A7FC1;"/>
+                        <span style="font-size:0.825rem;color:#4A6580;">Tampilkan di website (Aktif)</span>
                     </label>
                 </div>
+
+                <div style="margin-bottom:1.25rem;">
+                    <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">
+                        Urutan Tampil
+                    </label>
+                    <input type="number" name="sort_order" value="{{ old('sort_order', $partner->sort_order) }}" min="0"
+                           style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                    <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.25rem;">Angka kecil = tampil lebih awal</p>
+                </div>
+
+                <button type="submit"
+                        style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
+                    Simpan Perubahan
+                </button>
+
+                <a href="{{ route('admin.partners.index') }}"
+                   style="display:block;text-align:center;margin-top:0.75rem;font-size:0.75rem;color:#B0CCDF;text-decoration:none;"
+                   onmouseover="this.style.color='#4A6580'" onmouseout="this.style.color='#B0CCDF'">
+                    Batal
+                </a>
+            </div>
+
+            {{-- Logo --}}
+            <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.75rem;">
+                    Logo <span style="font-weight:400;color:#B0CCDF;">(opsional)</span>
+                </label>
+
+                <div id="logo-preview"
+                     style="width:100%;height:120px;background:#EEF4FB;border-radius:4px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px dashed #D6E8F7;">
+                    @if ($partner->logo)
+                        <img src="{{ Storage::url($partner->logo) }}"
+                             style="max-width:100%;max-height:100%;object-fit:contain;padding:8px;"/>
+                    @else
+                        <div style="text-align:center;">
+                            <svg style="width:28px;height:28px;color:#B0CCDF;margin:0 auto;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p style="font-size:0.72rem;color:#B0CCDF;margin-top:0.375rem;">Belum ada logo</p>
+                        </div>
+                    @endif
+                </div>
+
+                <input type="file" name="logo" accept="image/*"
+                       style="width:100%;font-size:0.8rem;color:#4A6580;"
+                       onchange="previewLogo(this)"/>
+                <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.375rem;">
+                    Kosongkan jika tidak ingin mengganti. Maks 2MB.
+                </p>
+                @error('logo') <p style="font-size:0.75rem;color:#C0392B;margin-top:0.375rem;">{{ $message }}</p> @enderror
             </div>
 
         </div>
-
-        <div class="flex items-center gap-3 mt-5">
-            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-            <a href="{{ route('admin.partners.index') }}" class="btn btn-ghost">Batal</a>
-        </div>
-    </form>
-</div>
+    </div>
+</form>
 
 @endsection
+
+@push('scripts')
+<script>
+function previewLogo(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('logo-preview').innerHTML =
+                '<img src="' + e.target.result + '" style="max-width:100%;max-height:100%;object-fit:contain;padding:8px;"/>';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+@endpush
