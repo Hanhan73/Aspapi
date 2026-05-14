@@ -13,7 +13,7 @@
         <p class="mt-4 text-primary-200 max-w-2xl mx-auto text-sm leading-relaxed">
             ASPAPI menjalin kerjasama strategis dengan berbagai institusi dari kalangan
             perguruan tinggi, sekolah, industri, dan pemerintahan untuk mendukung
-            pengembangan profesi apoteker Indonesia.
+            pengembangan profesi di bidang administrasi/manajemen perkantoran Indonesia.
         </p>
 
         {{-- Stats per kategori --}}
