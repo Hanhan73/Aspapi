@@ -30,29 +30,25 @@
             @foreach ($regions as $region)
             <div class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
 
-                {{-- Foto Ketua sebagai hero card --}}
-                <div class="relative h-56 overflow-hidden bg-neutral-100 flex-shrink-0">
+                {{-- Foto Ketua --}}
+                <div style="position:relative;width:100%;height:224px;background:#EEF4FB;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
                     @if ($region->photo)
-                    <img src="{{ Storage::url($region->photo) }}"
-                         alt="Foto Ketua {{ $region->province }}"
-                         class="w-full h-full object-cover"
-                         style="object-position: center 20%;">
+                        <img src="{{ Storage::url($region->photo) }}"
+                             alt="Foto Ketua {{ $region->province }}"
+                             style="width:100%;height:100%;object-fit:cover;object-position:center 20%;">
                     @else
-                    {{-- Placeholder jika belum ada foto --}}
-                    <div class="absolute inset-0 bg-navy flex flex-col items-center justify-center">
-                        <div class="absolute inset-0 opacity-10"
-                             style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 12px 12px;">
+                        <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#111E2A,#1A5F9A);">
+                            <div style="position:absolute;inset:0;opacity:0.08;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:12px 12px;"></div>
+                            <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
+                                <span style="color:rgba(255,255,255,0.6);font-size:1.5rem;font-weight:900;">
+                                    {{ strtoupper(substr($region->province, 0, 2)) }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center relative z-10">
-                            <span class="text-white/60 font-black text-2xl">
-                                {{ strtoupper(substr($region->province, 0, 2)) }}
-                            </span>
-                        </div>
-                    </div>
                     @endif
 
-                    {{-- Badge status pojok kanan atas --}}
-                    <div class="absolute top-3 right-3 z-10">
+                    {{-- Badge status --}}
+                    <div style="position:absolute;top:0.75rem;right:0.75rem;z-index:10;">
                         @if ($region->period_is_active)
                         <span class="badge badge-success text-2xs">Aktif</span>
                         @else
