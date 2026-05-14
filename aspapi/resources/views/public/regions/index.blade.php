@@ -36,7 +36,7 @@
                     @if ($region->photo)
                     {{-- object-contain: foto tidak dicrop sama sekali, wajah selalu utuh --}}
                     <img src="{{ Storage::url($region->photo) }}" alt="Foto Ketua {{ $region->province }}"
-                        class="w-full h-56 object-contain object-center bg-neutral-100">
+                        class="w-full h-56 object-cover object-top">
                     {{-- Gradient tipis di bawah untuk overlay teks --}}
                     @else
                     {{-- Placeholder jika belum ada foto --}}
