@@ -9,7 +9,6 @@
     <link rel="icon" type="image/png" href="{{ asset('images/logo-aspapi.png') }}" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     @stack('styles')
 </head>
 <body class="bg-neutral-100 font-sans antialiased">
@@ -17,10 +16,10 @@
 <div class="flex h-screen overflow-hidden">
 
     {{-- ── SIDEBAR ── --}}
-    <aside class="w-64 flex-shrink-0 bg-navy flex flex-col overflow-y-auto">
+    <aside class="w-64 flex-shrink-0 bg-navy flex flex-col overflow-hidden">
 
         {{-- Logo --}}
-        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10 flex-shrink-0">
             <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                 <span class="text-white font-black text-2xs tracking-tight">ASP</span>
             </div>
@@ -30,13 +29,13 @@
             </div>
         </div>
 
-        {{-- Nav --}}
-        <nav class="flex-1 py-4 px-3">
+        {{-- Nav — scrollable --}}
+        <nav class="flex-1 py-4 px-3 overflow-y-auto">
 
             <p class="sidebar-section-title">Utama</p>
             <a href="{{ route('bendahara.dashboard') }}"
                class="sidebar-link {{ request()->routeIs('bendahara.dashboard') ? 'sidebar-link-active' : '' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
@@ -46,7 +45,7 @@
             <p class="sidebar-section-title">Pembayaran</p>
             <a href="{{ route('bendahara.payments') }}"
                class="sidebar-link {{ request()->routeIs('bendahara.payments*') ? 'sidebar-link-active' : '' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                 </svg>
@@ -54,17 +53,35 @@
             </a>
             <a href="{{ route('bendahara.batches') }}"
                class="sidebar-link {{ request()->routeIs('bendahara.batches*') ? 'sidebar-link-active' : '' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
                 Batch Kolektif
             </a>
 
+            <p class="sidebar-section-title">Laporan</p>
+            <a href="{{ route('bendahara.rekap') }}"
+               class="sidebar-link {{ request()->routeIs('bendahara.rekap*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Rekap Pemasukan
+            </a>
+            <a href="{{ route('bendahara.iuran') }}"
+               class="sidebar-link {{ request()->routeIs('bendahara.iuran*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Status Iuran Anggota
+            </a>
+
         </nav>
 
-        {{-- User info --}}
-        <div class="border-t border-white/10 px-4 py-4">
+        {{-- User info — SELALU di bawah --}}
+        <div class="flex-shrink-0 border-t border-white/10 px-4 py-4">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                     <span class="text-white text-xs font-bold">
@@ -92,17 +109,12 @@
         {{-- Top Bar --}}
         <header class="bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between shadow-sm flex-shrink-0">
             <div>
-                <h1 class="text-base font-bold text-navy">
-                    {{ $title ?? 'Dashboard' }}
-                </h1>
+                <h1 class="text-base font-bold text-navy">{{ $title ?? 'Dashboard' }}</h1>
                 @if(isset($breadcrumbs))
                 <nav class="flex items-center gap-1.5 mt-0.5">
                     @foreach ($breadcrumbs as $crumb)
                         @if (!$loop->last)
-                            <a href="{{ $crumb['url'] }}"
-                               class="text-2xs text-neutral-400 hover:text-primary transition-colors">
-                                {{ $crumb['label'] }}
-                            </a>
+                            <a href="{{ $crumb['url'] }}" class="text-2xs text-neutral-400 hover:text-primary transition-colors">{{ $crumb['label'] }}</a>
                             <span class="text-neutral-300 text-2xs">›</span>
                         @else
                             <span class="text-2xs text-primary font-semibold">{{ $crumb['label'] }}</span>
@@ -111,18 +123,11 @@
                 </nav>
                 @endif
             </div>
-
-            <div class="flex items-center gap-3">
-                <a href="{{ url('/') }}" target="_blank"
-                   class="btn btn-ghost btn-sm">
-                    Lihat Website ↗
-                </a>
-            </div>
+            <a href="{{ url('/') }}" target="_blank" class="btn btn-ghost btn-sm">Lihat Website ↗</a>
         </header>
 
         {{-- Page Content --}}
         <main class="flex-1 overflow-y-auto p-6">
-
             @if (session('success'))
                 <div class="alert alert-success mb-5">{{ session('success') }}</div>
             @endif
