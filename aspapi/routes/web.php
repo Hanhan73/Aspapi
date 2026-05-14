@@ -63,7 +63,7 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
     Route::get('/pembayaran',      [PaymentController::class, 'index'])->name('payment');
     Route::post('/pembayaran',     [PaymentController::class, 'store'])->name('payment.store');
     Route::get('/kartu',           [CardController::class, 'show'])->name('card');
-    Route::get('/kartu/generate',  [CardController::class, 'generate'])->name('card.generate');
+    Route::post('/kartu/generate',  [CardController::class, 'generate'])->name('card.generate');
     Route::get('/kartu/download',  [CardController::class, 'download'])->name('card.download');
 });
 
