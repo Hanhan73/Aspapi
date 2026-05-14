@@ -35,7 +35,7 @@
                     @if ($region->photo)
                     <img src="{{ Storage::url($region->photo) }}"
                          alt="Foto Ketua {{ $region->province }}"
-                         class="absolute inset-0 w-full h-full object-cover"
+                         class="w-full h-full object-cover"
                          style="object-position: center 20%;">
                     @else
                     {{-- Placeholder jika belum ada foto --}}
