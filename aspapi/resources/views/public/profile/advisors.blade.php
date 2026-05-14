@@ -40,7 +40,8 @@
                 style="background:#EEF4FB;border-left:3px solid #2A7FC1;border-radius:0 4px 4px 0;padding:1rem 1.125rem;">
                 <p
                     style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#2A7FC1;margin-bottom:0.375rem;">
-                    {{ $item['label'] }}</p>
+                    {{ $item['label'] }}
+                </p>
                 <p style="font-size:0.825rem;color:#4A6580;line-height:1.7;">{{ $item['text'] }}</p>
             </div>
             @endforeach
@@ -67,7 +68,7 @@
                     style="width:100%;height:clamp(200px,55vw,260px);background:#EEF4FB;overflow:hidden;display:flex;align-items:center;justify-content:center;">
                     @if ($person->photo)
                     <img src="{{ Storage::url($person->photo) }}" alt="{{ $person->name }}"
-                        style="width:100%;height:100%;object-fit:contain;object-position:center bottom;background:#EEF4FB;" />
+                        style="width:100%;height:100%;object-fit:cover;object-position:center bottom;" />
                     @else
                     <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
                         <div
