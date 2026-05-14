@@ -28,24 +28,22 @@
     <div class="max-w-7xl mx-auto px-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($regions as $region)
-            <div
-                class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
+            <div class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
 
                 {{-- Foto Ketua sebagai hero card --}}
-                <div class="relative overflow-hidden bg-neutral-100">
+                <div class="relative h-56 overflow-hidden bg-neutral-100 flex-shrink-0">
                     @if ($region->photo)
-                    {{-- object-contain: foto tidak dicrop sama sekali, wajah selalu utuh --}}
-                    <img src="{{ Storage::url($region->photo) }}" alt="Foto Ketua {{ $region->province }}"
-                        class="w-full h-56 object-cover object-top">
-                    {{-- Gradient tipis di bawah untuk overlay teks --}}
+                    <img src="{{ Storage::url($region->photo) }}"
+                         alt="Foto Ketua {{ $region->province }}"
+                         class="absolute inset-0 w-full h-full object-cover"
+                         style="object-position: center 20%;">
                     @else
                     {{-- Placeholder jika belum ada foto --}}
-                    <div class="h-56 bg-navy flex flex-col items-center justify-center">
-                        <div class="opacity-10 absolute inset-0"
-                            style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 12px 12px;">
+                    <div class="absolute inset-0 bg-navy flex flex-col items-center justify-center">
+                        <div class="absolute inset-0 opacity-10"
+                             style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 12px 12px;">
                         </div>
-                        <div
-                            class="w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center relative z-10">
+                        <div class="w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center relative z-10">
                             <span class="text-white/60 font-black text-2xl">
                                 {{ strtoupper(substr($region->province, 0, 2)) }}
                             </span>
@@ -71,6 +69,7 @@
                         <p class="text-2xs font-bold uppercase tracking-widest text-primary-400">ASPAPI</p>
                         <h3 class="text-base font-bold text-navy leading-tight mt-0.5">{{ $region->province }}</h3>
                     </div>
+
                     {{-- Ketua --}}
                     <div class="flex-1">
                         <p class="text-2xs font-bold uppercase tracking-widest text-neutral-400 mb-1">Ketua</p>
