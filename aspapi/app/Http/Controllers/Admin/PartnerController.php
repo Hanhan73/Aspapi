@@ -12,20 +12,27 @@ class PartnerController extends Controller
 {
     public function index(Request $request)
     {
+        $category = $request->get('category');
+        $search   = $request->get('search');
+
+        // Semua partner (untuk hitung jumlah per tab)
+        $allPartners = Partner::all();
+
+        // Partner yang ditampilkan di tabel (filter kategori + search)
         $query = Partner::query();
 
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
+        if ($category) {
+            $query->where('category', $category);
         }
 
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $partners = $query->orderBy('sort_order')->orderBy('name')->paginate(15)->withQueryString();
-        $categories = Partner::categories();
+        $partners   = $query->orderBy('sort_order')->orderBy('name')->paginate(20)->withQueryString();
+        $categories = Partner::categories(); // sudah return Collection
 
-        return view('admin.partners.index', compact('partners', 'categories'));
+        return view('admin.partners.index', compact('partners', 'allPartners', 'categories'));
     }
 
     public function create()
@@ -94,17 +101,26 @@ class PartnerController extends Controller
                          ->with('success', 'Mitra berhasil dihapus.');
     }
 
+    /**
+     * Reorder per kategori via drag & drop (AJAX)
+     *
+     * Payload: { ids: [3,1,5], category: 'industri' }
+     *
+     * sort_order di-reset mulai 0 hanya untuk partner dalam kategori tsb,
+     * sehingga urutan kategori lain tidak terpengaruh.
+     */
     public function reorder(Request $request)
     {
         $request->validate([
-            'ids'   => 'required|array',
-            'ids.*' => 'integer|exists:partners,id',
+            'ids'      => 'required|array',
+            'ids.*'    => 'integer|exists:partners,id',
+            'category' => 'nullable|string',
         ]);
- 
+
         foreach ($request->ids as $order => $id) {
             Partner::where('id', $id)->update(['sort_order' => $order]);
         }
- 
+
         return response()->json(['success' => true]);
     }
 }
