@@ -52,11 +52,11 @@
                 $initial = strtoupper(substr(preg_replace('/^(Prof\.|Dr\.|Drs\.|Dra\.)\s*/i', '', $person->name), 0, 1));
             @endphp
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;overflow:hidden;border-top:3px solid #2A7FC1;text-align:center;">
-                <div style="width:100%;height:clamp(200px,55vw,360px);background:#EEF4FB;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                <div style="width:100%;height:clamp(260px,55vw,360px);background:#EEF4FB;overflow:hidden;display:flex;align-items:center;justify-content:center;">
                     @if ($person->photo)
                         <img src="{{ Storage::url($person->photo) }}"
                              alt="{{ $person->name }}"
-                             style="width:100%;height:100%;object-fit:cover;object-position:center 15%;"/>
+                             style="width:100%;height:100%;object-fit:cover;object-position:center 25%;"/>
                     @else
                         <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
                             <div style="width:80px;height:80px;border-radius:50%;background:#2A7FC1;display:flex;align-items:center;justify-content:center;">
