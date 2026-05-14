@@ -31,11 +31,11 @@
             <div class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
 
                 {{-- Foto Ketua --}}
-                <div style="position:relative;width:100%;aspect-ratio:3/4;max-height:260px;background:#EEF4FB;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                <div style="position:relative;width:100%;aspect-ratio:3/4;max-height:160px;background:#EEF4FB;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
                     @if ($region->photo)
                         <img src="{{ Storage::url($region->photo) }}"
                              alt="Foto Ketua {{ $region->province }}"
-                             style="width:100%;height:100%;object-fit:cover;object-position:center 30%;">
+                             style="width:100%;height:100%;object-fit:cover;object-position:center 25%;">
                     @else
                         <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#111E2A,#1A5F9A);">
                             <div style="position:absolute;inset:0;opacity:0.08;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:12px 12px;"></div>
