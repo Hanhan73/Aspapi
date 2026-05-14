@@ -28,23 +28,28 @@
     <div class="max-w-7xl mx-auto px-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($regions as $region)
-            <div class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
+            <div
+                class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col overflow-hidden">
 
                 {{-- Foto Ketua --}}
-                <div style="position:relative;width:100%;height:224px;background:linear-gradient(135deg,#111E2A,#1A5F9A);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                <div
+                    style="position:relative;width:100%;height:224px;background:linear-gradient(135deg,#111E2A,#1A5F9A);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
                     @if ($region->photo)
-                        <img src="{{ Storage::url($region->photo) }}"
-                             alt="Foto Ketua {{ $region->province }}"
-                             style="width:100%;height:100%;object-fit:contain;object-position:center bottom;">
+                    <img src="{{ Storage::url($region->photo) }}" alt="Foto Ketua {{ $region->province }}"
+                        style="width:100%;height:100%;object-fit:cover;object-position:center 15%;transform:scale(0.85);transform-origin:center 15%;">
                     @else
-                        <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                            <div style="position:absolute;inset:0;opacity:0.08;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:12px 12px;"></div>
-                            <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
-                                <span style="color:rgba(255,255,255,0.6);font-size:1.5rem;font-weight:900;">
-                                    {{ strtoupper(substr($region->province, 0, 2)) }}
-                                </span>
-                            </div>
+                    <div
+                        style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                        <div
+                            style="position:absolute;inset:0;opacity:0.08;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:12px 12px;">
                         </div>
+                        <div
+                            style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
+                            <span style="color:rgba(255,255,255,0.6);font-size:1.5rem;font-weight:900;">
+                                {{ strtoupper(substr($region->province, 0, 2)) }}
+                            </span>
+                        </div>
+                    </div>
                     @endif
 
                     {{-- Badge status --}}
