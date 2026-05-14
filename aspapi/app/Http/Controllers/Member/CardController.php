@@ -11,8 +11,9 @@ class CardController extends Controller
 {
     /**
      * Halaman preview kartu anggota
+     * Route: GET /member/kartu → name: member.card
      */
-    public function index()
+    public function show()
     {
         $member = auth()->user()->member;
         return view('member.card', compact('member'));
@@ -20,6 +21,7 @@ class CardController extends Controller
 
     /**
      * Generate nomor anggota lalu redirect ke preview
+     * Route: POST /member/kartu/generate → name: member.card.generate
      */
     public function generate()
     {
@@ -33,7 +35,6 @@ class CardController extends Controller
             $member->assignMemberNumber();
         }
 
-        // Set masa berlaku 1 tahun dari sekarang jika belum ada
         if (!$member->active_until) {
             $member->update(['active_until' => now()->addYear()]);
         }
@@ -44,6 +45,7 @@ class CardController extends Controller
 
     /**
      * Download KTA sebagai PDF 2 halaman (depan + belakang)
+     * Route: GET /member/kartu/download → name: member.card.download
      */
     public function download()
     {
@@ -53,70 +55,67 @@ class CardController extends Controller
             return back()->with('error', 'Kartu belum bisa didownload.');
         }
 
-        // ── 1. Background depan (base64 dari storage atau public) ──────────
         $frontBase64 = $this->imageToBase64(public_path('images/kta-depan.png'));
         $backBase64  = $this->imageToBase64(public_path('images/kta-belakang.png'));
 
-        // ── 2. Foto anggota ─────────────────────────────────────────────────
         $photoBase64 = null;
         if ($member->photo) {
-            $photoPath = Storage::disk('public')->path($member->photo);
+            $photoPath   = Storage::disk('public')->path($member->photo);
             $photoBase64 = $this->imageToBase64($photoPath);
         }
 
-        // ── 3. QR Code ──────────────────────────────────────────────────────
         $qrBase64 = $this->generateQrBase64($member);
 
-        // ── 4. Render PDF ───────────────────────────────────────────────────
+        // CR80 landscape: 85.6mm × 53.98mm = 242.65pt × 153.07pt
         $pdf = Pdf::loadView('member.card-pdf', compact(
-            'member',
-            'frontBase64',
-            'backBase64',
-            'photoBase64',
-            'qrBase64'
-        ))->setPaper([0, 0, 242.65, 153.07], 'landscape'); // CR80 dalam points
+            'member', 'frontBase64', 'backBase64', 'photoBase64', 'qrBase64'
+        ))
+        ->setPaper([0, 0, 242.65, 153.07], 'landscape')
+        ->setOption('dpi', 150)
+        ->setOption('isHtml5ParserEnabled', true)
+        ->setOption('isRemoteEnabled', false)
+        ->setOption('margin_top', 0)
+        ->setOption('margin_right', 0)
+        ->setOption('margin_bottom', 0)
+        ->setOption('margin_left', 0);
 
         return $pdf->download('KTA-ASPAPI-' . $member->member_number . '.pdf');
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────────────────────
 
-    /**
-     * Konversi file gambar ke string base64.
-     * Kembalikan null jika file tidak ada.
-     */
     private function imageToBase64(?string $path): ?string
     {
-        if (!$path || !file_exists($path)) {
-            return null;
-        }
-        return base64_encode(file_get_contents($path));
+        if (!$path || !file_exists($path)) return null;
+
+        $ext  = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mime = match($ext) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'gif'         => 'image/gif',
+            'svg'         => 'image/svg+xml',
+            default       => 'image/png',
+        };
+
+        return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
-    /**
-     * Buat QR Code dan kembalikan sebagai base64 PNG.
-     * Coba beberapa library yang mungkin tersedia.
-     */
     private function generateQrBase64(Member $member): ?string
     {
         $content = implode('|', [
-            'NIA:'    . $member->member_number,
-            'NAMA:'   . strtoupper($member->full_name),
-            'BERLAKU:'. ($member->active_until?->format('d-m-Y') ?? '-'),
+            'NIA:'     . $member->member_number,
+            'NAMA:'    . strtoupper($member->full_name),
+            'BERLAKU:' . ($member->active_until?->format('d-m-Y') ?? '-'),
             'ASPAPI',
         ]);
 
-        $tmpPath = sys_get_temp_dir() . '/qr_' . $member->member_number . '_' . time() . '.png';
+        $tmpPath = sys_get_temp_dir() . '/qr_aspapi_' . $member->id . '_' . time() . '.png';
 
         try {
             if (class_exists(\chillerlan\QRCode\QRCode::class)) {
-                $qr = new \chillerlan\QRCode\QRCode();
-                file_put_contents($tmpPath, $qr->render($content));
+                file_put_contents($tmpPath, (new \chillerlan\QRCode\QRCode())->render($content));
 
             } elseif (class_exists(\SimpleSoftwareIO\QrCode\Facades\QrCode::class)) {
-                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-                    ->size(120)
-                    ->generate($content, $tmpPath);
+                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(120)->generate($content, $tmpPath);
 
             } elseif (class_exists(\BaconQrCode\Writer::class)) {
                 $renderer = new \BaconQrCode\Renderer\ImageRenderer(
@@ -124,20 +123,12 @@ class CardController extends Controller
                     new \BaconQrCode\Renderer\Image\ImagickImageBackEnd()
                 );
                 (new \BaconQrCode\Writer($renderer))->writeFile($content, $tmpPath);
-
-            } else {
-                // Fallback: Google Chart API (butuh internet, hanya dev)
-                $url  = 'https://chart.googleapis.com/chart?chs=120x120&cht=qr&chl=' . urlencode($content);
-                $data = @file_get_contents($url);
-                if ($data) {
-                    file_put_contents($tmpPath, $data);
-                }
             }
 
             if (file_exists($tmpPath)) {
-                $base64 = base64_encode(file_get_contents($tmpPath));
-                unlink($tmpPath);
-                return $base64;
+                $b64 = 'data:image/png;base64,' . base64_encode(file_get_contents($tmpPath));
+                @unlink($tmpPath);
+                return $b64;
             }
         } catch (\Throwable $e) {
             \Log::warning('QR Code generation failed: ' . $e->getMessage());
