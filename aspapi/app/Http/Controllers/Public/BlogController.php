@@ -20,18 +20,22 @@ class BlogController extends Controller
             $search = $request->cari;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                ->orWhere('excerpt', 'like', "%{$search}%");
+                  ->orWhere('excerpt', 'like', "%{$search}%");
             });
         }
 
         $hasFilter = $request->hasAny(['cari', 'kategori']);
         $isFirstPage = $request->input('page', 1) == 1;
 
-        // Page 1 tanpa filter: ambil 10 (1 featured + 9 grid)
-        // Page lainnya atau ada filter: 9 saja
-        $perPage = (!$hasFilter && $isFirstPage) ? 10 : 9;
+        $featured = null;
+        if (!$hasFilter && $isFirstPage) {
+            $featured = (clone $query)->first();
+            if ($featured) {
+                $query->where('id', '!=', $featured->id);
+            }
+        }
 
-        $blogs = $query->paginate($perPage)->withQueryString();
+        $blogs = $query->paginate(9)->withQueryString();
 
         $categories = Blog::published()
             ->whereNotNull('category')
@@ -39,17 +43,15 @@ class BlogController extends Controller
             ->orderBy('category')
             ->pluck('category');
 
-        return view('public.blog.index', compact('blogs', 'categories'));
+        return view('public.blog.index', compact('blogs', 'categories', 'featured'));
     }
 
     public function show(string $slug)
     {
         $blog = Blog::published()->where('slug', $slug)->firstOrFail();
 
-        // Increment views
         $blog->increment('views');
 
-        // Blog terkait (same category, exclude current)
         $related = Blog::published()
             ->where('id', '!=', $blog->id)
             ->when($blog->category, fn($q) => $q->where('category', $blog->category))

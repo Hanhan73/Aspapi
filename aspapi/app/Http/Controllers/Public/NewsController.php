@@ -20,18 +20,22 @@ class NewsController extends Controller
             $search = $request->cari;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                ->orWhere('excerpt', 'like', "%{$search}%");
+                  ->orWhere('excerpt', 'like', "%{$search}%");
             });
         }
 
         $hasFilter = $request->hasAny(['cari', 'kategori']);
         $isFirstPage = $request->input('page', 1) == 1;
 
-        // Page 1 tanpa filter: ambil 10 (1 featured + 9 grid)
-        // Page lainnya atau ada filter: 9 saja
-        $perPage = (!$hasFilter && $isFirstPage) ? 10 : 9;
+        $featured = null;
+        if (!$hasFilter && $isFirstPage) {
+            $featured = (clone $query)->first();
+            if ($featured) {
+                $query->where('id', '!=', $featured->id);
+            }
+        }
 
-        $news = $query->paginate($perPage)->withQueryString();
+        $news = $query->paginate(9)->withQueryString();
 
         $categories = News::published()
             ->whereNotNull('category')
@@ -39,17 +43,15 @@ class NewsController extends Controller
             ->orderBy('category')
             ->pluck('category');
 
-        return view('public.news.index', compact('news', 'categories'));
+        return view('public.news.index', compact('news', 'categories', 'featured'));
     }
 
     public function show(string $slug)
     {
         $news = News::published()->where('slug', $slug)->firstOrFail();
 
-        // Increment views
         $news->increment('views');
 
-        // Berita terkait (same category, exclude current)
         $related = News::published()
             ->where('id', '!=', $news->id)
             ->when($news->category, fn($q) => $q->where('category', $news->category))
