@@ -12,23 +12,27 @@ class NewsController extends Controller
     {
         $query = News::published()->latest('published_at');
 
-        // Filter by category
         if ($request->filled('kategori')) {
             $query->where('category', $request->kategori);
         }
 
-        // Search
         if ($request->filled('cari')) {
             $search = $request->cari;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('excerpt', 'like', "%{$search}%");
+                ->orWhere('excerpt', 'like', "%{$search}%");
             });
         }
 
-        $news = $query->paginate(9)->withQueryString();
+        $hasFilter = $request->hasAny(['cari', 'kategori']);
+        $isFirstPage = $request->input('page', 1) == 1;
 
-        // Daftar kategori unik untuk filter
+        // Page 1 tanpa filter: ambil 10 (1 featured + 9 grid)
+        // Page lainnya atau ada filter: 9 saja
+        $perPage = (!$hasFilter && $isFirstPage) ? 10 : 9;
+
+        $news = $query->paginate($perPage)->withQueryString();
+
         $categories = News::published()
             ->whereNotNull('category')
             ->distinct()
