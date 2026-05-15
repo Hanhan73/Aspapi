@@ -20,7 +20,8 @@ class BlogController extends Controller
             $search = $request->cari;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('excerpt', 'like', "%{$search}%");
+                  ->orWhere('excerpt', 'like', "%{$search}%")
+                  ->orWhere('author_name', 'like', "%{$search}%");
             });
         }
 
