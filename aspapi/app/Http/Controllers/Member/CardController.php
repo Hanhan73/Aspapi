@@ -20,7 +20,7 @@ class CardController extends Controller
     }
 
     /**
-     * Generate nomor anggota lalu redirect ke preview
+     * Generate nomor anggota
      * Route: POST /member/kartu/generate → name: member.card.generate
      */
     public function generate()
@@ -44,7 +44,7 @@ class CardController extends Controller
     }
 
     /**
-     * Download KTA sebagai PDF 2 halaman (depan + belakang)
+     * Download KTA sebagai PDF 2 halaman
      * Route: GET /member/kartu/download → name: member.card.download
      */
     public function download()
@@ -55,22 +55,38 @@ class CardController extends Controller
             return back()->with('error', 'Kartu belum bisa didownload.');
         }
 
+        // ── Background kartu (base64 supaya DomPDF tidak perlu HTTP request) ──
         $frontBase64 = $this->imageToBase64(public_path('images/kta-depan.png'));
         $backBase64  = $this->imageToBase64(public_path('images/kta-belakang.png'));
 
+        // ── Foto anggota ──
         $photoBase64 = null;
         if ($member->photo) {
-            $photoPath   = Storage::disk('public')->path($member->photo);
-            $photoBase64 = $this->imageToBase64($photoPath);
+            $photoBase64 = $this->imageToBase64(Storage::disk('public')->path($member->photo));
         }
 
+        // ── QR Code ──
         $qrBase64 = $this->generateQrBase64($member);
 
-        // CR80 landscape: 85.6mm × 53.98mm = 242.65pt × 153.07pt
+        /*
+         * Paper size: CR80 landscape
+         * 85.6mm × 53.98mm → dalam poin (1 mm = 2.8346 pt)
+         * = 242.64 × 153.07 pt  (landscape: width > height)
+         *
+         * DomPDF menerima [x1, y1, x2, y2] atau nama.
+         * Untuk landscape portrait adalah [0, 0, lebar_pt, tinggi_pt].
+         *
+         * Body HTML = 2 kartu tinggi (107.96mm) → DomPDF otomatis
+         * membaginya menjadi 2 halaman sesuai tinggi paper (53.98mm).
+         */
         $pdf = Pdf::loadView('member.card-pdf', compact(
-            'member', 'frontBase64', 'backBase64', 'photoBase64', 'qrBase64'
+            'member',
+            'frontBase64',
+            'backBase64',
+            'photoBase64',
+            'qrBase64'
         ))
-        ->setPaper([0, 0, 242.65, 153.07], 'landscape')
+        ->setPaper([0, 0, 242.64, 153.07], 'landscape')
         ->setOption('dpi', 150)
         ->setOption('isHtml5ParserEnabled', true)
         ->setOption('isRemoteEnabled', false)
@@ -84,12 +100,18 @@ class CardController extends Controller
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
+    /**
+     * Konversi file gambar ke data URI base64.
+     * Return null jika file tidak ada.
+     */
     private function imageToBase64(?string $path): ?string
     {
-        if (!$path || !file_exists($path)) return null;
+        if (!$path || !file_exists($path)) {
+            return null;
+        }
 
         $ext  = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $mime = match($ext) {
+        $mime = match ($ext) {
             'jpg', 'jpeg' => 'image/jpeg',
             'gif'         => 'image/gif',
             'svg'         => 'image/svg+xml',
@@ -99,6 +121,10 @@ class CardController extends Controller
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
+    /**
+     * Generate QR Code → data URI base64.
+     * Mencoba beberapa library yang mungkin tersedia.
+     */
     private function generateQrBase64(Member $member): ?string
     {
         $content = implode('|', [
@@ -115,7 +141,8 @@ class CardController extends Controller
                 file_put_contents($tmpPath, (new \chillerlan\QRCode\QRCode())->render($content));
 
             } elseif (class_exists(\SimpleSoftwareIO\QrCode\Facades\QrCode::class)) {
-                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(120)->generate($content, $tmpPath);
+                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
+                    ->size(120)->generate($content, $tmpPath);
 
             } elseif (class_exists(\BaconQrCode\Writer::class)) {
                 $renderer = new \BaconQrCode\Renderer\ImageRenderer(

@@ -15,6 +15,11 @@ class HomeController extends Controller
             ->orderByDesc('published_at')
             ->limit(3)
             ->get();
+        $latestBlog = News::where('status', 'published')
+            ->where('is_blog', true)
+            ->orderByDesc('published_at')
+            ->limit(3)
+            ->get();
 
         $stats = [
             'members' => Member::where('status', 'active')->count(),
@@ -23,6 +28,6 @@ class HomeController extends Controller
             'congress' => 4,
         ];
 
-        return view('public.home.index', compact('latestNews', 'stats'));
+        return view('public.home.index', compact('latestNews', 'latestBlog', 'stats'));
     }
 }
