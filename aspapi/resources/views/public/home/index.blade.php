@@ -301,8 +301,8 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             @foreach($latestBlog as $item)
             <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                @if($item->image)
-                <img src="{{ Storage::url($item->image) }}" alt="{{ $item->title }}" class="w-full h-44 object-cover">
+                @if($item->thumbnail)
+                <img src="{{ Storage::url($item->thumbnail) }}" alt="{{ $item->title }}" class="w-full h-44 object-cover">
                 @else
                 <div class="h-44 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
                     <svg class="w-10 h-10 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
