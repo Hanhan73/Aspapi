@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\News;
+use App\Models\Blog;
 use App\Models\Member;
 use App\Models\Region;
 
@@ -15,8 +16,7 @@ class HomeController extends Controller
             ->orderByDesc('published_at')
             ->limit(3)
             ->get();
-        $latestBlog = News::where('status', 'published')
-            ->where('is_blog', true)
+        $latestBlog = Blog::where('status', 'published')
             ->orderByDesc('published_at')
             ->limit(3)
             ->get();
