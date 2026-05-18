@@ -2,56 +2,67 @@
 <html lang="id">
 <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Selamat Datang di ASPAPI</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #F8FAFC; margin: 0; padding: 0; }
-        .container { max-width: 560px; margin: 40px auto; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #D6E8F7; }
-        .header { background: linear-gradient(135deg, #1A5F9A, #2A7FC1); padding: 2rem; text-align: center; }
-        .header img { height: 48px; }
-        .header h1 { color: #fff; font-size: 1.25rem; margin-top: 1rem; }
-        .body { padding: 2rem; }
-        .body p { font-size: 0.9rem; color: #4A6580; line-height: 1.8; margin-bottom: 1rem; }
-        .credential-box { background: #1A2A3A; border-radius: 6px; padding: 1.25rem; margin: 1rem 0; }
-        .cred-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #B0CCDF; margin-bottom: 0.25rem; }
-        .cred-value { font-size: 0.95rem; font-weight: 700; color: #fff; font-family: monospace; }
-        .btn { display: inline-block; padding: 0.875rem 2rem; background: #2A7FC1; color: #fff; text-decoration: none; border-radius: 4px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; }
-        .footer { background: #F8FAFC; padding: 1.25rem 2rem; text-align: center; font-size: 0.75rem; color: #B0CCDF; border-top: 1px solid #EEF4FB; }
-        .warning { background: #FEF8EC; border-left: 4px solid #E8B84B; padding: 0.875rem 1rem; border-radius: 0 4px 4px 0; font-size: 0.825rem; color: #8B6914; margin: 1rem 0; }
+        body       { font-family: Arial, sans-serif; background:#f4f7fb; margin:0; padding:0; }
+        .wrap      { max-width:560px; margin:40px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+        .header    { background:#1A3A5C; padding:28px 32px; }
+        .header h1 { color:#fff; font-size:20px; margin:0; letter-spacing:0.04em; }
+        .header p  { color:rgba(255,255,255,0.6); font-size:12px; margin:4px 0 0; }
+        .body      { padding:28px 32px; }
+        .body p    { color:#4A6580; font-size:14px; line-height:1.7; margin:0 0 14px; }
+        .cred-box  { background:#EEF4FB; border-radius:6px; padding:16px 20px; margin:20px 0; }
+        .cred-box .row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #D6E8F7; }
+        .cred-box .row:last-child { border-bottom:none; }
+        .cred-box .lbl { font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#8A97A4; }
+        .cred-box .val { font-size:14px; font-weight:700; color:#1A2A3A; font-family:monospace; }
+        .cta       { display:block; text-align:center; padding:14px 24px; border-radius:6px; font-size:14px; font-weight:700; text-decoration:none; background:#2A7FC1; color:#fff; margin:20px 0; }
+        .note      { background:#FEF8EC; border-left:4px solid #E8B84B; padding:12px 16px; border-radius:0 4px 4px 0; margin:20px 0; }
+        .note p    { color:#8B6914; font-size:13px; margin:0; }
+        .footer    { background:#F4F7FB; padding:16px 32px; text-align:center; }
+        .footer p  { color:#B0CCDF; font-size:12px; margin:0; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="{{ asset('images/logo-aspapi.png') }}" alt="ASPAPI"/>
-            <h1>Selamat Datang di ASPAPI!</h1>
-        </div>
-        <div class="body">
-            <p>Halo, <strong>{{ $name }}</strong>!</p>
-            <p>Anda telah didaftarkan sebagai anggota <strong>ASPAPI</strong> melalui <strong>{{ $region }}</strong>. Berikut adalah kredensial akun Anda:</p>
-
-            <div class="credential-box">
-                <div style="margin-bottom:0.875rem;">
-                    <div class="cred-label">Email</div>
-                    <div class="cred-value">{{ $email }}</div>
-                </div>
-                <div>
-                    <div class="cred-label">Password</div>
-                    <div class="cred-value">{{ $password }}</div>
-                </div>
-            </div>
-
-            <div class="warning">
-                Segera ganti password Anda setelah login pertama kali untuk keamanan akun.
-            </div>
-
-            <p>Setelah login, lengkapi biodata Anda dan tunggu verifikasi dari Admin ASPAPI.</p>
-
-            <div style="text-align:center;margin-top:1.5rem;">
-                <a href="{{ url('/login') }}" class="btn">Login Sekarang</a>
-            </div>
-        </div>
-        <div class="footer">
-            &copy; {{ date('Y') }} ASPAPI — Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia
-        </div>
+<div class="wrap">
+    <div class="header">
+        <h1>ASPAPI</h1>
+        <p>Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia</p>
     </div>
+    <div class="body">
+        <p>Yth. <strong>{{ $name }}</strong>,</p>
+        <p>
+            Selamat datang di ASPAPI! Anda telah didaftarkan sebagai anggota oleh ASPAPI Daerah setempat.
+            Berikut adalah informasi akun Anda untuk login ke portal anggota:
+        </p>
+
+        <div class="cred-box">
+            <div class="row">
+                <span class="lbl">Email</span>
+                <span class="val">{{ $email }}</span>
+            </div>
+            <div class="row">
+                <span class="lbl">Password</span>
+                <span class="val">{{ $password }}</span>
+            </div>
+        </div>
+
+        <a href="{{ url('/login') }}" class="cta">Login ke Portal Anggota →</a>
+
+        <div class="note">
+            <p>⚠ Segera ganti password Anda setelah login pertama melalui menu <strong>Profil → Ubah Password</strong>.</p>
+        </div>
+
+        <p>
+            Setelah login, lengkapi biodata Anda agar keanggotaan dapat diverifikasi dan KTA dapat diterbitkan.
+        </p>
+
+        <p>Salam hormat,<br/><strong>Tim ASPAPI</strong></p>
+    </div>
+    <div class="footer">
+        <p>© {{ date('Y') }} ASPAPI — Email ini dikirim otomatis, harap tidak membalas.</p>
+    </div>
+</div>
 </body>
 </html>
