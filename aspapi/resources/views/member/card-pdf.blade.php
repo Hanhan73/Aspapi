@@ -38,29 +38,34 @@
     }
 
     /* ══════════════════════════════════════════════════════════════════
-       KOORDINAT PIXEL-AKURAT dari referensi desain Rasto
-       ══════════════════════════════════════════════════════════════════
-       QR:      left=10.6mm, top=37.2mm, size=9mm
-       Nama:    left=20.5mm, top=37.2mm   (sejajar QR)
-       NIA:     left=20.5mm, top=41mm
-       Berlaku: left=20.5mm, top=44.5mm
-       Foto:    left=67mm,   top=28mm, w=14mm, h=18mm (crop)
+       KOORDINAT PIXEL-AKURAT dari referensi desain PDF
+       
+       Berdasarkan analisis PDF referensi:
+       - Kartu ukuran: 85.6mm x 48.98mm
+       - Foto: pojok kanan, mulai ~top 27mm, right ~2mm, lebar ~14mm
+       - QR:  left ~7mm, bottom area ~31mm
+       - Nama: left ~28mm, top ~31mm (sejajar dengan QR tengah)
+       - NIA:  left ~28mm, top ~36mm
+       - Berlaku: full width strip merah, top ~42mm
        ══════════════════════════════════════════════════════════════════ */
 
-    /* ── Foto: dikecilkan & digeser kiri, crop tengah ─────────────── */
+    /* ── Foto: pojok kanan atas, ukuran lebih besar ─────────────────── */
     .photo-wrap {
         position: absolute;
-        left: 67mm;
-        top: 28mm;
-        width: 10mm;
-        overflow: hidden; 
-        border-radius: 12px;        /* crop jika foto terlalu besar/panjang */
+        right: 27mm;
+        top: 27mm;
+        bottom: 27mm;
+        width: 14mm;
+        height: 18mm;
+        overflow: hidden;
+        border-radius: 4px;
     }
     .photo-wrap img {
-        width: 10mm;              /* fixed width — tidak stretch horizontal */
-        height: auto;             /* proporsional */
+        width: 14mm;
+        height: 18mm;
+        object-fit: cover;
+        object-position: top center;
         display: block;
-        /* Crop dari atas: foto pas foto biasanya wajah di atas */
     }
     .photo-placeholder {
         width: 100%;
@@ -69,67 +74,66 @@
         display: block;
     }
 
-    /* ── QR: dikecilkan agar tidak nutupin nama ────────────────────── */
+    /* ── QR: kiri bawah, sejajar tengah dengan nama ─────────────────── */
     .qr-wrap {
         position: absolute;
-        left: 10.6mm;
-        top: 37.2mm;
-        width: 9mm;
-        height: 9mm;
+        left: 7mm;
+        top: 29mm;
+        width: 14mm;
+        height: 14mm;
         overflow: hidden;
     }
     .qr-wrap img {
-        width: 9mm;
-        height: 9mm;
+        width: 14mm;
+        height: 14mm;
         display: block;
     }
 
-    /* ── Nama: mulai setelah QR (left=20.5mm) ─────────────────────── */
+    /* ── Nama: sejajar horizontal dengan QR tengah ──────────────────── */
     .member-name {
         position: absolute;
-        top: 37mm;
-        left: 23.5mm;
-        right: 16mm;              /* beri ruang foto kanan */
-        font-size: 7.5pt;
+        top: 30mm;
+        left: 24mm;
+        right: 18mm;
+        font-size: 9pt;
         font-weight: 900;
         color: #0D2240;
         letter-spacing: 0.02em;
-        line-height: 1;
+        line-height: 1.1;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    /* ── NIA ──────────────────────────────────────────────────────── */
+    /* ── NIA: di bawah nama ──────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 41mm;
-        left: 23.5mm;
-        right: 16mm;
-        font-size: 5.5pt;
+        top: 36mm;
+        left: 24mm;
+        right: 18mm;
+        font-size: 7pt;
         font-weight: 700;
         color: #0D2240;
         font-family: 'Courier New', Courier, monospace;
-        letter-spacing: 0.04em;
-        line-height: 1;
+        letter-spacing: 0.06em;
+        line-height: 1.1;
     }
 
-    /* ── Berlaku: strip merah sesuai referensi ─────────────────────
-       Di referensi: background merah penuh dari kiri, teks putih bold
-       top=44.5mm, tinggi sekitar 4-5mm
-       ──────────────────────────────────────────────────────────────── */
+    /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
     .member-valid {
         position: absolute;
-        top: 44.5mm;
-        left: 23.5mm;              /* mulai sedikit dari kiri seperti referensi */
-        right: 16mm;
-        font-size: 5.5pt;
+        top: 42.5mm;
+        left: 0;
+        right: 0;
+        background-color: #C0272D;  /* merah ASPAPI */
+        font-size: 7pt;
         font-weight: 700;
         color: #ffffff;
-        padding: 0.9mm 2mm;
+        padding: 1mm 7mm;
         display: block;
         white-space: nowrap;
-        line-height: 1.2;
+        line-height: 1.4;
+        text-align: left;
     }
 
     </style>
@@ -143,7 +147,7 @@
         <img class="card-bg" src="{{ $frontBase64 }}" alt=""/>
         @endif
 
-        {{-- Foto: dikecilkan, crop dari atas --}}
+        {{-- Foto: kanan atas, ukuran 14x18mm --}}
         <div class="photo-wrap">
             @if($photoBase64)
                 <img src="{{ $photoBase64 }}" alt=""/>
@@ -152,20 +156,20 @@
             @endif
         </div>
 
-        {{-- QR: dikecilkan 9mm, tidak nutupin nama --}}
+        {{-- QR: kiri bawah, 14mm --}}
         @if($qrBase64)
         <div class="qr-wrap">
             <img src="{{ $qrBase64 }}" alt="QR"/>
         </div>
         @endif
 
-        {{-- Nama: mulai left=20.5mm, setelah QR --}}
+        {{-- Nama: setelah QR, sejajar --}}
         <div class="member-name">{{ strtoupper($member->full_name) }}</div>
 
         {{-- NIA --}}
         <div class="member-nia">NIA. {{ $member->member_number }}</div>
 
-        {{-- Berlaku: strip merah sesuai referensi --}}
+        {{-- Berlaku: strip merah full-width --}}
         <div class="member-valid">Berlaku Sampai: {{ $member->active_until
             ? $member->active_until->translatedFormat('d F Y')
             : now()->addYear()->translatedFormat('d F Y') }}</div>
