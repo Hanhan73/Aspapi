@@ -94,6 +94,9 @@ Route::prefix('daerah')->name('daerah.')->middleware(['auth', 'role:aspapi_daera
     Route::post('/daftar-batch', [RegionMemberController::class, 'batchStore'])->name('batch.store');
     Route::get('/bayar-batch',   [RegionMemberController::class, 'payBatchForm'])->name('pay.form');
     Route::post('/bayar-batch',  [RegionMemberController::class, 'payBatchStore'])->name('pay.store');
+    Route::get('/daftar-batch/template', [RegionMemberController::class, 'downloadTemplate'])
+     ->name('batch.template');
+
 });
 
 // ── AUTH ADMIN ──
