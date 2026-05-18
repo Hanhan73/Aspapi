@@ -13,7 +13,7 @@
         margin: 0;
         padding: 0;
         width: 85.6mm;
-        height: 107.96mm;
+        height: 97.96mm;
         overflow: hidden;
         font-family: Arial, Helvetica, sans-serif;
     }
@@ -53,7 +53,6 @@
         left: 67mm;
         top: 28mm;
         width: 10mm;
-        height: 18mm;
         overflow: hidden; 
         border-radius: 12px;        /* crop jika foto terlalu besar/panjang */
     }
