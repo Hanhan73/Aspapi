@@ -91,7 +91,7 @@
     /* ── Nama: sejajar horizontal dengan QR tengah ──────────────────── */
     .member-name {
         position: absolute;
-        top: 30mm;
+        top: 32mm;
         left: 24mm;
         right: 18mm;
         font-size: 9pt;
@@ -107,11 +107,11 @@
     /* ── NIA: di bawah nama ──────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 36mm;
+        top: 34mm;
         left: 24mm;
         right: 18mm;
-        font-size: 7pt;
-        font-weight: 700;
+        font-size: 5pt;
+        font-weight: 900;
         color: #0D2240;
         font-family: 'Courier New', Courier, monospace;
         letter-spacing: 0.06em;
@@ -120,10 +120,10 @@
     /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
     .member-valid {
         position: absolute;
-        top: 38.5mm;
-        left: 12mm;
-        right: 0;
-        font-size: 7pt;
+        top: 40mm;
+        left: 24mm;
+        right: 18mm;
+        font-size: 4pt;
         font-weight: 700;
         color: #ffffff;
         padding: 1mm 7mm;
