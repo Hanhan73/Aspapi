@@ -52,18 +52,19 @@
     /* ── Foto: pojok kanan atas, ukuran lebih besar ─────────────────── */
     .photo-wrap {
         position: absolute;
-        right: 15mm;
+        right: 2mm;
         top: 27mm;
         width: 14mm;
         height: 18mm;
         overflow: hidden;
-        border-radius: 10px;
-        border: 1px solid #b0bac5;
+        border-radius: 4px;
     }
-   .photo-wrap img {
+    .photo-wrap img {
         width: 16mm;
         height: 20mm;
         display: block;
+        margin-left: -1mm;
+        margin-top: -1mm;
     }
 
     .photo-placeholder {
