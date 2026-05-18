@@ -280,7 +280,7 @@
 
                     {{-- Title --}}
                     <h3 class="text-sm font-bold text-navy leading-snug mb-2 flex-1">
-                        <a href="{{ route('blog.show', $item->slug) }}" class="hover:text-primary transition-colors">
+                        <a href="{{ route('news.show', $item->slug) }}" class="hover:text-primary transition-colors">
                             {{ $item->title }}
                         </a>
                     </h3>
@@ -293,7 +293,7 @@
                     @endif
 
                     {{-- Read more --}}
-                    <a href="{{ route('blog.show', $item->slug) }}"
+                    <a href="{{ route('news.show', $item->slug) }}"
                         class="text-2xs font-bold tracking-widest uppercase text-primary border-b-2 border-accent-yellow pb-0.5 w-fit hover:text-primary-600 transition-colors mt-auto">
                         Baca Selengkapnya →
                     </a>
