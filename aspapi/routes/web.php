@@ -96,6 +96,8 @@ Route::prefix('daerah')->name('daerah.')->middleware(['auth', 'role:aspapi_daera
     Route::post('/bayar-batch',  [RegionMemberController::class, 'payBatchStore'])->name('pay.store');
     Route::get('/daftar-batch/template', [RegionMemberController::class, 'downloadTemplate'])
      ->name('batch.template');
+     Route::post('/check-duplicates', [RegionMemberController::class, 'checkDuplicates'])
+     ->name('batch.check-duplicates');
 
 });
 

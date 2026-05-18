@@ -291,4 +291,34 @@ class RegionMemberController extends Controller
 
         return response()->download($filePath, 'template-batch-anggota.xlsx');
     }
+
+
+    public function checkDuplicates(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'emails'   => 'required|array',
+            'emails.*' => 'email',
+        ]);
+ 
+        $duplicates = [];
+ 
+        foreach ($request->emails as $email) {
+            $user = \App\Models\User::where('email', strtolower(trim($email)))->first();
+            if ($user) {
+                $member = $user->member;
+                $duplicates[] = [
+                    'email'         => $email,
+                    'name'          => $member?->full_name ?? $user->name,
+                    'member_number' => $member?->member_number,
+                    'status'        => $member?->status,
+                ];
+            }
+        }
+ 
+        return response()->json([
+            'duplicates' => $duplicates,
+            'total'      => count($duplicates),
+        ]);
+    }
+    
 }
