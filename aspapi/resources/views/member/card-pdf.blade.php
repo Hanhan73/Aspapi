@@ -23,7 +23,7 @@
     .card {
         position: relative;
         width: 85.6mm;
-        height: 53.98mm;
+        height: 48.98mm;
         overflow: hidden;
         page-break-after: always;
     }
@@ -33,7 +33,7 @@
         position: absolute;
         top: 0; left: 0;
         width: 85.6mm;
-        height: 53.98mm;
+        height: 48.98mm;
         display: block;
     }
 
