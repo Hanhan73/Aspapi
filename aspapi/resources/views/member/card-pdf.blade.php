@@ -52,7 +52,7 @@
     /* ── Foto: pojok kanan atas, ukuran lebih besar ─────────────────── */
     .photo-wrap {
         position: absolute;
-        right: 5mm;
+        right: 15mm;
         top: 27mm;
         width: 14mm;
         height: 18mm;
@@ -91,7 +91,7 @@
     /* ── Nama: sejajar horizontal dengan QR tengah ──────────────────── */
     .member-name {
         position: absolute;
-        top: 32mm;
+        top: 36mm;
         left: 24mm;
         right: 18mm;
         font-size: 9pt;
@@ -107,7 +107,7 @@
     /* ── NIA: di bawah nama ──────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 34mm;
+        top: 39mm;
         left: 24mm;
         right: 18mm;
         font-size: 5pt;
@@ -121,7 +121,7 @@
     .member-valid {
         position: absolute;
         top: 40mm;
-        left: 24mm;
+        left: 0;
         right: 18mm;
         font-size: 4pt;
         font-weight: 700;
