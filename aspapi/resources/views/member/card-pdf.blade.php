@@ -54,15 +54,15 @@
         position: absolute;
         right: 15mm;
         top: 27mm;
-        width: 12mm;
-        height: 17mm;
+        width: 14mm;
+        height: 18mm;
         overflow: hidden;
         border-radius: 10px;
         border: 1px solid #b0bac5;
     }
    .photo-wrap img {
-        width: 14mm;
-        height: auto;
+        width: 16mm;
+        height: 20mm;
         display: block;
     }
 
