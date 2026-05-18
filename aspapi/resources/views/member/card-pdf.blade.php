@@ -5,7 +5,7 @@
     <style>
 
     @page {
-        size: 85.6mm 53.98mm;
+        size: 85.6mm 48.98mm;
         margin: 0;
     }
 
@@ -13,7 +13,7 @@
         margin: 0;
         padding: 0;
         width: 85.6mm;
-        height: 97.96mm;
+        height: 48.98mm;
         overflow: hidden;
         font-family: Arial, Helvetica, sans-serif;
     }
