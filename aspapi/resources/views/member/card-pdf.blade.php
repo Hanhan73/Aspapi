@@ -62,9 +62,7 @@
     }
     .photo-wrap img {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
+        height: auto;
         display: block;
     }
     .photo-placeholder {
@@ -108,7 +106,7 @@
     /* ── NIA: di bawah nama ──────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 37mm;
+        top: 34.5mm;
         left: 24mm;
         right: 18mm;
         font-size: 6pt;
