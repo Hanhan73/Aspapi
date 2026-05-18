@@ -17,7 +17,7 @@
 
 <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;">
 
-    {{-- Kolom Kiri --}}
+    {{-- ═══════════════ Kolom Kiri ═══════════════ --}}
     <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
         {{-- Info Akun --}}
@@ -109,7 +109,6 @@
                 @endif
 
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    {{-- Approve --}}
                     <form method="POST" action="{{ route('admin.member.verify.approve', $member->id) }}">
                         @csrf
                         <button type="submit"
@@ -118,7 +117,6 @@
                         </button>
                     </form>
 
-                    {{-- Konfirmasi Anggota Lama --}}
                     @if ($member->claims_old_member)
                     <form method="POST" action="{{ route('admin.member.verify.approve-old', $member->id) }}">
                         @csrf
@@ -129,7 +127,6 @@
                     </form>
                     @endif
 
-                    {{-- Reject --}}
                     <button onclick="document.getElementById('reject-biodata-modal').style.display='flex'"
                             style="padding:0.625rem 1.25rem;background:transparent;border:1.5px solid #C0392B;color:#C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
                         Tolak Biodata
@@ -195,7 +192,7 @@
 
     </div>
 
-    {{-- Kolom Kanan --}}
+    {{-- ═══════════════ Kolom Kanan ═══════════════ --}}
     <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
         {{-- Status Card --}}
@@ -241,16 +238,38 @@
         </div>
         @endif
 
-        {{-- Aksi --}}
+        {{-- ══ AKSI ══ --}}
         <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
             <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 1rem;">
                 Aksi
             </p>
             <div style="display:flex;flex-direction:column;gap:0.5rem;">
+
+                {{-- Kembali --}}
                 <a href="{{ route('admin.members.index') }}"
                    style="display:block;text-align:center;padding:0.625rem;border:1.5px solid #D6E8F7;color:#4A6580;border-radius:4px;font-size:0.75rem;font-weight:700;text-decoration:none;">
                     ← Kembali ke Daftar
                 </a>
+
+                {{-- ── Reset Password (auto-generate) ── --}}
+                @if ($member->user)
+                <button onclick="document.getElementById('modal-reset-password').style.display='flex'"
+                        style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #2A7FC1;color:#2A7FC1;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
+                    🔑 Reset Password
+                </button>
+
+                {{-- ── Set Password Manual ── --}}
+                <button onclick="document.getElementById('modal-set-password').style.display='flex'"
+                        style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #4A6580;color:#4A6580;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
+                    ✏️ Set Password Manual
+                </button>
+                @else
+                <p style="font-size:0.75rem;color:#B0CCDF;text-align:center;margin:0;">
+                    Anggota belum memiliki akun login.
+                </p>
+                @endif
+
+                {{-- Hapus Anggota --}}
                 <form method="POST" action="{{ route('admin.members.destroy', $member) }}"
                       onsubmit="return confirm('Hapus anggota ini secara permanen?')">
                     @csrf @method('DELETE')
@@ -262,6 +281,91 @@
             </div>
         </div>
 
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════
+     Modal: Reset Password (auto-generate)
+══════════════════════════════════════════════ --}}
+<div id="modal-reset-password"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:2rem;width:420px;max-width:90vw;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.25rem;color:#1A2A3A;margin:0 0 0.75rem;">
+            Reset Password
+        </h3>
+        <p style="font-size:0.85rem;color:#5C6B78;margin:0 0 0.5rem;">
+            Sistem akan men-generate password baru secara otomatis dan mengirimnya ke:
+        </p>
+        <p style="font-size:0.875rem;font-weight:700;color:#2A7FC1;margin:0 0 1.25rem;">
+            {{ $member->user?->email }}
+        </p>
+        <div style="background:#FEF8EC;border-left:3px solid #E8B84B;border-radius:4px;padding:0.75rem 1rem;margin-bottom:1.25rem;font-size:0.8rem;color:#8B6914;">
+            ⚠ Anggota tidak bisa login dengan password lama setelah direset.
+        </div>
+        <form method="POST" action="{{ route('admin.member.reset-password', $member->id) }}">
+            @csrf
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                <button type="button"
+                        onclick="document.getElementById('modal-reset-password').style.display='none'"
+                        style="padding:0.625rem 1.25rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.75rem;font-weight:700;color:#4A6580;background:transparent;cursor:pointer;">
+                    Batal
+                </button>
+                <button type="submit"
+                        style="padding:0.625rem 1.25rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;">
+                    Ya, Reset Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════
+     Modal: Set Password Manual
+══════════════════════════════════════════════ --}}
+<div id="modal-set-password"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:2rem;width:440px;max-width:90vw;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.25rem;color:#1A2A3A;margin:0 0 1rem;">
+            Set Password Manual
+        </h3>
+        <form method="POST" action="{{ route('admin.member.set-password', $member->id) }}">
+            @csrf
+
+            {{-- Password baru --}}
+            <div style="margin-bottom:1rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.4rem;">
+                    Password Baru *
+                </label>
+                <input type="password" name="new_password" id="new_password" required minlength="8"
+                       placeholder="Minimal 8 karakter"
+                       style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                       onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+            </div>
+
+            {{-- Konfirmasi --}}
+            <div style="margin-bottom:1.25rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.4rem;">
+                    Konfirmasi Password *
+                </label>
+                <input type="password" name="new_password_confirmation" required minlength="8"
+                       placeholder="Ulangi password baru"
+                       style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                       onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                <p id="pw-match-hint" style="font-size:0.72rem;color:#B0CCDF;margin:0.3rem 0 0;"></p>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                <button type="button"
+                        onclick="document.getElementById('modal-set-password').style.display='none'"
+                        style="padding:0.625rem 1.25rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.75rem;font-weight:700;color:#4A6580;background:transparent;cursor:pointer;">
+                    Batal
+                </button>
+                <button type="submit" id="btn-set-pw"
+                        style="padding:0.625rem 1.25rem;background:#276749;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;">
+                    Simpan Password
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -295,5 +399,43 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+// Tutup modal klik backdrop
+['modal-reset-password', 'modal-set-password', 'reject-biodata-modal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+});
+
+// Cek kecocokan password real-time
+const pwInput    = document.getElementById('new_password');
+const pwConfirm  = document.querySelector('[name="new_password_confirmation"]');
+const pwHint     = document.getElementById('pw-match-hint');
+const btnSetPw   = document.getElementById('btn-set-pw');
+
+function checkPasswordMatch() {
+    if (!pwConfirm.value) {
+        pwHint.textContent = '';
+        return;
+    }
+    if (pwInput.value === pwConfirm.value) {
+        pwHint.textContent = '✓ Password cocok';
+        pwHint.style.color = '#276749';
+        btnSetPw.disabled = false;
+    } else {
+        pwHint.textContent = '✗ Password tidak cocok';
+        pwHint.style.color = '#C0392B';
+        btnSetPw.disabled = true;
+    }
+}
+
+if (pwInput && pwConfirm) {
+    pwInput.addEventListener('input', checkPasswordMatch);
+    pwConfirm.addEventListener('input', checkPasswordMatch);
+}
+</script>
+@endpush
 
 @endsection

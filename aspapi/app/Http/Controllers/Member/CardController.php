@@ -140,10 +140,6 @@ class CardController extends Controller
             if (class_exists(\chillerlan\QRCode\QRCode::class)) {
                 file_put_contents($tmpPath, (new \chillerlan\QRCode\QRCode())->render($content));
 
-            } elseif (class_exists(\SimpleSoftwareIO\QrCode\Facades\QrCode::class)) {
-                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')
-                    ->size(120)->generate($content, $tmpPath);
-
             } elseif (class_exists(\BaconQrCode\Writer::class)) {
                 $renderer = new \BaconQrCode\Renderer\ImageRenderer(
                     new \BaconQrCode\Renderer\RendererStyle\RendererStyle(120),

@@ -24,15 +24,20 @@ use App\Http\Controllers\Admin\BlogAdminController;
 use App\Http\Controllers\Admin\DocumentAdminController;
 use App\Http\Controllers\Admin\MemberAdminController;
 use App\Http\Controllers\Admin\PartnerController as AdminPartnerController;
+use App\Http\Controllers\Admin\ResetPasswordController;
+use App\Http\Controllers\Admin\RegionController as AdminRegionController;
 
 use App\Http\Controllers\Member\DashboardController as MemberDashboard;
 use App\Http\Controllers\Member\BiodataController;
 use App\Http\Controllers\Member\PaymentController;
 use App\Http\Controllers\Member\CardController;
+
 use App\Http\Controllers\Bendahara\BendaharaController;
+use App\Http\Controllers\Bendahara\RekapController;
+
 use App\Http\Controllers\Daerah\RegionMemberController;
 
-use App\Http\Controllers\Admin\RegionController as AdminRegionController;
+
 
 /* ─────────────────────────────────────────
    PUBLIC ROUTES
@@ -76,6 +81,9 @@ Route::prefix('bendahara')->name('ben   dahara.')->middleware(['auth', 'role:ben
     Route::post('/pembayaran/{id}/reject',   [BendaharaController::class, 'reject'])->name('payment.reject');
     Route::get('/batch',                     [BendaharaController::class, 'batches'])->name('batches');
     Route::post('/batch/{id}/verify',        [BendaharaController::class, 'verifyBatch'])->name('batch.verify');
+    // Dalam group bendahara
+    Route::get('/rekap', [RekapController::class, 'rekap'])->name('rekap');
+    Route::get('/iuran', [RekapController::class, 'iuran'])->name('iuran');
 });
 
 // ── ASPAPI DAERAH PORTAL ──
@@ -222,5 +230,11 @@ Route::prefix('admin')
             ->name('member.verify.reject');
         Route::post('/verifikasi-anggota/{id}/approve-old', [\App\Http\Controllers\Admin\MemberVerificationController::class, 'approveOldMember'])
             ->name('member.verify.approve-old');
-    });
+
+        Route::post('/anggota/{member}/reset-password', [ResetPasswordController::class, 'reset'])
+            ->name('member.reset-password');
+
+        Route::post('/anggota/{member}/set-password', [ResetPasswordController::class, 'setPassword'])
+            ->name('member.set-password');
+            });
 
