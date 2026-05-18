@@ -74,7 +74,7 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
 });
 
 // ── BENDAHARA PORTAL ──
-Route::prefix('bendahara')->name('ben   dahara.')->middleware(['auth', 'role:bendahara,admin'])->group(function () {
+Route::prefix('bendahara')->name('bendahara.')->middleware(['auth', 'role:bendahara,admin'])->group(function () {
     Route::get('/',                          [BendaharaController::class, 'index'])->name('dashboard');
     Route::get('/pembayaran',                [BendaharaController::class, 'payments'])->name('payments');
     Route::post('/pembayaran/{id}/verify',   [BendaharaController::class, 'verify'])->name('payment.verify');
