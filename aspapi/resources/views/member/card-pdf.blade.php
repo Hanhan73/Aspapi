@@ -52,13 +52,13 @@
         position: absolute;
         left: 67mm;
         top: 28mm;
-        width: 14mm;
+        width: 10mm;
         height: 18mm;
-        overflow: hidden;         /* crop jika foto terlalu besar/panjang */
-        background: #c0c8d0;
+        overflow: hidden; 
+        border-radius: 12px;        /* crop jika foto terlalu besar/panjang */
     }
     .photo-wrap img {
-        width: 14mm;              /* fixed width — tidak stretch horizontal */
+        width: 10mm;              /* fixed width — tidak stretch horizontal */
         height: auto;             /* proporsional */
         display: block;
         /* Crop dari atas: foto pas foto biasanya wajah di atas */
@@ -89,7 +89,7 @@
     .member-name {
         position: absolute;
         top: 37mm;
-        left: 20.5mm;
+        left: 23.5mm;
         right: 16mm;              /* beri ruang foto kanan */
         font-size: 7.5pt;
         font-weight: 900;
@@ -105,7 +105,7 @@
     .member-nia {
         position: absolute;
         top: 41mm;
-        left: 20.5mm;
+        left: 23.5mm;
         right: 16mm;
         font-size: 5.5pt;
         font-weight: 700;
@@ -122,12 +122,11 @@
     .member-valid {
         position: absolute;
         top: 44.5mm;
-        left: 17mm;              /* mulai sedikit dari kiri seperti referensi */
+        left: 23.5mm;              /* mulai sedikit dari kiri seperti referensi */
         right: 16mm;
         font-size: 5.5pt;
         font-weight: 700;
         color: #ffffff;
-        background: #C0392B;
         padding: 0.9mm 2mm;
         display: block;
         white-space: nowrap;
