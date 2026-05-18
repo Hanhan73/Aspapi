@@ -64,9 +64,7 @@
         width: 16mm;
         height: 20mm;
         display: block;
-        margin-left: -1mm;
-        margin-top: -1mm;
-    
+        margin-left: -1mm;    
 
     .photo-placeholder {
         width: 100%;
