@@ -52,18 +52,18 @@
     /* ── Foto: pojok kanan atas, ukuran lebih besar ─────────────────── */
     .photo-wrap {
         position: absolute;
-        right: 13.5mm;
+        right: 2mm;
         top: 27mm;
         width: 14mm;
-        height: auto;
+        height: 18mm;
         overflow: hidden;
-        border-radius: 10px;
+        border-radius: 4px;
     }
     .photo-wrap img {
-        width: 14mm;
-        height: auto;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        object-position: top center;
+        object-position: center top;
         display: block;
     }
     .photo-placeholder {
@@ -91,7 +91,7 @@
     /* ── Nama: sejajar horizontal dengan QR tengah ──────────────────── */
     .member-name {
         position: absolute;
-        top: 36mm;
+        top: 33mm;
         left: 24mm;
         right: 18mm;
         font-size: 9pt;
@@ -107,26 +107,28 @@
     /* ── NIA: di bawah nama ──────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 39mm;
+        top: 37mm;
         left: 24mm;
         right: 18mm;
-        font-size: 5pt;
-        font-weight: 900;
+        font-size: 7pt;
+        font-weight: 700;
         color: #0D2240;
         font-family: 'Courier New', Courier, monospace;
         letter-spacing: 0.06em;
+        line-height: 1.1;
     }
 
     /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
     .member-valid {
         position: absolute;
-        top: 40mm;
+        top: 42.5mm;
         left: 0;
-        right: 18mm;
-        font-size: 4pt;
+        right: 0;
+        background-color: #C0272D;  /* merah ASPAPI */
+        font-size: 7pt;
         font-weight: 700;
         color: #ffffff;
-        padding: 1mm 7mm;
+        padding: 1mm 7mm 1mm 24mm;
         display: block;
         white-space: nowrap;
         line-height: 1.4;
