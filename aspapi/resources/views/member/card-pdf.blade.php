@@ -106,7 +106,7 @@
     /* ── NIA: di bawah nama ──────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 34.5mm;
+        top: 35.5mm;
         left: 24mm;
         right: 18mm;
         font-size: 6pt;
