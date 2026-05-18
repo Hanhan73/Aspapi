@@ -62,7 +62,7 @@
     }
     .photo-wrap img {
         width: 16mm;
-        height: 19mm;
+        height: 20mm;
         display: block;
         margin-left: -1mm;
         margin-top: -1mm;
