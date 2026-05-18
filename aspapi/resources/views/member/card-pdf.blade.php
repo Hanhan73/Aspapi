@@ -55,7 +55,7 @@
         right: 12mm;
         top: 27mm;
         width: 14mm;
-        height: 18mm;
+        height: 16mm;
         overflow: hidden;
         border-radius: 10px;
         border: 1px solid #b0bac5;
@@ -67,7 +67,7 @@
         object-position: top center;
         display: block;
     }
-    
+
     .photo-placeholder {
         width: 100%;
         height: 100%;

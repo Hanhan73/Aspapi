@@ -286,15 +286,55 @@
                             <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#C0392B;">Kongres Keempat</p>
                             <h3 style="font-size:1.1rem;font-weight:700;color:#1A2A3A;line-height:1.3;">Kongres ke-IV ASPAPI</h3>
                         </div>
-                        <span class="badge" style="background:#FEF8EC;color:#B8860B;margin-left:auto;">Oktober 2022</span>
+                        <span class="badge" style="background:#FEF8EC;color:#B8860B;margin-left:auto;">24–28 Oktober 2022</span>
                     </div>
-                    <p style="font-size:0.8rem;color:#B0CCDF;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.375rem;">
+                    <p style="font-size:0.8rem;color:#B0CCDF;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.375rem;">
                         <svg style="width:14px;height:14px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        Indonesia
+                        Hotel Agro Beach Resort, Kabupaten Bintan, Kepulauan Riau
                     </p>
-                    <div style="background:#FEF8EC;border:1px dashed #E8B84B;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
-                        <p style="font-size:0.8rem;color:#B8860B;">Informasi lengkap mengenai Kongres ke-IV akan segera ditambahkan.</p>
+                    <div style="font-size:0.875rem;color:#4A6580;line-height:1.9;" class="space-y-3">
+                        <p>Kongres ke-IV ASPAPI dilaksanakan pada tanggal 24–28 Oktober 2022 di Hotel Agro Beach Resort, Kabupaten Bintan, Provinsi Kepulauan Riau. Kegiatan ini menjadi forum tertinggi organisasi dalam merumuskan arah kebijakan serta memperkuat eksistensi ASPAPI di tingkat nasional.</p>
+                        <p>Pembukaan kongres dihadiri oleh <strong style="color:#1A2A3A;">Prof. Dr. Henry Eryanto, M.M.</strong> selaku Ketua ASPAPI periode sebelumnya, yang dalam sambutannya menegaskan pentingnya transformasi administrasi perkantoran di tengah perkembangan teknologi digital yang semakin pesat.</p>
                     </div>
+
+                    {{-- Rangkaian Kegiatan --}}
+                    <div class="space-y-2 my-4">
+                        @foreach ([
+                            ['Hari Pertama — Pembukaan', 'Sambutan Ketua ASPAPI periode 2018–2022, Prof. Dr. Henry Eryanto, M.M., menekankan perlunya peningkatan kompetensi SDM agar tetap relevan dengan kebutuhan dunia kerja di era digital.'],
+                            ['Hari Kedua — Seminar Nasional', 'Bertema "Eksistensi Administrasi Perkantoran: Hilang atau Terjang", menghadirkan Prof. Dr. Henry Eryanto, M.M. sebagai pembicara utama dan Dr. Ir. Hilda Herasmus, S.Kom., M.Kom. sebagai narasumber dari kalangan praktisi industri.'],
+                            ['Hari Ketiga — Pelatihan & Sertifikasi', 'Penguatan kapasitas organisasi melalui pelatihan dan sertifikasi asesor ASPAPI, dilanjutkan penyampaian laporan pertanggungjawaban pengurus periode sebelumnya.'],
+                            ['Hari Keempat — Sidang Pleno & Pemilihan', 'Puncak kongres berupa sidang pleno pemilihan Ketua Umum ASPAPI periode 2022–2026. Terpilih Dr. Rasto, M.Pd. sebagai Ketua Umum yang baru.'],
+                            ['Hari Kelima — Penutupan', 'Dokumentasi bersama dan kepulangan peserta ke daerah masing-masing.'],
+                        ] as $i => $agenda)
+                        <div style="background:#FEF8EC;border-radius:4px;padding:0.75rem 0.875rem;display:flex;gap:0.75rem;">
+                            <div style="width:20px;height:20px;border-radius:50%;background:#E8B84B;color:#1A2A3A;font-size:0.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">{{ $i + 1 }}</div>
+                            <div>
+                                <p style="font-size:0.8rem;font-weight:700;color:#1A2A3A;">{{ $agenda[0] }}</p>
+                                <p style="font-size:0.78rem;color:#4A6580;margin-top:0.2rem;line-height:1.6;">{{ $agenda[1] }}</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Narasumber Seminar --}}
+                    <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B8860B;margin-bottom:0.75rem;">Narasumber Seminar Nasional</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        @foreach ([
+                            ['Prof. Dr. Henry Eryanto, M.M.', 'Pembicara Utama — Universitas Negeri Jakarta'],
+                            ['Dr. Ir. Hilda Herasmus, S.Kom., M.Kom.', 'Narasumber Praktisi Industri'],
+                        ] as $ns)
+                        <div style="display:flex;align-items:flex-start;gap:0.625rem;background:#FEF8EC;padding:0.625rem 0.875rem;border-radius:4px;">
+                            <div style="width:7px;height:7px;border-radius:50%;background:#E8B84B;margin-top:5px;flex-shrink:0;"></div>
+                            <div>
+                                <p style="font-size:0.8rem;font-weight:700;color:#1A2A3A;">{{ $ns[0] }}</p>
+                                <p style="font-size:0.75rem;color:#4A6580;">{{ $ns[1] }}</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <p style="font-size:0.875rem;color:#4A6580;line-height:1.9;">Seminar menegaskan bahwa profesi administrasi perkantoran akan tetap eksis selama organisasi masih berjalan, namun memerlukan <strong style="color:#1A2A3A;">adaptasi berbasis teknologi digital</strong> dalam pelaksanaannya.</p>
+
                     <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid #FEF8EC;">
                         <div style="background:#FEF8EC;border-radius:4px;padding:0.75rem 1rem;display:inline-block;">
                             <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;">Ketua Umum Terpilih</p>
