@@ -52,12 +52,13 @@
     /* ── Foto: pojok kanan atas, ukuran lebih besar ─────────────────── */
     .photo-wrap {
         position: absolute;
-        right: 2mm;
+        right: 12mm;
         top: 27mm;
         width: 14mm;
         height: 18mm;
         overflow: hidden;
-        border-radius: 4px;
+        border-radius: 10px;
+        border: 1px solid #b0bac5;
     }
     .photo-wrap img {
         width: 100%;
@@ -94,7 +95,7 @@
         top: 33mm;
         left: 24mm;
         right: 18mm;
-        font-size: 9pt;
+        font-size: 6pt;
         font-weight: 900;
         color: #0D2240;
         letter-spacing: 0.02em;
@@ -110,10 +111,9 @@
         top: 37mm;
         left: 24mm;
         right: 18mm;
-        font-size: 7pt;
-        font-weight: 700;
+        font-size: 6pt;
+        font-weight: 900;
         color: #0D2240;
-        font-family: 'Courier New', Courier, monospace;
         letter-spacing: 0.06em;
         line-height: 1.1;
     }
@@ -121,11 +121,10 @@
     /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
     .member-valid {
         position: absolute;
-        top: 42.5mm;
+        top: 39.5mm;
         left: 0;
         right: 0;
-        background-color: #C0272D;  /* merah ASPAPI */
-        font-size: 7pt;
+        font-size: 4pt;
         font-weight: 700;
         color: #ffffff;
         padding: 1mm 7mm 1mm 24mm;
