@@ -23,7 +23,7 @@
 <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
  
     {{-- Background image kartu --}}
-    <img src="{{ $frontBase64 ?? asset('images/kta-front.png') }}"
+    <img src="{{ $frontBase64 ?? asset('images/kta-depan.png') }}"
          style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;"
          alt=""/>
  
@@ -41,17 +41,7 @@
             </div>
         @endif
     </div>
- 
-    {{-- QR code — kiri bawah --}}
-    @if(isset($qrBase64) && $qrBase64)
-    <div style="position:absolute;left:27px;top:117px;width:54px;height:54px;overflow:hidden;">
-        <img src="{{ $qrBase64 }}" style="width:54px;height:54px;display:block;" alt="QR"/>
-    </div>
-    @else
-    <div style="position:absolute;left:27px;top:117px;width:54px;height:54px;background:#eee;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:7px;color:#999;">QR</span>
-    </div>
-    @endif
+
  
     {{-- Nama --}}
     <div style="position:absolute;top:127px;left:90px;right:70px;
