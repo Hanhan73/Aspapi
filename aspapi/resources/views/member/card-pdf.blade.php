@@ -6,7 +6,7 @@
 
     /* ══════════════════════════════════════════════════════════════════
        CR80 landscape: 85.6mm × 53.98mm
-       DomPDF: 2 halaman dalam 1 dokumen = total height 107.96mm
+       2 halaman dalam 1 dokumen = body height 107.96mm
        ══════════════════════════════════════════════════════════════════ */
     @page {
         size: 85.6mm 53.98mm;
@@ -17,16 +17,14 @@
         margin: 0;
         padding: 0;
         width: 85.6mm;
-        height: 107.96mm; /* 2 × 53.98mm — kunci agar pas 2 halaman */
+        height: 107.96mm;
         overflow: hidden;
         font-family: Arial, Helvetica, sans-serif;
     }
 
-    * {
-        box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    /* ── KARTU (satu sisi = 1 halaman) ─────────────────────────────── */
+    /* ── KARTU wrapper ──────────────────────────────────────────────── */
     .card {
         position: relative;
         width: 85.6mm;
@@ -34,125 +32,118 @@
         overflow: hidden;
         page-break-after: always;
     }
-
-    .card:last-child {
-        page-break-after: avoid;
-    }
+    .card:last-child { page-break-after: avoid; }
 
     /* Background penuh */
     .card-bg {
         position: absolute;
-        top: 0;
-        left: 0;
+        top: 0; left: 0;
         width: 85.6mm;
         height: 53.98mm;
         display: block;
     }
 
     /* ══════════════════════════════════════════════════════════════════
-       SISI DEPAN — posisi elemen di atas background kta-depan.png
-       Sesuaikan top/left/right berdasarkan desain background Anda.
-       Nilai di bawah adalah estimasi umum untuk layout KTA ASPAPI.
+       POSISI ELEMEN — diukur dari gambar referensi (Rasto)
+       Card: 85.6mm × 53.98mm
        ══════════════════════════════════════════════════════════════════ */
 
-    /* Foto anggota — pojok kanan tengah */
+    /* ── Foto anggota ─────────────────────────────────────────────────
+       Posisi: kanan, sejajar dengan nama & NIA
+       ref: right≈2.4mm, top≈28.3mm, w≈12.2mm, h≈22mm
+       Gunakan width=height agar tidak stretch:
+       DomPDF tidak support object-fit, jadi kita crop via overflow hidden
+       ──────────────────────────────────────────────────────────────── */
     .photo-wrap {
         position: absolute;
-        top: 13mm;
-        right: 4mm;
-        width: 16mm;
-        height: 20mm;
+        top: 28.5mm;
+        right: 18.5mm;
+        width: 12.5mm;
+        height: 16mm;        /* proporsi 3:4 (pas foto standar) */
         overflow: hidden;
-        border: 0.3mm solid #ccc;
-        background: #eee;
+        background: #c0c8d0;
     }
     .photo-wrap img {
-        width: 100%;
-        height: 100%;
-        /* DomPDF tidak support object-fit, gunakan width/height 100% */
+        width: 12.5mm;       /* fixed width = container width */
+        height: auto;        /* auto height — DomPDF respects this */
         display: block;
+        min-height: 16mm;
     }
     .photo-placeholder {
         width: 100%;
         height: 100%;
-        background: #dde;
+        background: #b0bac5;
         display: block;
     }
 
-    /* QR Code — pojok kiri bawah */
+    /* ── QR Code ──────────────────────────────────────────────────────
+       ref: left≈3.4mm, top≈33.1mm, size≈12.1mm
+       ──────────────────────────────────────────────────────────────── */
     .qr-wrap {
         position: absolute;
-        bottom: 3mm;
-        left: 3mm;
-        width: 14mm;
-        height: 14mm;
+        left: 3.5mm;
+        top: 33mm;
+        width: 12mm;
+        height: 12mm;
+        overflow: hidden;
     }
     .qr-wrap img {
-        width: 14mm;
-        height: 14mm;
+        width: 12mm;
+        height: 12mm;
         display: block;
     }
 
-    /* Nama anggota */
+    /* ── Nama anggota ─────────────────────────────────────────────────
+       ref: left≈21.6mm, top≈34.0mm
+       Sejajar horizontal dengan QR
+       ──────────────────────────────────────────────────────────────── */
     .member-name {
         position: absolute;
-        top: 28mm;
-        left: 20mm;
-        right: 22mm;
-        font-size: 6.5pt;
+        top: 33.5mm;
+        left: 17mm;
+        right: 16.5mm;       /* beri ruang untuk foto */
+        font-size: 7pt;
         font-weight: 900;
         color: #0D2240;
-        letter-spacing: 0.03em;
-        line-height: 1.2;
+        letter-spacing: 0.02em;
+        line-height: 1.1;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    /* NIA */
+    /* ── NIA ──────────────────────────────────────────────────────────
+       ref: left≈21.6mm, top≈39.8mm
+       ──────────────────────────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 33mm;
-        left: 20mm;
-        right: 22mm;
-        font-size: 5pt;
+        top: 39mm;
+        left: 17mm;
+        right: 16.5mm;
+        font-size: 5.5pt;
         font-weight: 700;
         color: #0D2240;
         font-family: 'Courier New', Courier, monospace;
         letter-spacing: 0.05em;
     }
 
-    /* Jenis anggota */
-    .member-type {
-        position: absolute;
-        top: 37mm;
-        left: 20mm;
-        right: 22mm;
-        font-size: 4.5pt;
-        color: #4A6580;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
-
-    /* Berlaku sampai — kotak merah */
+    /* ── Berlaku sampai — strip merah ─────────────────────────────────
+       ref: left≈21.4mm, top≈43.5mm, tinggi≈5mm
+       ──────────────────────────────────────────────────────────────── */
     .member-valid {
         position: absolute;
-        bottom: 4mm;
-        left: 20mm;
-        right: 22mm;
-        font-size: 4.5pt;
+        top: 38mm;
+        left: 17mm;
+        right: 16.5mm;
+        font-size: 5pt;
         font-weight: 700;
         color: #ffffff;
         background: #C0392B;
-        padding: 0.6mm 1.5mm;
-        display: inline-block;
+        padding: 0.8mm 2mm;
+        display: block;
         white-space: nowrap;
+        line-height: 1.2;
     }
-
-    /* ══════════════════════════════════════════════════════════════════
-       SISI BELAKANG — tidak ada elemen teks, hanya background
-       ══════════════════════════════════════════════════════════════════ */
 
     </style>
 </head>
@@ -161,21 +152,21 @@
     {{-- ════════════════ SISI DEPAN ════════════════ --}}
     <div class="card">
 
-        {{-- Background depan --}}
+        {{-- Background --}}
         @if($frontBase64)
         <img class="card-bg" src="{{ $frontBase64 }}" alt=""/>
         @endif
 
-        {{-- Foto anggota --}}
+        {{-- Foto — kanan, sejajar nama & NIA --}}
         <div class="photo-wrap">
             @if($photoBase64)
-                <img src="{{ $photoBase64 }}" alt="Foto"/>
+                <img src="{{ $photoBase64 }}" alt=""/>
             @else
                 <span class="photo-placeholder"></span>
             @endif
         </div>
 
-        {{-- QR Code --}}
+        {{-- QR Code — kiri, sejajar nama --}}
         @if($qrBase64)
         <div class="qr-wrap">
             <img src="{{ $qrBase64 }}" alt="QR"/>
@@ -188,27 +179,18 @@
         {{-- NIA --}}
         <div class="member-nia">NIA. {{ $member->member_number }}</div>
 
-        {{-- Jenis anggota --}}
-        <div class="member-type">{{ $member->member_type_label ?? 'Anggota Biasa' }}</div>
-
         {{-- Berlaku s.d. --}}
-        <div class="member-valid">
-            Berlaku s.d.:
-            {{ $member->active_until
-                ? $member->active_until->translatedFormat('d F Y')
-                : now()->addYear()->translatedFormat('d F Y') }}
-        </div>
+        <div class="member-valid">Berlaku Sampai: {{ $member->active_until
+            ? $member->active_until->translatedFormat('d F Y')
+            : now()->addYear()->translatedFormat('d F Y') }}</div>
 
     </div>
 
     {{-- ════════════════ SISI BELAKANG ════════════════ --}}
     <div class="card">
-
-        {{-- Background belakang --}}
         @if($backBase64)
         <img class="card-bg" src="{{ $backBase64 }}" alt=""/>
         @endif
-
     </div>
 
 </body>
