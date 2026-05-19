@@ -37,9 +37,7 @@
     $firstTab = $activeCategories->keys()->first() ?? '';
 @endphp
 
-<section class="py-12 bg-neutral-50"
-    x-data="{ activeTab: '{{ $firstTab }}' }">
-
+<section class="py-12 bg-neutral-50" x-data="{ activeTab: '{{ $firstTab }}' }">
     <div class="max-w-7xl mx-auto px-6">
 
         {{-- Tab bar --}}
@@ -103,26 +101,25 @@
                 </div>
             @else
                 {{--
-                    Grid dengan card height seragam:
-                    - items-stretch  → semua card dalam satu baris tingginya sama
-                    - Logo area: h-40 fixed, bg putih, padding sedang, object-contain
-                    - Body: flex-col flex-1 supaya nama & deskripsi push button ke bawah
+                    items-start: card tidak di-stretch ke tinggi baris tetangga
+                    sehingga card yang sedang expand tidak mendorong card lain
                 --}}
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-stretch">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-start">
                     @foreach ($items as $partner)
-                    <div class="bg-white border border-neutral-200 rounded-lg shadow-sm hover:shadow-md
-                                transition-all duration-300 hover:-translate-y-0.5
-                                flex flex-col overflow-hidden">
 
-                        {{-- Logo area — tinggi fixed, logo di-center --}}
+                    <div x-data="{ expanded: false }"
+                         class="bg-white border border-neutral-200 rounded-lg shadow-sm hover:shadow-md
+                                transition-shadow duration-300 flex flex-col overflow-hidden">
+
+                        {{-- Logo area — tinggi fixed --}}
                         <div class="h-36 bg-white flex items-center justify-center p-5 border-b border-neutral-100 flex-shrink-0">
                             @if ($partner->logo)
                                 <img src="{{ Storage::url($partner->logo) }}"
                                      alt="Logo {{ $partner->name }}"
                                      class="w-full h-full object-contain"
-                                     style="max-height: 100px;">
+                                     style="max-height:100px;">
                             @else
-                                <div class="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                                <div class="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center">
                                     <span class="text-primary font-black text-base">
                                         {{ strtoupper(substr($partner->name, 0, 2)) }}
                                     </span>
@@ -130,27 +127,41 @@
                             @endif
                         </div>
 
-                        {{-- Body — flex-1 supaya tombol selalu di bawah --}}
+                        {{-- Body --}}
                         <div class="p-4 flex flex-col flex-1">
 
-                            {{-- Nama: clamp 2 baris supaya tinggi seragam --}}
+                            {{-- Nama: clamp 2 baris --}}
                             <h3 class="font-bold text-navy text-sm leading-snug"
                                 style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6rem;">
                                 {{ $partner->name }}
                             </h3>
 
-                            {{-- Deskripsi: clamp 3 baris --}}
                             @if ($partner->profile)
-                                <p class="text-xs text-neutral-500 mt-2 leading-relaxed"
-                                   style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:3.9rem;">
-                                    {{ $partner->profile }}
-                                </p>
+                                <div class="mt-2">
+                                    {{--
+                                        Collapsed  : line-clamp-3 (3 baris)
+                                        Expanded   : line-clamp-none (full teks)
+                                        Transisi tinggi pakai max-height trick lewat Alpine
+                                    --}}
+                                    <p class="text-xs text-neutral-500 leading-relaxed"
+                                       :class="expanded ? '' : 'line-clamp-3'"
+                                       style="word-break:break-word;">
+                                        {{ $partner->profile }}
+                                    </p>
+
+                                    {{-- Tombol toggle --}}
+                                    <button @click="expanded = !expanded"
+                                            class="mt-1.5 flex items-center gap-0.5 text-2xs font-bold text-primary
+                                                   hover:text-primary-700 transition-colors duration-150 focus:outline-none">
+                                        <span x-text="expanded ? 'Sembunyikan ↑' : 'Selengkapnya ↓'"></span>
+                                    </button>
+                                </div>
                             @else
-                                {{-- Placeholder agar tinggi tetap konsisten --}}
-                                <div style="min-height:3.9rem;"></div>
+                                {{-- Placeholder agar card tanpa deskripsi tidak terlalu pendek --}}
+                                <div class="mt-2" style="min-height:4.5rem;"></div>
                             @endif
 
-                            {{-- Spacer + Tombol selalu di bagian bawah card --}}
+                            {{-- Tombol website — selalu di bawah --}}
                             <div class="mt-auto pt-3">
                                 @if ($partner->website_url)
                                     <a href="{{ $partner->website_url }}"
@@ -159,13 +170,13 @@
                                         Kunjungi Website ↗
                                     </a>
                                 @else
-                                    {{-- Placeholder kosong agar card tanpa link tetap setinggi yang punya link --}}
                                     <div class="h-8"></div>
                                 @endif
                             </div>
-                        </div>
 
+                        </div>
                     </div>
+
                     @endforeach
                 </div>
             @endif
