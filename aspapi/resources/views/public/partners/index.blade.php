@@ -41,7 +41,7 @@
 
         {{-- Search bar + info hasil pencarian --}}
         <div class="mb-8">
-            <form method="GET" action="{{ route('public.partners.index') }}"
+            <form method="GET" action="{{ route('partners.index') }}"
                   class="flex flex-col sm:flex-row gap-2 max-w-lg">
 
                 {{-- Kirim tab aktif supaya tidak reset saat search --}}
@@ -68,7 +68,7 @@
                 </button>
 
                 @if ($search)
-                    <a href="{{ route('public.partners.index', ['tab' => $activeTab]) }}"
+                    <a href="{{ route('partners.index', ['tab' => $activeTab]) }}"
                        class="btn btn-outline text-sm px-3 py-2.5 flex-shrink-0 flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -180,7 +180,7 @@
                             <span class="font-semibold text-neutral-600">"{{ $search }}"</span>
                             di kategori <span class="font-semibold text-neutral-600">{{ $label }}</span>.
                         </p>
-                        <a href="{{ route('public.partners.index', ['tab' => $key]) }}"
+                        <a href="{{ route('partners.index', ['tab' => $key]) }}"
                            class="mt-3 inline-block text-xs text-primary hover:underline">
                             Tampilkan semua mitra {{ $label }}
                         </a>
