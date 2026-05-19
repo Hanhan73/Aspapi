@@ -44,7 +44,8 @@ class PaymentController extends Controller
                 return back()->with('error', 'Anda sudah pernah membayar uang pangkal. Pilih iuran tahunan saja.');
             }
             if ($member->hasPaidIuranTahunan()) {
-                return back()->with('error', 'Anda sudah membayar iuran tahunan. Pilih uang pangkal saja.');
+                $activeUntil = $member->active_until->format('d M Y');
+                return back()->with('error', "Iuran tahunan Anda masih aktif hingga {$activeUntil}. Pilih uang pangkal saja.");
             }
         }
 
@@ -58,7 +59,8 @@ class PaymentController extends Controller
         }
 
         if ($type === 'iuran_tahunan' && $member->hasPaidIuranTahunan()) {
-            return back()->with('error', 'Anda sudah membayar iuran tahunan untuk tahun ini.');
+            $activeUntil = $member->active_until->format('d M Y');
+            return back()->with('error', "Iuran tahunan Anda masih aktif hingga {$activeUntil}.");
         }
 
         // ── Simpan bukti & buat record ──────────────────────────────────────

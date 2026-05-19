@@ -81,7 +81,8 @@
                             <th style="padding:0.6rem 0.75rem;text-align:center;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:40px;">#</th>
                             <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Nama Lengkap *</th>
                             <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Email *</th>
-                            <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:100px;">No. Telepon</th>
+                            <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:120px;">No. Telepon</th>
+                            <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:100px;">Institusi</th>
                             <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:70px;">Gender</th>
                             <th style="padding:0.6rem 0.75rem;text-align:center;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:50px;"></th>
                         </tr>
@@ -136,7 +137,9 @@
                         </tbody>
                     </table>
                 </div>
-                <p style="font-size:0.72rem;color:#8A97A4;margin:0.5rem 0 0;">* Wajib diisi. Baris pertama (header) otomatis dilewati saat upload.</p>
+                <p style="font-size:0.72rem;color:#8A97A4;margin:0.5rem 0 0;">
+                    * Wajib diisi. Template memiliki 3 baris header — data diisi mulai baris ke-4.
+                </p>
                 <a href="{{ route('daerah.batch.template') }}"
                    style="display:inline-block;margin-top:0.5rem;font-size:0.72rem;font-weight:700;color:#276749;text-decoration:none;">
                     ⬇ Download Template Excel
@@ -224,6 +227,9 @@
                    style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.5rem 1rem;background:#276749;color:#fff;border-radius:4px;font-size:0.75rem;font-weight:700;text-decoration:none;">
                     ⬇ Download Template Excel
                 </a>
+                <p style="font-size:0.7rem;color:#8A97A4;margin:0.5rem 0 0;">
+                    Isi data mulai <strong>baris ke-4</strong> (baris 1–3 adalah header/instruksi).
+                </p>
             </div>
 
             {{-- Step 2: Upload file --}}
@@ -329,28 +335,29 @@ document.addEventListener('DOMContentLoaded', function () {
 // ══════════════════════════════════════════════════════════════════
 //  ROW MANAGEMENT
 // ══════════════════════════════════════════════════════════════════
-function addRow(name = '', email = '', phone = '', gender = '') {
-    const idx = rowIndex++;
+function addRow(name = '', email = '', phone = '', inst = '', gender = '') {
+    const idx   = rowIndex++;
     const tbody = document.getElementById('participants-body');
-    const tr = document.createElement('tr');
+    const tr    = document.createElement('tr');
     tr.style.cssText = 'border-bottom:1px solid #EEF4FB;';
     tr.dataset.rowId = idx;
+
+    // FIX: Tidak pakai `required` agar browser tidak memblokir submit
+    // saat baris lain kosong. Validasi dilakukan manual di JS sebelum submit.
     tr.innerHTML = `
         <td style="padding:0.5rem 0.75rem;text-align:center;font-size:0.78rem;color:#8A97A4;" class="row-num"></td>
         <td style="padding:0.4rem 0.5rem;">
             <input type="text" name="participants[${idx}][name]" value="${escHtml(name)}"
                    placeholder="Nama lengkap..."
                    style="width:100%;padding:0.375rem 0.5rem;border:1px solid #D6E8F7;border-radius:3px;font-size:0.8rem;color:#1A2A3A;outline:none;"
-                   onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"
-                   required/>
+                   onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
         </td>
         <td style="padding:0.4rem 0.5rem;">
-            <input type="email" name="participants[${idx}][email]" value="${escHtml(email)}"
+            <input type="text" name="participants[${idx}][email]" value="${escHtml(email)}"
                    placeholder="email@contoh.com"
                    class="email-input"
                    style="width:100%;padding:0.375rem 0.5rem;border:1px solid #D6E8F7;border-radius:3px;font-size:0.8rem;color:#1A2A3A;outline:none;"
-                   onfocus="this.style.borderColor='#2A7FC1'" onblur="validateEmailField(this)"
-                   required/>
+                   onfocus="this.style.borderColor='#2A7FC1'" onblur="validateEmailField(this)"/>
         </td>
         <td style="padding:0.4rem 0.5rem;">
             <input type="text" name="participants[${idx}][phone]" value="${escHtml(phone)}"
@@ -359,10 +366,16 @@ function addRow(name = '', email = '', phone = '', gender = '') {
                    onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
         </td>
         <td style="padding:0.4rem 0.5rem;">
+            <input type="text" name="participants[${idx}][institution]" value="${escHtml(inst)}"
+                   placeholder="Institusi..."
+                   style="width:100%;padding:0.375rem 0.5rem;border:1px solid #D6E8F7;border-radius:3px;font-size:0.8rem;color:#1A2A3A;outline:none;"
+                   onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+        </td>
+        <td style="padding:0.4rem 0.5rem;">
             <select name="participants[${idx}][gender]"
                     style="width:100%;padding:0.375rem 0.5rem;border:1px solid #D6E8F7;border-radius:3px;font-size:0.8rem;color:#1A2A3A;outline:none;background:#fff;">
-                <option value="L" ${gender==='L'||gender===''?'selected':''}>L</option>
-                <option value="P" ${gender==='P'?'selected':''}>P</option>
+                <option value="L" ${gender === 'P' ? '' : 'selected'}>L</option>
+                <option value="P" ${gender === 'P' ? 'selected' : ''}>P</option>
             </select>
         </td>
         <td style="padding:0.4rem 0.5rem;text-align:center;">
@@ -387,7 +400,6 @@ function reindexRows() {
     document.querySelectorAll('#participants-body tr').forEach((tr, i) => {
         tr.querySelector('.row-num').textContent = i + 1;
     });
-    // Show/hide hapus semua
     const count = document.querySelectorAll('#participants-body tr').length;
     document.getElementById('btn-clear-all').style.display = count > 1 ? 'inline' : 'none';
 }
@@ -425,25 +437,24 @@ function validateEmailField(input) {
 //  SUMMARY UPDATE
 // ══════════════════════════════════════════════════════════════════
 function updateSummary() {
-    const rows   = document.querySelectorAll('#participants-body tr');
-    const total  = rows.length;
-    let valid    = 0, invalid = 0;
+    const rows  = document.querySelectorAll('#participants-body tr');
+    const total = rows.length;
+    let valid   = 0, invalid = 0;
     const badList = [];
 
     rows.forEach((tr, i) => {
         const email = tr.querySelector('.email-input')?.value?.trim() || '';
-        const name  = tr.querySelector('input[name*="[name]"]')?.value?.trim() || '';
         if (email && !isValidEmail(email)) {
             invalid++;
-            badList.push(`Baris ${i+1}: "${email}"`);
+            badList.push(`Baris ${i + 1}: "${email}"`);
         } else if (email) {
             valid++;
         }
     });
 
-    document.getElementById('total-count').textContent    = total;
-    document.getElementById('summary-count').textContent  = total;
-    document.getElementById('summary-valid').textContent  = valid;
+    document.getElementById('total-count').textContent     = total;
+    document.getElementById('summary-count').textContent   = total;
+    document.getElementById('summary-valid').textContent   = valid;
     document.getElementById('summary-invalid').textContent = invalid;
 
     const panel = document.getElementById('validation-panel');
@@ -460,13 +471,13 @@ function updateSummary() {
 //  UPLOAD EXCEL
 // ══════════════════════════════════════════════════════════════════
 function closeUploadModal() {
-    document.getElementById('modal-upload').style.display = 'none';
-    document.getElementById('excel-file-input').value    = '';
-    document.getElementById('preview-area').style.display = 'none';
-    document.getElementById('preview-tbody').innerHTML   = '';
-    document.getElementById('preview-errors').style.display = 'none';
-    document.getElementById('btn-import').disabled = true;
-    document.getElementById('btn-import').style.opacity = '0.5';
+    document.getElementById('modal-upload').style.display    = 'none';
+    document.getElementById('excel-file-input').value        = '';
+    document.getElementById('preview-area').style.display    = 'none';
+    document.getElementById('preview-tbody').innerHTML        = '';
+    document.getElementById('preview-errors').style.display  = 'none';
+    document.getElementById('btn-import').disabled           = true;
+    document.getElementById('btn-import').style.opacity      = '0.5';
     importedRows = [];
 }
 
@@ -490,8 +501,9 @@ document.getElementById('excel-file-input').addEventListener('change', function 
 });
 
 function parseAndPreview(rawRows) {
-    // Skip header row (baris pertama)
-    const dataRows = rawRows.slice(1).filter(r => r.some(c => String(c).trim()));
+    // FIX: Template memiliki 3 baris header (judul, instruksi, nama kolom).
+    // Skip 3 baris pertama agar data dimulai dari baris ke-4.
+    const dataRows = rawRows.slice(3).filter(r => r.some(c => String(c).trim() !== ''));
 
     importedRows = [];
     const errors = [];
@@ -504,33 +516,34 @@ function parseAndPreview(rawRows) {
         const inst   = String(cols[3] || '').trim();
         const gender = String(cols[4] || 'L').trim().toUpperCase();
 
-        const rowNo   = i + 2; // +2 karena +1 header, +1 index
+        // +4: 3 header rows + 1 untuk konversi dari 0-index ke nomor baris Excel
+        const rowNo   = i + 4;
         const rowErrs = [];
         if (!name)  rowErrs.push('Nama kosong');
         if (!email) rowErrs.push('Email kosong');
         else if (!isValidEmail(email)) rowErrs.push('Email tidak valid');
 
         const ok = rowErrs.length === 0;
-        if (ok) importedRows.push({ name, email, phone, gender });
+        if (ok) importedRows.push({ name, email, phone, inst, gender });
         else    errors.push(`Baris ${rowNo}: ${rowErrs.join(', ')}`);
 
         const statusBadge = ok
             ? `<span style="color:#276749;font-weight:700;">✓</span>`
             : `<span style="color:#C0392B;font-weight:700;" title="${rowErrs.join(', ')}">✕</span>`;
 
-        tbody += `<tr style="border-bottom:1px solid #EEF4FB;background:${ok?'#fff':'#FFF5F5'}">
-            <td style="padding:0.4rem 0.75rem;text-align:center;color:#8A97A4;">${i+1}</td>
-            <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:${ok?'#1A2A3A':'#C0392B'};">${escHtml(name)||'<em style="color:#aaa">kosong</em>'}</td>
-            <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:${ok?'#1A2A3A':'#C0392B'};">${escHtml(email)||'<em style="color:#aaa">kosong</em>'}</td>
+        tbody += `<tr style="border-bottom:1px solid #EEF4FB;background:${ok ? '#fff' : '#FFF5F5'}">
+            <td style="padding:0.4rem 0.75rem;text-align:center;color:#8A97A4;">${i + 1}</td>
+            <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:${ok ? '#1A2A3A' : '#C0392B'};">${escHtml(name) || '<em style="color:#aaa">kosong</em>'}</td>
+            <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:${ok ? '#1A2A3A' : '#C0392B'};">${escHtml(email) || '<em style="color:#aaa">kosong</em>'}</td>
             <td style="padding:0.4rem 0.75rem;text-align:center;">${statusBadge}</td>
         </tr>`;
     });
 
-    document.getElementById('preview-tbody').innerHTML   = tbody;
-    document.getElementById('preview-area').style.display = 'block';
-    document.getElementById('preview-valid-count').textContent   = importedRows.length;
-    document.getElementById('preview-invalid-count').textContent = errors.length;
-    document.getElementById('import-count-label').textContent    = importedRows.length;
+    document.getElementById('preview-tbody').innerHTML            = tbody;
+    document.getElementById('preview-area').style.display         = 'block';
+    document.getElementById('preview-valid-count').textContent    = importedRows.length;
+    document.getElementById('preview-invalid-count').textContent  = errors.length;
+    document.getElementById('import-count-label').textContent     = importedRows.length;
 
     const errPanel = document.getElementById('preview-errors');
     if (errors.length) {
@@ -548,17 +561,15 @@ function parseAndPreview(rawRows) {
 function importFromFile() {
     if (!importedRows.length) return;
 
-    // Hapus semua baris kosong yang ada
+    // Hapus semua baris yang ada
     document.getElementById('participants-body').innerHTML = '';
     rowIndex = 0;
 
     // Tambah baris dari data import
-    importedRows.forEach(r => addRow(r.name, r.email, r.phone, r.gender));
+    importedRows.forEach(r => addRow(r.name, r.email, r.phone, r.inst, r.gender));
 
-    // Tutup modal
+    // Tutup modal & tampilkan notice
     closeUploadModal();
-
-    // Tampilkan notice
     const notice = document.getElementById('import-notice');
     document.getElementById('import-notice-text').textContent =
         `${importedRows.length} peserta berhasil diimport dari file Excel.`;
@@ -598,41 +609,51 @@ document.getElementById('batch-form').addEventListener('submit', async function 
         inp.value = inp.value.trim().toLowerCase();
     });
 
-    // 2. Validasi basic
-    const rows  = document.querySelectorAll('#participants-body tr');
-    if (rows.length === 0) {
+    // 2. Kumpulkan baris yang terisi (minimal nama atau email)
+    const rows = Array.from(document.querySelectorAll('#participants-body tr'));
+    const filledRows = rows.filter(tr => {
+        const name  = tr.querySelector('input[name*="[name]"]')?.value?.trim() || '';
+        const email = tr.querySelector('.email-input')?.value?.trim() || '';
+        return name || email;
+    });
+
+    if (filledRows.length === 0) {
         alert('Tambahkan minimal 1 peserta.');
         return;
     }
 
-    const invalidEmails = [];
-    rows.forEach((tr, i) => {
+    // 3. Validasi baris yang terisi
+    const errors = [];
+    filledRows.forEach((tr, i) => {
+        const name  = tr.querySelector('input[name*="[name]"]')?.value?.trim() || '';
         const email = tr.querySelector('.email-input')?.value?.trim() || '';
-        if (!isValidEmail(email)) invalidEmails.push(`Baris ${i+1}: "${email}"`);
+        const rowLabel = `Baris ${Array.from(rows).indexOf(tr) + 1}`;
+
+        if (!name)              errors.push(`${rowLabel}: Nama wajib diisi.`);
+        if (!email)             errors.push(`${rowLabel}: Email wajib diisi.`);
+        else if (!isValidEmail(email)) errors.push(`${rowLabel}: Email "${email}" tidak valid.`);
     });
 
-    if (invalidEmails.length) {
-        alert('Email tidak valid:\n' + invalidEmails.join('\n'));
+    if (errors.length) {
+        alert('Perbaiki data berikut:\n\n' + errors.join('\n'));
         return;
     }
 
-    // 3. Jika sudah di-flag proceed (setelah konfirmasi duplikat)
+    // 4. Jika sudah di-flag proceed (setelah konfirmasi duplikat)
     if (pendingSubmit) {
         pendingSubmit = false;
         submitForm();
         return;
     }
 
-    // 4. Kumpulkan semua email untuk cek duplikat
-    const emails = [];
-    rows.forEach(tr => {
-        const email = tr.querySelector('.email-input')?.value?.trim();
-        if (email) emails.push(email);
-    });
+    // 5. Kumpulkan semua email untuk cek duplikat
+    const emails = filledRows.map(tr =>
+        tr.querySelector('.email-input')?.value?.trim()
+    ).filter(Boolean);
 
-    // 5. Cek duplikat via AJAX
-    const btn = document.getElementById('btn-submit');
-    btn.disabled = true;
+    // 6. Cek duplikat via AJAX
+    const btn     = document.getElementById('btn-submit');
+    btn.disabled  = true;
     btn.textContent = 'Memeriksa...';
 
     try {
@@ -654,7 +675,6 @@ document.getElementById('batch-form').addEventListener('submit', async function 
             btn.disabled    = false;
             btn.textContent = 'Daftarkan Anggota';
         } else {
-            // Tidak ada duplikat → langsung submit
             pendingSubmit = true;
             submitForm();
         }
@@ -666,7 +686,7 @@ document.getElementById('batch-form').addEventListener('submit', async function 
 });
 
 function submitForm() {
-    const btn = document.getElementById('btn-submit');
+    const btn       = document.getElementById('btn-submit');
     btn.disabled    = true;
     btn.textContent = 'Mendaftarkan...';
     document.getElementById('batch-form').submit();
@@ -676,11 +696,11 @@ function submitForm() {
 //  MODAL DUPLIKAT
 // ══════════════════════════════════════════════════════════════════
 function showDuplicateModal(duplicates) {
-    document.getElementById('dup-count').textContent = duplicates.length;
+    document.getElementById('dup-count').textContent        = duplicates.length;
     document.getElementById('duplicate-panel').style.display = 'block';
 
     let html = '';
-    duplicates.forEach((d, i) => {
+    duplicates.forEach(d => {
         html += `
         <div style="border:1px solid #EEF4FB;border-radius:6px;padding:0.875rem;margin-bottom:0.75rem;">
             <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
@@ -716,8 +736,8 @@ document.getElementById('modal-duplicate').addEventListener('click', function (e
 // ══════════════════════════════════════════════════════════════════
 function escHtml(str) {
     return String(str)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 </script>
 @endpush

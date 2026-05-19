@@ -327,7 +327,7 @@ class MemberImportSeeder extends Seeder
                     'user_id'                 => $user->id,
                     'full_name'               => $name,
                     'email'                   => $email,
-                    'institution'             => $occupation,
+                    'occupation'             => $occupation,
                     'member_type'             => $memberType,
                     'registration_type'       => 'lama',
                     'claims_old_member'       => true,

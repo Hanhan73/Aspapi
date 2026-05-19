@@ -34,15 +34,28 @@
 @else
 
 @php
-    $bisaPangkal = $member->registration_type === 'baru' && !$member->hasPaidUangPangkal();
-    $bisaIuran   = !$member->hasPaidIuranTahunan();
+    $bisaPangkal  = $member->registration_type === 'baru' && !$member->hasPaidUangPangkal();
+    $bisaIuran    = !$member->hasPaidIuranTahunan();
     $bisaGabungan = $bisaPangkal && $bisaIuran;
-    $adaOpsi     = $bisaPangkal || $bisaIuran;
+    $adaOpsi      = $bisaPangkal || $bisaIuran;
+
+    // Untuk banner peringatan: iuran aktif tapi hampir habis
+    $hampirKadaluarsa = !$bisaIuran && $member->isDuesExpiringSoon(30);
 @endphp
+
+{{-- Banner: iuran hampir kadaluarsa (aktif tapi <= 30 hari lagi) --}}
+@if ($hampirKadaluarsa)
+<div style="background:#FEF8EC;border-left:4px solid #E8B84B;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.875rem;color:#8B6914;">
+    ⚠ Masa aktif iuran Anda akan berakhir pada
+    <strong>{{ $member->active_until->format('d M Y') }}</strong>.
+    Silakan siapkan pembayaran perpanjangan sebelum kadaluarsa.
+</div>
+@endif
 
 @if (!$adaOpsi)
 <div style="background:#F0FFF4;border-left:4px solid #276749;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.875rem;color:#276749;">
-    ✓ Semua kewajiban pembayaran Anda untuk tahun ini sudah lunas.
+    ✓ Iuran Anda aktif hingga <strong>{{ $member->active_until?->format('d M Y') ?? '-' }}</strong>.
+    Semua kewajiban pembayaran Anda sudah lunas.
 </div>
 @else
 
@@ -169,7 +182,7 @@
 <script>
 function paymentForm() {
     return {
-        selectedType: '{{ $bisaGabungan ? "gabungan" : ($bisaPangkal ? "uang_pangkal" : "iuran_tahunan") }}',
+        selectedType: '{{ $bisaGabungan ?? false ? "gabungan" : (($bisaPangkal ?? false) ? "uang_pangkal" : "iuran_tahunan") }}',
         init() {},
         getAmount() {
             const map = {

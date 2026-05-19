@@ -30,7 +30,6 @@ class BendaharaController extends Controller
             ->when($request->filled('type'),   fn($q) => $q->where('type', $request->type))
             ->when($request->filled('method'), fn($q) => $q->where('payment_method', $request->method))
             ->when($request->filled('year'),   fn($q) => $q->where('payment_year', $request->year))
-            // FIX: tambah filter search nama/email anggota
             ->when($request->filled('search'), fn($q) =>
                 $q->whereHas('member', fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
@@ -39,7 +38,7 @@ class BendaharaController extends Controller
             )
             ->latest()
             ->paginate(20)
-            ->withQueryString(); // FIX: pertahankan filter saat paginasi
+            ->withQueryString();
 
         return view('bendahara.payments', compact('payments'));
     }
@@ -53,8 +52,25 @@ class BendaharaController extends Controller
             'verified_at' => now(),
         ]);
 
-        if (in_array($payment->type, ['uang_pangkal', 'iuran_tahunan'])) {
-            $payment->member->update([
+        $member = $payment->member;
+
+        if ($payment->type === 'iuran_tahunan') {
+            // Jika member masih punya sisa masa aktif di masa depan (perpanjang lebih awal),
+            // tambahkan 1 tahun dari active_until lama agar tidak rugi hari.
+            // Jika sudah kadaluarsa atau belum pernah bayar, hitung dari sekarang.
+            $baseDate = ($member->active_until && $member->active_until->isFuture())
+                ? $member->active_until->copy()
+                : now();
+
+            $member->update([
+                'dues_paid'    => true,
+                'dues_paid_at' => now(),
+                'active_until' => $baseDate->addYear(),
+            ]);
+
+        } elseif ($payment->type === 'uang_pangkal') {
+            // Uang pangkal bukan iuran periodik, tidak mengatur active_until
+            $member->update([
                 'dues_paid'    => true,
                 'dues_paid_at' => now(),
             ]);
@@ -100,14 +116,12 @@ class BendaharaController extends Controller
     {
         $batches = PaymentBatch::with(['region', 'submitter', 'verifier'])
             ->when($request->filled('status'),    fn($q) => $q->where('status', $request->status))
-            // FIX: tambah filter wilayah dan tahun
             ->when($request->filled('region_id'), fn($q) => $q->where('region_id', $request->region_id))
             ->when($request->filled('year'),      fn($q) => $q->where('payment_year', $request->year))
             ->latest()
             ->paginate(20)
-            ->withQueryString(); // FIX: pertahankan filter saat paginasi
+            ->withQueryString();
 
-        // Untuk dropdown filter wilayah
         $regions = \App\Models\Region::orderBy('province')->get();
 
         return view('bendahara.batches', compact('batches', 'regions'));
@@ -117,20 +131,33 @@ class BendaharaController extends Controller
     {
         $batch = PaymentBatch::with('payments.member')->findOrFail($id);
 
+        $now = now();
+
         $batch->payments()->update([
             'status'      => 'verified',
             'verified_by' => auth()->id(),
-            'verified_at' => now(),
+            'verified_at' => $now,
         ]);
 
         foreach ($batch->payments as $payment) {
-            $payment->member->update(['dues_paid' => true, 'dues_paid_at' => now()]);
+            $member = $payment->member;
+
+            // Hitung active_until per member — logika sama dengan verify mandiri
+            $baseDate = ($member->active_until && $member->active_until->isFuture())
+                ? $member->active_until->copy()
+                : $now->copy();
+
+            $member->update([
+                'dues_paid'    => true,
+                'dues_paid_at' => $now,
+                'active_until' => $baseDate->addYear(),
+            ]);
         }
 
         $batch->update([
             'status'      => 'verified',
             'verified_by' => auth()->id(),
-            'verified_at' => now(),
+            'verified_at' => $now,
         ]);
 
         return back()->with('success', 'Batch berhasil diverifikasi. ' . $batch->member_count . ' anggota diperbarui.');

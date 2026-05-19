@@ -120,20 +120,35 @@ class Member extends Model
             ->exists();
     }
 
-    public function hasPaidIuranTahunan(?int $year = null): bool
+    /**
+     * Cek apakah iuran tahunan masih aktif berdasarkan active_until.
+     * Tidak lagi berbasis payment_year, melainkan tanggal kadaluarsa nyata.
+     */
+    public function hasPaidIuranTahunan(): bool
     {
-        return $this->payments()
-            ->where('type', 'iuran_tahunan')
-            ->where('status', 'verified')
-            ->where('payment_year', $year ?? now()->year)
-            ->exists();
+        return $this->active_until !== null && $this->active_until->isFuture();
+    }
+
+    /**
+     * Cek apakah masa aktif iuran akan segera berakhir dalam N hari ke depan.
+     * Digunakan untuk menampilkan banner peringatan di halaman pembayaran.
+     *
+     * @param int $days Jumlah hari sebelum kadaluarsa untuk mulai memperingatkan (default 30)
+     */
+    public function isDuesExpiringSoon(int $days = 30): bool
+    {
+        if (! $this->active_until || ! $this->active_until->isFuture()) {
+            return false;
+        }
+
+        return now()->diffInDays($this->active_until, false) <= $days;
     }
 
     /**
      * Cek apakah anggota sudah memenuhi syarat generate KTA.
      * - Biodata harus verified
      * - Anggota baru  : uang pangkal sudah diverifikasi bendahara
-     * - Anggota lama  : iuran tahunan sudah diverifikasi bendahara
+     * - Anggota lama  : iuran tahunan masih aktif (active_until di masa depan)
      */
     public function canGenerateCard(): bool
     {
