@@ -95,10 +95,9 @@ Route::prefix('daerah')->name('daerah.')->middleware(['auth', 'role:aspapi_daera
     Route::get('/bayar-batch',   [RegionMemberController::class, 'payBatchForm'])->name('pay.form');
     Route::post('/bayar-batch',  [RegionMemberController::class, 'payBatchStore'])->name('pay.store');
     Route::get('/daftar-batch/template', [RegionMemberController::class, 'downloadTemplate'])
-     ->name('batch.template');
-     Route::post('/check-duplicates', [RegionMemberController::class, 'checkDuplicates'])
-     ->name('batch.check-duplicates');
-
+        ->name('batch.template');
+    Route::post('/check-duplicates', [RegionMemberController::class, 'checkDuplicates'])
+        ->name('batch.check-duplicates');
 });
 
 // ── AUTH ADMIN ──
@@ -209,6 +208,9 @@ Route::prefix('admin')
             ->names('members')
             ->parameters(['anggota' => 'member']);
 
+        Route::post('/anggota/{member}/assign-region', [MemberAdminController::class, 'assignRegion'])
+            ->name('members.assign-region');
+
         // ASPAPI Daerah
         Route::resource('daerah', AdminRegionController::class)
             ->names('regions')
@@ -241,5 +243,4 @@ Route::prefix('admin')
 
         Route::post('/anggota/{member}/set-password', [ResetPasswordController::class, 'setPassword'])
             ->name('member.set-password');
-            });
-
+    });

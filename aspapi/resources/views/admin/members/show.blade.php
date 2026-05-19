@@ -227,6 +227,91 @@
             @endforeach
         </div>
 
+        {{-- ══ ASPAPI Daerah ══ --}}
+        <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
+            <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 1rem;">
+                ASPAPI Daerah
+            </p>
+
+            {{-- Info daerah saat ini --}}
+            @if ($member->registeredByRegion)
+                <div style="background:#EEF4FB;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                    <div>
+                        <p style="font-size:0.72rem;color:#4A6580;margin:0 0 0.125rem;">Saat ini terdaftar di</p>
+                        <p style="font-size:0.875rem;font-weight:700;color:#1A2A3A;margin:0;">
+                            {{ $member->registeredByRegion->name }}
+                        </p>
+                        @if ($member->registeredByRegion->province)
+                            <p style="font-size:0.72rem;color:#8A97A4;margin:0.125rem 0 0;">
+                                {{ $member->registeredByRegion->province }}
+                            </p>
+                        @endif
+                    </div>
+                    <span style="font-size:0.6rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:2px;background:#F0FFF4;color:#276749;flex-shrink:0;">
+                        Assigned
+                    </span>
+                </div>
+            @else
+                <div style="background:#FEF8EC;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+                    <p style="font-size:0.8rem;color:#8B6914;margin:0;">
+                        Belum di-assign ke ASPAPI Daerah manapun.
+                    </p>
+                </div>
+            @endif
+
+            {{-- Auto-suggest berdasarkan provinsi member --}}
+            @if ($suggestedRegions->isNotEmpty())
+                <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A97A4;margin:0 0 0.5rem;">
+                    Saran — Provinsi {{ $member->provinceModel?->name ?? $member->province }}
+                </p>
+                <div style="display:flex;flex-direction:column;gap:0.375rem;margin-bottom:1rem;">
+                    @foreach ($suggestedRegions as $suggested)
+                    <form method="POST" action="{{ route('admin.members.assign-region', $member) }}">
+                        @csrf
+                        <input type="hidden" name="region_id" value="{{ $suggested->id }}"/>
+                        <button type="submit"
+                                style="width:100%;text-align:left;padding:0.5rem 0.75rem;border-radius:4px;font-size:0.8rem;cursor:pointer;
+                                    {{ $member->registered_by_region_id === $suggested->id
+                                        ? 'background:#276749;color:#fff;border:none;font-weight:700;'
+                                        : 'background:#F8FAFC;color:#1A2A3A;border:1.5px solid #D6E8F7;font-weight:400;' }}">
+                            {{ $suggested->name }}
+                            @if ($member->registered_by_region_id === $suggested->id)
+                                <span style="font-size:0.65rem;margin-left:0.25rem;">✓</span>
+                            @endif
+                        </button>
+                    </form>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- Dropdown semua daerah --}}
+            <form method="POST" action="{{ route('admin.members.assign-region', $member) }}"
+                  x-data="{ open: false }">
+                @csrf
+                <label style="display:block;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A97A4;margin-bottom:0.4rem;">
+                    Semua Daerah
+                </label>
+                <select name="region_id"
+                        style="width:100%;padding:0.5rem 0.75rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.8rem;color:#1A2A3A;outline:none;background:#fff;margin-bottom:0.625rem;box-sizing:border-box;">
+                    <option value="">— Lepas dari Daerah —</option>
+                    @foreach ($regions->groupBy('province') as $provinceName => $regionGroup)
+                        <optgroup label="{{ $provinceName }}">
+                            @foreach ($regionGroup as $region)
+                                <option value="{{ $region->id }}"
+                                    {{ $member->registered_by_region_id === $region->id ? 'selected' : '' }}>
+                                    {{ $region->name }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+                <button type="submit"
+                        style="width:100%;padding:0.5rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
+                    Simpan Perubahan
+                </button>
+            </form>
+        </div>
+
         {{-- Foto --}}
         @if ($member->photo)
         <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
@@ -251,14 +336,14 @@
                     ← Kembali ke Daftar
                 </a>
 
-                {{-- ── Reset Password (auto-generate) ── --}}
+                {{-- Reset Password --}}
                 @if ($member->user)
                 <button onclick="document.getElementById('modal-reset-password').style.display='flex'"
                         style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #2A7FC1;color:#2A7FC1;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
                     🔑 Reset Password
                 </button>
 
-                {{-- ── Set Password Manual ── --}}
+                {{-- Set Password Manual --}}
                 <button onclick="document.getElementById('modal-set-password').style.display='flex'"
                         style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #4A6580;color:#4A6580;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
                     ✏️ Set Password Manual
@@ -284,9 +369,7 @@
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════════
-     Modal: Reset Password (auto-generate)
-══════════════════════════════════════════════ --}}
+{{-- Modal: Reset Password --}}
 <div id="modal-reset-password"
      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:8px;padding:2rem;width:420px;max-width:90vw;">
@@ -319,9 +402,7 @@
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════════
-     Modal: Set Password Manual
-══════════════════════════════════════════════ --}}
+{{-- Modal: Set Password Manual --}}
 <div id="modal-set-password"
      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:8px;padding:2rem;width:440px;max-width:90vw;">
@@ -330,8 +411,6 @@
         </h3>
         <form method="POST" action="{{ route('admin.member.set-password', $member->id) }}">
             @csrf
-
-            {{-- Password baru --}}
             <div style="margin-bottom:1rem;">
                 <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.4rem;">
                     Password Baru *
@@ -341,8 +420,6 @@
                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
             </div>
-
-            {{-- Konfirmasi --}}
             <div style="margin-bottom:1.25rem;">
                 <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.4rem;">
                     Konfirmasi Password *
@@ -353,7 +430,6 @@
                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
                 <p id="pw-match-hint" style="font-size:0.72rem;color:#B0CCDF;margin:0.3rem 0 0;"></p>
             </div>
-
             <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
                 <button type="button"
                         onclick="document.getElementById('modal-set-password').style.display='none'"
@@ -402,24 +478,19 @@
 
 @push('scripts')
 <script>
-// Tutup modal klik backdrop
 ['modal-reset-password', 'modal-set-password', 'reject-biodata-modal'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) this.style.display = 'none';
     });
 });
 
-// Cek kecocokan password real-time
-const pwInput    = document.getElementById('new_password');
-const pwConfirm  = document.querySelector('[name="new_password_confirmation"]');
-const pwHint     = document.getElementById('pw-match-hint');
-const btnSetPw   = document.getElementById('btn-set-pw');
+const pwInput   = document.getElementById('new_password');
+const pwConfirm = document.querySelector('[name="new_password_confirmation"]');
+const pwHint    = document.getElementById('pw-match-hint');
+const btnSetPw  = document.getElementById('btn-set-pw');
 
 function checkPasswordMatch() {
-    if (!pwConfirm.value) {
-        pwHint.textContent = '';
-        return;
-    }
+    if (!pwConfirm.value) { pwHint.textContent = ''; return; }
     if (pwInput.value === pwConfirm.value) {
         pwHint.textContent = '✓ Password cocok';
         pwHint.style.color = '#276749';
