@@ -52,7 +52,6 @@
                     : 'border-b-2 border-transparent text-neutral-500 hover:text-navy hover:bg-white/60'"
                 class="flex-shrink-0 flex items-center gap-2 px-5 py-3 -mb-px text-xs font-bold uppercase tracking-wider rounded-t transition-all duration-200">
 
-                {{-- Icon per kategori --}}
                 @if ($key === 'perguruan_tinggi')
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -77,7 +76,6 @@
 
                 {{ $label }}
 
-                {{-- Count badge --}}
                 <span class="ml-1 px-1.5 py-0.5 rounded text-2xs font-bold"
                     :class="activeTab === '{{ $key }}' ? 'bg-primary text-white' : 'bg-neutral-200 text-neutral-500'">
                     {{ $partners->get($key)?->count() ?? 0 }}
@@ -104,18 +102,27 @@
                     <p class="text-sm">Belum ada mitra untuk kategori ini.</p>
                 </div>
             @else
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {{--
+                    Grid dengan card height seragam:
+                    - items-stretch  → semua card dalam satu baris tingginya sama
+                    - Logo area: h-40 fixed, bg putih, padding sedang, object-contain
+                    - Body: flex-col flex-1 supaya nama & deskripsi push button ke bawah
+                --}}
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-stretch">
                     @foreach ($items as $partner)
-                    <div class="card hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col">
+                    <div class="bg-white border border-neutral-200 rounded-lg shadow-sm hover:shadow-md
+                                transition-all duration-300 hover:-translate-y-0.5
+                                flex flex-col overflow-hidden">
 
-                        {{-- Logo area --}}
-                        <div class="h-32 bg-white border-b border-neutral-100 flex items-center justify-center px-6 py-4">
+                        {{-- Logo area — tinggi fixed, logo di-center --}}
+                        <div class="h-36 bg-white flex items-center justify-center p-5 border-b border-neutral-100 flex-shrink-0">
                             @if ($partner->logo)
                                 <img src="{{ Storage::url($partner->logo) }}"
                                      alt="Logo {{ $partner->name }}"
-                                     class="max-h-full max-w-full object-contain">
+                                     class="w-full h-full object-contain"
+                                     style="max-height: 100px;">
                             @else
-                                <div class="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center">
+                                <div class="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                                     <span class="text-primary font-black text-base">
                                         {{ strtoupper(substr($partner->name, 0, 2)) }}
                                     </span>
@@ -123,27 +130,39 @@
                             @endif
                         </div>
 
-                        {{-- Body --}}
+                        {{-- Body — flex-1 supaya tombol selalu di bawah --}}
                         <div class="p-4 flex flex-col flex-1">
-                            <h3 class="font-bold text-navy text-sm leading-snug">{{ $partner->name }}</h3>
 
+                            {{-- Nama: clamp 2 baris supaya tinggi seragam --}}
+                            <h3 class="font-bold text-navy text-sm leading-snug"
+                                style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6rem;">
+                                {{ $partner->name }}
+                            </h3>
+
+                            {{-- Deskripsi: clamp 3 baris --}}
                             @if ($partner->profile)
-                                <p class="text-xs text-neutral-500 mt-2 leading-relaxed flex-1">
-                                    {{ Str::limit($partner->profile, 100) }}
+                                <p class="text-xs text-neutral-500 mt-2 leading-relaxed"
+                                   style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:3.9rem;">
+                                    {{ $partner->profile }}
                                 </p>
                             @else
-                                <div class="flex-1"></div>
+                                {{-- Placeholder agar tinggi tetap konsisten --}}
+                                <div style="min-height:3.9rem;"></div>
                             @endif
 
-                            @if ($partner->website_url)
-                                <div class="mt-4 pt-3 border-t border-neutral-100">
+                            {{-- Spacer + Tombol selalu di bagian bawah card --}}
+                            <div class="mt-auto pt-3">
+                                @if ($partner->website_url)
                                     <a href="{{ $partner->website_url }}"
                                        target="_blank" rel="noopener noreferrer"
-                                       class="btn btn-outline text-xs py-1.5 w-full text-center">
+                                       class="btn btn-outline text-xs py-1.5 w-full text-center block">
                                         Kunjungi Website ↗
                                     </a>
-                                </div>
-                            @endif
+                                @else
+                                    {{-- Placeholder kosong agar card tanpa link tetap setinggi yang punya link --}}
+                                    <div class="h-8"></div>
+                                @endif
+                            </div>
                         </div>
 
                     </div>
