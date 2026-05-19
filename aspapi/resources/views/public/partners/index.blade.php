@@ -16,10 +16,10 @@
             pengembangan profesi di bidang administrasi/manajemen perkantoran Indonesia.
         </p>
 
-        {{-- Stats per kategori --}}
+        {{-- Stats per kategori — selalu pakai total tanpa filter search --}}
         <div class="mt-10 inline-flex flex-wrap justify-center gap-8 bg-white/10 px-10 py-5 rounded-sm">
             @foreach ($categories as $key => $label)
-                @php $count = $partners->get($key)?->total() ?? 0 @endphp
+                @php $count = $totalCounts->get($key, 0) @endphp
                 @if ($count > 0)
                 <div class="text-center">
                     <div class="text-3xl font-bold text-white">{{ $count }}</div>
@@ -33,61 +33,84 @@
 
 {{-- Tab Section --}}
 @php
-    $activeCategories = collect($categories)->filter(fn($label, $key) => $partners->has($key));
+    $activeCategories = collect($categories)->filter(fn($label, $key) => $totalCounts->get($key, 0) > 0);
 @endphp
 
 <section class="py-12 bg-neutral-50" x-data="{ activeTab: '{{ $activeTab }}' }">
     <div class="max-w-7xl mx-auto px-6">
 
-        {{-- Search bar --}}
-        <form method="GET" action="{{ route('partners.index') }}"
-              class="mb-8 flex flex-col sm:flex-row gap-2 max-w-lg">
+        {{-- Search bar + info hasil pencarian --}}
+        <div class="mb-8">
+            <form method="GET" action="{{ route('public.partners.index') }}"
+                  class="flex flex-col sm:flex-row gap-2 max-w-lg">
 
-            {{-- Kirim tab aktif supaya tidak reset saat search --}}
-            <input type="hidden" name="tab" x-bind:value="activeTab">
+                {{-- Kirim tab aktif supaya tidak reset saat search --}}
+                <input type="hidden" name="tab" x-bind:value="activeTab">
 
-            <div class="relative flex-1">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input type="text"
-                       name="search"
-                       value="{{ $search }}"
-                       placeholder="Cari nama mitra..."
-                       class="w-full pl-9 pr-4 py-2.5 text-sm border border-neutral-200 rounded-lg
-                              focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
-                              bg-white shadow-sm">
-            </div>
-
-            <button type="submit"
-                    class="btn btn-primary text-sm px-5 py-2.5 flex-shrink-0">
-                Cari
-            </button>
-
-            @if ($search)
-                <a href="{{ route('partners.index', ['tab' => $activeTab]) }}"
-                   class="btn btn-outline text-sm px-3 py-2.5 flex-shrink-0 flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <div class="relative flex-1">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    Reset
-                </a>
-            @endif
-        </form>
+                    <input type="text"
+                           name="search"
+                           value="{{ $search }}"
+                           placeholder="Cari nama mitra..."
+                           class="w-full pl-9 pr-4 py-2.5 text-sm border border-neutral-200 rounded-lg
+                                  focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+                                  bg-white shadow-sm">
+                </div>
 
-        {{-- Info hasil pencarian --}}
-        @if ($search)
-            <p class="text-sm text-neutral-500 mb-4">
-                Menampilkan hasil pencarian untuk
-                <span class="font-semibold text-navy">"{{ $search }}"</span>
-            </p>
-        @endif
+                <button type="submit"
+                        class="btn btn-primary text-sm px-5 py-2.5 flex-shrink-0">
+                    Cari
+                </button>
+
+                @if ($search)
+                    <a href="{{ route('public.partners.index', ['tab' => $activeTab]) }}"
+                       class="btn btn-outline text-sm px-3 py-2.5 flex-shrink-0 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Reset
+                    </a>
+                @endif
+            </form>
+
+            {{-- Rangkuman hasil pencarian per kategori (hanya muncul saat ada keyword) --}}
+            @if ($search)
+                <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                    <span class="text-xs text-neutral-400">
+                        Hasil untuk <span class="font-semibold text-navy">"{{ $search }}"</span>:
+                    </span>
+                    @foreach ($activeCategories as $key => $label)
+                        @php
+                            $found = $partners->get($key)?->total() ?? 0;
+                            $total = $totalCounts->get($key, 0);
+                        @endphp
+                        <span class="inline-flex items-center gap-1 text-xs {{ $found > 0 ? 'text-neutral-600' : 'text-neutral-400' }}">
+                            <span class="font-bold {{ $found > 0 ? 'text-primary' : 'text-neutral-400' }}">
+                                {{ $found }}
+                            </span>
+                            <span>dari {{ $total }}</span>
+                            <span>{{ $label }}</span>
+                            @if (!$loop->last)
+                                <span class="ml-2 text-neutral-200">|</span>
+                            @endif
+                        </span>
+                    @endforeach
+                </div>
+            @endif
+        </div>
 
         {{-- Tab bar --}}
         <div class="flex gap-2 overflow-x-auto pb-1 mb-10 border-b border-neutral-200 scrollbar-none">
             @foreach ($activeCategories as $key => $label)
+            @php
+                $tabTotal   = $totalCounts->get($key, 0);
+                $tabFiltered = $partners->get($key)?->total() ?? $tabTotal;
+            @endphp
             <button
                 @click="activeTab = '{{ $key }}'"
                 :class="activeTab === '{{ $key }}'
@@ -119,9 +142,14 @@
 
                 {{ $label }}
 
+                {{-- Badge: saat search tampilkan "hasil/total", saat tidak hanya total --}}
                 <span class="ml-1 px-1.5 py-0.5 rounded text-2xs font-bold"
                     :class="activeTab === '{{ $key }}' ? 'bg-primary text-white' : 'bg-neutral-200 text-neutral-500'">
-                    {{ $partners->get($key)?->total() ?? 0 }}
+                    @if ($search && $tabFiltered !== $tabTotal)
+                        {{ $tabFiltered }}/{{ $tabTotal }}
+                    @else
+                        {{ $tabTotal }}
+                    @endif
                 </span>
             </button>
             @endforeach
@@ -152,7 +180,7 @@
                             <span class="font-semibold text-neutral-600">"{{ $search }}"</span>
                             di kategori <span class="font-semibold text-neutral-600">{{ $label }}</span>.
                         </p>
-                        <a href="{{ route('partners.index', ['tab' => $key]) }}"
+                        <a href="{{ route('public.partners.index', ['tab' => $key]) }}"
                            class="mt-3 inline-block text-xs text-primary hover:underline">
                             Tampilkan semua mitra {{ $label }}
                         </a>
@@ -188,7 +216,6 @@
                         {{-- Body --}}
                         <div class="p-4 flex flex-col flex-1">
 
-                            {{-- Nama: clamp 2 baris --}}
                             <h3 class="font-bold text-navy text-sm leading-snug"
                                 style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6rem;">
                                 {{ $partner->name }}
@@ -211,7 +238,6 @@
                                 <div class="mt-2" style="min-height:4.5rem;"></div>
                             @endif
 
-                            {{-- Tombol website --}}
                             <div class="mt-auto pt-3">
                                 @if ($partner->website_url)
                                     <a href="{{ $partner->website_url }}"
@@ -236,7 +262,12 @@
                         {{ $items->links() }}
                         <p class="text-xs text-neutral-400">
                             Menampilkan {{ $items->firstItem() }}–{{ $items->lastItem() }}
-                            dari {{ $items->total() }} mitra
+                            dari {{ $items->total() }}
+                            @if ($search && $items->total() !== $totalCounts->get($key, 0))
+                                hasil pencarian (total {{ $totalCounts->get($key) }} {{ $label }})
+                            @else
+                                mitra
+                            @endif
                         </p>
                     </div>
                 @endif
