@@ -72,7 +72,7 @@ class RegionMemberController extends Controller
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  #4A — BATCH DAFTAR (Upload Excel)
+    //  #4A — BATCH DAFTAR (Manual atau Upload Excel)
     // ══════════════════════════════════════════════════════════════════════════
 
     public function batchForm()
@@ -84,11 +84,26 @@ class RegionMemberController extends Controller
     public function batchStore(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls|max:5120',
+            // File bersifat opsional — kalau tidak ada berarti mode manual
+            'file'         => 'nullable|file|mimes:xlsx,xls|max:5120',
+            'participants' => 'nullable|array',
         ]);
 
         $region = $this->region();
-        $path   = $request->file('file')->getRealPath();
+
+        // Deteksi mode berdasarkan ada tidaknya file
+        if ($request->hasFile('file')) {
+            return $this->processBatchFromExcel($request, $region);
+        }
+
+        return $this->processBatchManual($request, $region);
+    }
+
+    // ── Proses dari Excel ─────────────────────────────────────────────────────
+
+    private function processBatchFromExcel(Request $request, $region)
+    {
+        $path = $request->file('file')->getRealPath();
 
         try {
             $spreadsheet = IOFactory::load($path);
@@ -97,23 +112,28 @@ class RegionMemberController extends Controller
             return back()->withErrors(['file' => 'File Excel tidak bisa dibaca: ' . $e->getMessage()]);
         }
 
-        // Lewati baris header (baris 1)
-        array_shift($rows);
+        // Template memiliki 3 baris header (judul, instruksi, nama kolom).
+        // Data dimulai dari baris ke-4.
+        $rows = array_slice($rows, 3);
 
         $berhasil = 0;
         $gagal    = [];
 
         foreach ($rows as $i => $row) {
-            // Kolom: A=Nama, B=Email, C=Telepon, D=Institusi, E=Gender
             $namaLengkap = trim($row['A'] ?? '');
-            $email       = trim($row['B'] ?? '');
+            $email       = strtolower(trim($row['B'] ?? ''));
             $telepon     = trim($row['C'] ?? '');
             $institusi   = trim($row['D'] ?? '');
             $gender      = strtoupper(trim($row['E'] ?? 'L'));
 
-            $noRow = $i + 1; // +1 karena header sudah digeser
+            // Lewati baris yang benar-benar kosong
+            if (empty($namaLengkap) && empty($email)) {
+                continue;
+            }
 
-            // Validasi baris
+            // +4 karena data mulai baris 4 di file Excel
+            $noRow = $i + 4;
+
             if (empty($namaLengkap) || empty($email)) {
                 $gagal[] = "Baris {$noRow}: Nama dan Email wajib diisi.";
                 continue;
@@ -130,43 +150,48 @@ class RegionMemberController extends Controller
             }
 
             if (!in_array($gender, ['L', 'P'])) {
-                $gender = 'L'; // default
+                $gender = 'L';
             }
 
+<<<<<<< Updated upstream
             // Generate password sementara
             $password = "password123";
+=======
+            $password = Str::random(10);
+>>>>>>> Stashed changes
 
             try {
                 DB::transaction(function () use (
                     $email, $password, $namaLengkap, $telepon, $institusi, $gender, $region
                 ) {
-                    // Buat user
                     $user = User::create([
                         'name'              => $namaLengkap,
                         'email'             => $email,
                         'password'          => Hash::make($password),
                         'role'              => 'anggota',
+<<<<<<< Updated upstream
                         'email_verified' => true,
                         'email_verified_at' => now(), // batch = langsung verified
+=======
+                        'email_verified_at' => now(),
+>>>>>>> Stashed changes
                     ]);
 
-                    // Buat profil member
                     Member::create([
-                        'user_id'                => $user->id,
-                        'full_name'              => $namaLengkap,
-                        'email'                  => $email,
-                        'phone'                  => $telepon,
-                        'institution'            => $institusi,
-                        'gender'                 => $gender,
-                        'biodata_status'         => 'pending',
-                        'status'                 => 'pending',
-                        'registration_type'      => 'baru',
-                        'is_batch'               => true,
-                        'registered_by_region_id'=> $region->id,
-                        'registered_at'          => now(),
+                        'user_id'                 => $user->id,
+                        'full_name'               => $namaLengkap,
+                        'email'                   => $email,
+                        'phone'                   => $telepon,
+                        'institution'             => $institusi,
+                        'gender'                  => $gender,
+                        'biodata_status'          => 'pending',
+                        'status'                  => 'pending',
+                        'registration_type'       => 'baru',
+                        'is_batch'                => true,
+                        'registered_by_region_id' => $region->id,
+                        'registered_at'           => now(),
                     ]);
 
-                    // Kirim email dengan kredensial login
                     try {
                         Mail::send(
                             'emails.batch-welcome',
@@ -179,14 +204,114 @@ class RegionMemberController extends Controller
                 });
 
                 $berhasil++;
-
             } catch (\Exception $e) {
                 $gagal[] = "Baris {$noRow} ({$namaLengkap}): " . $e->getMessage();
-                Log::error("Batch register error row {$noRow}: " . $e->getMessage());
+                Log::error("Batch Excel error row {$noRow}: " . $e->getMessage());
             }
         }
 
+        return $this->batchResponse($berhasil, $gagal);
+    }
+
+    // ── Proses dari Input Manual ──────────────────────────────────────────────
+
+    private function processBatchManual(Request $request, $region)
+    {
+        // Filter baris yang benar-benar kosong (keduanya nama dan email kosong)
+        $participants = collect($request->input('participants', []))
+            ->filter(fn($p) => !empty(trim($p['name'] ?? '')) || !empty(trim($p['email'] ?? '')))
+            ->values();
+
+        if ($participants->isEmpty()) {
+            return back()->withErrors(['participants' => 'Tambahkan minimal 1 peserta.']);
+        }
+
+        $berhasil = 0;
+        $gagal    = [];
+
+        foreach ($participants as $i => $data) {
+            $namaLengkap = trim($data['name'] ?? '');
+            $email       = strtolower(trim($data['email'] ?? ''));
+            $telepon     = trim($data['phone'] ?? '');
+            $institusi   = trim($data['institution'] ?? '');
+            $gender      = strtoupper(trim($data['gender'] ?? 'L'));
+            $noRow       = $i + 1;
+
+            if (empty($namaLengkap) || empty($email)) {
+                $gagal[] = "Baris {$noRow}: Nama dan Email wajib diisi.";
+                continue;
+            }
+
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $gagal[] = "Baris {$noRow}: Email '{$email}' tidak valid.";
+                continue;
+            }
+
+            if (User::where('email', $email)->exists()) {
+                $gagal[] = "Baris {$noRow}: Email '{$email}' sudah terdaftar.";
+                continue;
+            }
+
+            if (!in_array($gender, ['L', 'P'])) {
+                $gender = 'L';
+            }
+
+            $password = Str::random(10);
+
+            try {
+                DB::transaction(function () use (
+                    $email, $password, $namaLengkap, $telepon, $institusi, $gender, $region
+                ) {
+                    $user = User::create([
+                        'name'              => $namaLengkap,
+                        'email'             => $email,
+                        'password'          => Hash::make($password),
+                        'role'              => 'anggota',
+                        'email_verified_at' => now(),
+                    ]);
+
+                    Member::create([
+                        'user_id'                 => $user->id,
+                        'full_name'               => $namaLengkap,
+                        'email'                   => $email,
+                        'phone'                   => $telepon,
+                        'institution'             => $institusi,
+                        'gender'                  => $gender,
+                        'biodata_status'          => 'pending',
+                        'status'                  => 'pending',
+                        'registration_type'       => 'baru',
+                        'is_batch'                => true,
+                        'registered_by_region_id' => $region->id,
+                        'registered_at'           => now(),
+                    ]);
+
+                    try {
+                        Mail::send(
+                            'emails.batch-welcome',
+                            ['name' => $namaLengkap, 'email' => $email, 'password' => $password],
+                            fn($m) => $m->to($email)->subject('Selamat Datang di ASPAPI — Akun Anda Telah Dibuat')
+                        );
+                    } catch (\Exception $e) {
+                        Log::warning("Batch welcome email gagal ke {$email}: " . $e->getMessage());
+                    }
+                });
+
+                $berhasil++;
+            } catch (\Exception $e) {
+                $gagal[] = "Baris {$noRow} ({$namaLengkap}): " . $e->getMessage();
+                Log::error("Batch manual error row {$noRow}: " . $e->getMessage());
+            }
+        }
+
+        return $this->batchResponse($berhasil, $gagal);
+    }
+
+    // ── Helper response batch ─────────────────────────────────────────────────
+
+    private function batchResponse(int $berhasil, array $gagal)
+    {
         $pesan = "Berhasil mendaftarkan {$berhasil} anggota.";
+
         if (!empty($gagal)) {
             $pesan .= ' ' . count($gagal) . ' baris gagal.';
             return back()
@@ -205,7 +330,6 @@ class RegionMemberController extends Controller
     {
         $region = $this->region();
 
-        // Anggota aktif yang belum lunas iuran tahun ini
         $members = Member::where('registered_by_region_id', $region->id)
             ->where('status', 'active')
             ->whereDoesntHave('payments', fn($q) =>
@@ -230,7 +354,6 @@ class RegionMemberController extends Controller
 
         $region = $this->region();
 
-        // Pastikan semua member_ids milik region ini
         $memberIds = Member::whereIn('id', $request->member_ids)
             ->where('registered_by_region_id', $region->id)
             ->pluck('id')
@@ -240,15 +363,11 @@ class RegionMemberController extends Controller
             return back()->withErrors(['member_ids' => 'Tidak ada anggota valid yang dipilih.']);
         }
 
-        // Simpan bukti transfer
-        $receiptPath = $request->file('receipt')->store('receipts/batch', 'public');
-
+        $receiptPath     = $request->file('receipt')->store('receipts/batch', 'public');
         $iuranPerAnggota = 120000;
         $totalAmount     = count($memberIds) * $iuranPerAnggota;
 
         DB::transaction(function () use ($memberIds, $region, $request, $receiptPath, $iuranPerAnggota, $totalAmount) {
-
-            // Buat PaymentBatch
             $batch = PaymentBatch::create([
                 'region_id'    => $region->id,
                 'submitted_by' => auth()->id(),
@@ -259,7 +378,6 @@ class RegionMemberController extends Controller
                 'payment_year' => $request->year,
             ]);
 
-            // Buat Payment per anggota, terhubung ke batch
             foreach ($memberIds as $memberId) {
                 Payment::create([
                     'member_id'      => $memberId,
@@ -293,20 +411,21 @@ class RegionMemberController extends Controller
         return response()->download($filePath, 'template-batch-anggota.xlsx');
     }
 
+    // ── Cek Duplikat Email ────────────────────────────────────────────────────
 
-    public function checkDuplicates(\Illuminate\Http\Request $request)
+    public function checkDuplicates(Request $request)
     {
         $request->validate([
             'emails'   => 'required|array',
             'emails.*' => 'email',
         ]);
- 
+
         $duplicates = [];
- 
+
         foreach ($request->emails as $email) {
-            $user = \App\Models\User::where('email', strtolower(trim($email)))->first();
+            $user = User::where('email', strtolower(trim($email)))->first();
             if ($user) {
-                $member = $user->member;
+                $member       = $user->member;
                 $duplicates[] = [
                     'email'         => $email,
                     'name'          => $member?->full_name ?? $user->name,
@@ -315,11 +434,14 @@ class RegionMemberController extends Controller
                 ];
             }
         }
- 
+
         return response()->json([
             'duplicates' => $duplicates,
             'total'      => count($duplicates),
         ]);
     }
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 }

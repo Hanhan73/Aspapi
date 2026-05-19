@@ -5,15 +5,15 @@
     <style>
 
     @page {
-        size: 85.6mm 48.98mm;
+        size: 88.9mm 50.8mm;
         margin: 0;
     }
 
     html, body {
         margin: 0;
         padding: 0;
-        width: 85.6mm;
-        height: 48.98mm;
+        width: 88.9mm;
+        height: 50.8mm;
         overflow: hidden;
         font-family: Arial, Helvetica, sans-serif;
     }
@@ -22,8 +22,8 @@
 
     .card {
         position: relative;
-        width: 85.6mm;
-        height: 48.98mm;
+        width: 88.9mm;
+        height: 50.8mm;
         overflow: hidden;
         page-break-after: always;
     }
@@ -32,39 +32,28 @@
     .card-bg {
         position: absolute;
         top: 0; left: 0;
-        width: 85.6mm;
-        height: 48.98mm;
+        width: 88.9mm;
+        height: 50.8mm;
         display: block;
     }
 
-    /* ══════════════════════════════════════════════════════════════════
-       KOORDINAT PIXEL-AKURAT dari referensi desain PDF
-       
-       Berdasarkan analisis PDF referensi:
-       - Kartu ukuran: 85.6mm x 48.98mm
-       - Foto: pojok kanan, mulai ~top 27mm, right ~2mm, lebar ~14mm
-       - QR:  left ~7mm, bottom area ~31mm
-       - Nama: left ~28mm, top ~31mm (sejajar dengan QR tengah)
-       - NIA:  left ~28mm, top ~36mm
-       - Berlaku: full width strip merah, top ~42mm
-       ══════════════════════════════════════════════════════════════════ */
-
-    /* ── Foto: pojok kanan atas, ukuran lebih besar ─────────────────── */
+    /* ── Foto: pojok kanan atas ─────────────────────────────────────── */
     .photo-wrap {
         position: absolute;
-        right: 12mm;
-        top: 27mm;
-        width: 14mm;
-        height: 18mm;
+        right: 12.5mm;   /* 12 × 1.03855 */
+        top: 28mm;       /* 27 × 1.03716 */
+        width: 14.5mm;   /* 14 × 1.03855 */
+        height: 18.7mm;  /* 18 × 1.03716 */
         overflow: hidden;
         border-radius: 12px;
         border: 1px solid #b0bac5;
     }
     .photo-wrap img {
-        width: 16mm;
-        height: 20mm;
+        width: 16.6mm;   /* 16 × 1.03855 */
+        height: 20.7mm;  /* 20 × 1.03716 */
         display: block;
-        margin-left: -1mm;    
+        margin-left: -1mm;
+    }
 
     .photo-placeholder {
         width: 100%;
@@ -73,27 +62,27 @@
         display: block;
     }
 
-    /* ── QR: kiri bawah, sejajar tengah dengan nama ─────────────────── */
+    /* ── QR: kiri bawah ─────────────────────────────────────────────── */
     .qr-wrap {
         position: absolute;
-        left: 7mm;
-        top: 29mm;
-        width: 14mm;
-        height: 14mm;
+        left: 7.3mm;     /* 7 × 1.03855 */
+        top: 30.1mm;     /* 29 × 1.03716 */
+        width: 14.5mm;   /* 14 × 1.03855 */
+        height: 14.5mm;  /* 14 × 1.03716 */
         overflow: hidden;
     }
     .qr-wrap img {
-        width: 14mm;
-        height: 14mm;
+        width: 14.5mm;
+        height: 14.5mm;
         display: block;
     }
 
-    /* ── Nama: sejajar horizontal dengan QR tengah ──────────────────── */
+    /* ── Nama ────────────────────────────────────────────────────────── */
     .member-name {
         position: absolute;
-        top: 33mm;
-        left: 24mm;
-        right: 18mm;
+        top: 34.2mm;     /* 33 × 1.03716 */
+        left: 24.9mm;    /* 24 × 1.03855 */
+        right: 18.7mm;   /* 18 × 1.03855 */
         font-size: 6pt;
         font-weight: 900;
         color: #0D2240;
@@ -104,12 +93,12 @@
         text-overflow: ellipsis;
     }
 
-    /* ── NIA: di bawah nama ──────────────────────────────────────────── */
+    /* ── NIA ─────────────────────────────────────────────────────────── */
     .member-nia {
         position: absolute;
-        top: 35.5mm;
-        left: 24mm;
-        right: 18mm;
+        top: 36.8mm;     /* 35.5 × 1.03716 */
+        left: 24.9mm;    /* 24 × 1.03855 */
+        right: 18.7mm;   /* 18 × 1.03855 */
         font-size: 6pt;
         font-weight: 900;
         color: #0D2240;
@@ -120,13 +109,17 @@
     /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
     .member-valid {
         position: absolute;
+<<<<<<< Updated upstream
         top: 39.8mm;
+=======
+        top: 40.9mm;     /* 39.5 × 1.03716 */
+>>>>>>> Stashed changes
         left: 0;
         right: 0;
         font-size: 4pt;
         font-weight: 700;
         color: #ffffff;
-        padding: 1mm 7mm 1mm 24mm;
+        padding: 1mm 7.3mm 1mm 24.9mm;  /* right: 7×1.03855, left: 24×1.03855 */
         display: block;
         white-space: nowrap;
         line-height: 1.4;
@@ -144,7 +137,6 @@
         <img class="card-bg" src="{{ $frontBase64 }}" alt=""/>
         @endif
 
-        {{-- Foto: kanan atas, ukuran 14x18mm --}}
         <div class="photo-wrap">
             @if($photoBase64)
                 <img src="{{ $photoBase64 }}" alt=""/>
@@ -153,20 +145,14 @@
             @endif
         </div>
 
-        {{-- QR: kiri bawah, 14mm --}}
         @if($qrBase64)
         <div class="qr-wrap">
             <img src="{{ $qrBase64 }}" alt="QR"/>
         </div>
         @endif
 
-        {{-- Nama: setelah QR, sejajar --}}
         <div class="member-name">{{ strtoupper($member->full_name) }}</div>
-
-        {{-- NIA --}}
         <div class="member-nia">NIA. {{ $member->member_number }}</div>
-
-        {{-- Berlaku: strip merah full-width --}}
         <div class="member-valid">Berlaku Sampai: {{ $member->active_until
             ? $member->active_until->translatedFormat('d F Y')
             : now()->addYear()->translatedFormat('d F Y') }}</div>
