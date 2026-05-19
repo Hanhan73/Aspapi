@@ -134,7 +134,7 @@ class RegionMemberController extends Controller
             }
 
             // Generate password sementara
-            $password = Str::random(10);
+            $password = "password123";
 
             try {
                 DB::transaction(function () use (
@@ -146,6 +146,7 @@ class RegionMemberController extends Controller
                         'email'             => $email,
                         'password'          => Hash::make($password),
                         'role'              => 'anggota',
+                        'email_verified' => true,
                         'email_verified_at' => now(), // batch = langsung verified
                     ]);
 
@@ -320,5 +321,5 @@ class RegionMemberController extends Controller
             'total'      => count($duplicates),
         ]);
     }
-    
+
 }
