@@ -36,15 +36,22 @@
     $activeCategories = collect($categories)->filter(fn($label, $key) => $totalCounts->get($key, 0) > 0);
 @endphp
 
-<section class="py-12 bg-neutral-50" x-data="{ activeTab: '{{ $activeTab }}' }">
+<section class="py-12 bg-neutral-50" x-data="{
+    activeTab: '{{ $activeTab }}',
+    switchTab(key, cleanUrl) {
+        this.activeTab = key;
+        @if ($search)
+            window.location.href = cleanUrl;
+        @endif
+    }
+}">
     <div class="max-w-7xl mx-auto px-6">
 
-        {{-- Search bar + info hasil pencarian --}}
+        {{-- Search bar --}}
         <div class="mb-8">
             <form method="GET" action="{{ route('partners.index') }}"
                   class="flex flex-col sm:flex-row gap-2 max-w-lg">
 
-                {{-- Kirim tab aktif supaya tidak reset saat search --}}
                 <input type="hidden" name="tab" x-bind:value="activeTab">
 
                 <div class="relative flex-1">
@@ -56,7 +63,7 @@
                     <input type="text"
                            name="search"
                            value="{{ $search }}"
-                           placeholder="Cari nama mitra..."
+                           placeholder="Cari nama atau deskripsi mitra..."
                            class="w-full pl-9 pr-4 py-2.5 text-sm border border-neutral-200 rounded-lg
                                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                                   bg-white shadow-sm">
@@ -71,35 +78,27 @@
                     <a href="{{ route('partners.index', ['tab' => $activeTab]) }}"
                        class="btn btn-outline text-sm px-3 py-2.5 flex-shrink-0 flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                         Reset
                     </a>
                 @endif
             </form>
 
-            {{-- Rangkuman hasil pencarian per kategori (hanya muncul saat ada keyword) --}}
+            {{-- Info hasil pencarian — hanya untuk tab aktif --}}
             @if ($search)
-                <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                    <span class="text-xs text-neutral-400">
-                        Hasil untuk <span class="font-semibold text-navy">"{{ $search }}"</span>:
+                @php
+                    $activeFound = $partners->get($activeTab)?->total() ?? 0;
+                    $activeTotal = $totalCounts->get($activeTab, 0);
+                    $activeLabel = $categories[$activeTab] ?? '';
+                @endphp
+                <div class="mt-3 flex items-center gap-1.5 text-xs text-neutral-500">
+                    <span>Hasil untuk <span class="font-semibold text-navy">"{{ $search }}"</span>:</span>
+                    <span class="font-bold {{ $activeFound > 0 ? 'text-primary' : 'text-neutral-400' }}">
+                        {{ $activeFound }}
                     </span>
-                    @foreach ($activeCategories as $key => $label)
-                        @php
-                            $found = $partners->get($key)?->total() ?? 0;
-                            $total = $totalCounts->get($key, 0);
-                        @endphp
-                        <span class="inline-flex items-center gap-1 text-xs {{ $found > 0 ? 'text-neutral-600' : 'text-neutral-400' }}">
-                            <span class="font-bold {{ $found > 0 ? 'text-primary' : 'text-neutral-400' }}">
-                                {{ $found }}
-                            </span>
-                            <span>dari {{ $total }}</span>
-                            <span>{{ $label }}</span>
-                            @if (!$loop->last)
-                                <span class="ml-2 text-neutral-200">|</span>
-                            @endif
-                        </span>
-                    @endforeach
+                    <span>dari {{ $activeTotal }} {{ $activeLabel }}</span>
                 </div>
             @endif
         </div>
@@ -107,12 +106,9 @@
         {{-- Tab bar --}}
         <div class="flex gap-2 overflow-x-auto pb-1 mb-10 border-b border-neutral-200 scrollbar-none">
             @foreach ($activeCategories as $key => $label)
-            @php
-                $tabTotal   = $totalCounts->get($key, 0);
-                $tabFiltered = $partners->get($key)?->total() ?? $tabTotal;
-            @endphp
+            @php $tabTotal = $totalCounts->get($key, 0) @endphp
             <button
-                @click="activeTab = '{{ $key }}'"
+                @click="switchTab('{{ $key }}', '{{ route('partners.index', ['tab' => $key]) }}')"
                 :class="activeTab === '{{ $key }}'
                     ? 'border-b-2 border-primary text-primary bg-white shadow-sm'
                     : 'border-b-2 border-transparent text-neutral-500 hover:text-navy hover:bg-white/60'"
@@ -142,14 +138,10 @@
 
                 {{ $label }}
 
-                {{-- Badge: saat search tampilkan "hasil/total", saat tidak hanya total --}}
+                {{-- Badge selalu tampilkan total, bukan hasil filter --}}
                 <span class="ml-1 px-1.5 py-0.5 rounded text-2xs font-bold"
-                    :class="activeTab === '{{ $key }}' ? 'bg-primary text-white' : 'bg-neutral-200 text-neutral-500'">
-                    @if ($search && $tabFiltered !== $tabTotal)
-                        {{ $tabFiltered }}/{{ $tabTotal }}
-                    @else
-                        {{ $tabTotal }}
-                    @endif
+                      :class="activeTab === '{{ $key }}' ? 'bg-primary text-white' : 'bg-neutral-200 text-neutral-500'">
+                    {{ $tabTotal }}
                 </span>
             </button>
             @endforeach
@@ -263,7 +255,7 @@
                         <p class="text-xs text-neutral-400">
                             Menampilkan {{ $items->firstItem() }}–{{ $items->lastItem() }}
                             dari {{ $items->total() }}
-                            @if ($search && $items->total() !== $totalCounts->get($key, 0))
+                            @if ($search && $key === $activeTab && $items->total() !== $totalCounts->get($key, 0))
                                 hasil pencarian (total {{ $totalCounts->get($key) }} {{ $label }})
                             @else
                                 mitra
