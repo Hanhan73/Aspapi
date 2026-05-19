@@ -19,7 +19,7 @@
         {{-- Stats per kategori --}}
         <div class="mt-10 inline-flex flex-wrap justify-center gap-8 bg-white/10 px-10 py-5 rounded-sm">
             @foreach ($categories as $key => $label)
-                @php $count = $partners->get($key)?->count() ?? 0 @endphp
+                @php $count = $partners->get($key)?->total() ?? 0 @endphp
                 @if ($count > 0)
                 <div class="text-center">
                     <div class="text-3xl font-bold text-white">{{ $count }}</div>
@@ -34,11 +34,56 @@
 {{-- Tab Section --}}
 @php
     $activeCategories = collect($categories)->filter(fn($label, $key) => $partners->has($key));
-    $firstTab = $activeCategories->keys()->first() ?? '';
 @endphp
 
-<section class="py-12 bg-neutral-50" x-data="{ activeTab: '{{ $firstTab }}' }">
+<section class="py-12 bg-neutral-50" x-data="{ activeTab: '{{ $activeTab }}' }">
     <div class="max-w-7xl mx-auto px-6">
+
+        {{-- Search bar --}}
+        <form method="GET" action="{{ route('public.partners.index') }}"
+              class="mb-8 flex flex-col sm:flex-row gap-2 max-w-lg">
+
+            {{-- Kirim tab aktif supaya tidak reset saat search --}}
+            <input type="hidden" name="tab" x-bind:value="activeTab">
+
+            <div class="relative flex-1">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text"
+                       name="search"
+                       value="{{ $search }}"
+                       placeholder="Cari nama mitra..."
+                       class="w-full pl-9 pr-4 py-2.5 text-sm border border-neutral-200 rounded-lg
+                              focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+                              bg-white shadow-sm">
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary text-sm px-5 py-2.5 flex-shrink-0">
+                Cari
+            </button>
+
+            @if ($search)
+                <a href="{{ route('public.partners.index', ['tab' => $activeTab]) }}"
+                   class="btn btn-outline text-sm px-3 py-2.5 flex-shrink-0 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Reset
+                </a>
+            @endif
+        </form>
+
+        {{-- Info hasil pencarian --}}
+        @if ($search)
+            <p class="text-sm text-neutral-500 mb-4">
+                Menampilkan hasil pencarian untuk
+                <span class="font-semibold text-navy">"{{ $search }}"</span>
+            </p>
+        @endif
 
         {{-- Tab bar --}}
         <div class="flex gap-2 overflow-x-auto pb-1 mb-10 border-b border-neutral-200 scrollbar-none">
@@ -76,7 +121,7 @@
 
                 <span class="ml-1 px-1.5 py-0.5 rounded text-2xs font-bold"
                     :class="activeTab === '{{ $key }}' ? 'bg-primary text-white' : 'bg-neutral-200 text-neutral-500'">
-                    {{ $partners->get($key)?->count() ?? 0 }}
+                    {{ $partners->get($key)?->total() ?? 0 }}
                 </span>
             </button>
             @endforeach
@@ -84,7 +129,7 @@
 
         {{-- Tab panels --}}
         @foreach ($activeCategories as $key => $label)
-        @php $items = $partners->get($key, collect()) @endphp
+        @php $items = $partners->get($key) @endphp
 
         <div x-show="activeTab === '{{ $key }}'"
              x-transition:enter="transition ease-out duration-200"
@@ -95,15 +140,28 @@
              x-transition:leave-end="opacity-0"
              style="display: none;">
 
-            @if ($items->isEmpty())
+            @if (!$items || $items->isEmpty())
                 <div class="text-center py-20 text-neutral-400">
-                    <p class="text-sm">Belum ada mitra untuk kategori ini.</p>
+                    @if ($search)
+                        <svg class="w-12 h-12 mx-auto mb-3 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <p class="text-sm">
+                            Tidak ada mitra yang cocok dengan
+                            <span class="font-semibold text-neutral-600">"{{ $search }}"</span>
+                            di kategori <span class="font-semibold text-neutral-600">{{ $label }}</span>.
+                        </p>
+                        <a href="{{ route('public.partners.index', ['tab' => $key]) }}"
+                           class="mt-3 inline-block text-xs text-primary hover:underline">
+                            Tampilkan semua mitra {{ $label }}
+                        </a>
+                    @else
+                        <p class="text-sm">Belum ada mitra untuk kategori ini.</p>
+                    @endif
                 </div>
             @else
-                {{--
-                    items-start: card tidak di-stretch ke tinggi baris tetangga
-                    sehingga card yang sedang expand tidak mendorong card lain
-                --}}
+                {{-- Grid cards --}}
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-start">
                     @foreach ($items as $partner)
 
@@ -111,7 +169,7 @@
                          class="bg-white border border-neutral-200 rounded-lg shadow-sm hover:shadow-md
                                 transition-shadow duration-300 flex flex-col overflow-hidden">
 
-                        {{-- Logo area — tinggi fixed --}}
+                        {{-- Logo area --}}
                         <div class="h-36 bg-white flex items-center justify-center p-5 border-b border-neutral-100 flex-shrink-0">
                             @if ($partner->logo)
                                 <img src="{{ Storage::url($partner->logo) }}"
@@ -138,18 +196,11 @@
 
                             @if ($partner->profile)
                                 <div class="mt-2">
-                                    {{--
-                                        Collapsed  : line-clamp-3 (3 baris)
-                                        Expanded   : line-clamp-none (full teks)
-                                        Transisi tinggi pakai max-height trick lewat Alpine
-                                    --}}
                                     <p class="text-xs text-neutral-500 leading-relaxed"
                                        :class="expanded ? '' : 'line-clamp-3'"
                                        style="word-break:break-word;">
                                         {{ $partner->profile }}
                                     </p>
-
-                                    {{-- Tombol toggle --}}
                                     <button @click="expanded = !expanded"
                                             class="mt-1.5 flex items-center gap-0.5 text-2xs font-bold text-primary
                                                    hover:text-primary-700 transition-colors duration-150 focus:outline-none">
@@ -157,11 +208,10 @@
                                     </button>
                                 </div>
                             @else
-                                {{-- Placeholder agar card tanpa deskripsi tidak terlalu pendek --}}
                                 <div class="mt-2" style="min-height:4.5rem;"></div>
                             @endif
 
-                            {{-- Tombol website — selalu di bawah --}}
+                            {{-- Tombol website --}}
                             <div class="mt-auto pt-3">
                                 @if ($partner->website_url)
                                     <a href="{{ $partner->website_url }}"
@@ -179,6 +229,18 @@
 
                     @endforeach
                 </div>
+
+                {{-- Pagination --}}
+                @if ($items->hasPages())
+                    <div class="mt-10 flex flex-col items-center gap-2">
+                        {{ $items->links() }}
+                        <p class="text-xs text-neutral-400">
+                            Menampilkan {{ $items->firstItem() }}–{{ $items->lastItem() }}
+                            dari {{ $items->total() }} mitra
+                        </p>
+                    </div>
+                @endif
+
             @endif
 
         </div>
