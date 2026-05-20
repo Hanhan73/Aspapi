@@ -26,7 +26,6 @@ class DocumentController extends Controller
         $documents = $query->get()
                            ->groupBy(fn($doc) => $doc->category ?? 'Umum');
 
-        // Urutan kategori mengikuti sort_order dokumen pertama di tiap kategori
         $documents = $documents->sortBy(function ($docs) {
             return $docs->first()->sort_order;
         });
@@ -42,19 +41,30 @@ class DocumentController extends Controller
 
     public function download(Document $document)
     {
-        if (!$document->is_public) {
-            abort(403);
+        // Cast eksplisit ke bool untuk menghindari masalah tipe integer dari DB
+        if (! (bool) $document->is_public) {
+            abort(403, 'Dokumen ini tidak tersedia untuk publik.');
         }
 
-        // Nama kolom di migration adalah 'downloads'
         $document->increment('downloads');
 
-        $path = Storage::disk('public')->path($document->file_path);
+        // Coba disk 'public' dulu, fallback ke disk default
+        $disk = Storage::disk('public');
+        $path = $disk->path($document->file_path);
 
-        if (!file_exists($path)) {
-            abort(404, 'File tidak ditemukan.');
+        if (! file_exists($path)) {
+            // Fallback: coba path tanpa prefix 'public/'
+            $stripped = preg_replace('#^public/#', '', $document->file_path);
+            $path     = Storage::disk('public')->path($stripped);
+
+            if (! file_exists($path)) {
+                abort(404, 'File tidak ditemukan di server.');
+            }
         }
 
-        return response()->download($path, $document->file_name);
+        $fileName = $document->file_name
+            ?? basename($document->file_path);
+
+        return response()->download($path, $fileName);
     }
 }

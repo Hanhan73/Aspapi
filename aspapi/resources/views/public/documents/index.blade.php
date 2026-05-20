@@ -103,7 +103,6 @@
             {{-- Header kategori --}}
             <div class="flex items-center gap-4 mb-7">
                 <div class="flex items-center gap-3">
-                    {{-- Ikon folder --}}
                     <div class="w-9 h-9 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -113,23 +112,24 @@
                     <div>
                         <h2 class="text-base font-bold text-navy leading-none">{{ $kategori }}</h2>
                         <p class="text-2xs text-neutral-400 mt-0.5">
-                            {{ $docs->count() }} {{ $docs->count() === 1 ? 'dokumen' : 'dokumen' }}
+                            {{ $docs->count() }} dokumen
                         </p>
                     </div>
                 </div>
-                {{-- Garis pemisah --}}
                 <div class="flex-1 h-px bg-neutral-200"></div>
             </div>
 
-            {{-- Grid dokumen dalam kategori ini --}}
+            {{-- Grid dokumen --}}
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($docs as $doc)
 
-                <div class="group bg-white rounded-xl border border-neutral-200
+                {{-- Tiap card punya state expanded sendiri --}}
+                <div x-data="{ expanded: false }"
+                     class="group bg-white rounded-xl border border-neutral-200
                             hover:border-primary/30 hover:shadow-card-hover
                             transition-all duration-300 flex flex-col overflow-hidden">
 
-                    {{-- Stripe warna atas --}}
+                    {{-- Stripe warna atas berdasarkan tipe file --}}
                     <div class="h-1 w-full flex-shrink-0
                         @if($doc->file_type === 'PDF') bg-accent-red
                         @elseif(in_array($doc->file_type, ['DOC','DOCX'])) bg-primary
@@ -142,7 +142,7 @@
                     {{-- Body --}}
                     <div class="px-6 pt-5 pb-4 flex-1 flex flex-col gap-4">
 
-                        {{-- Tipe file --}}
+                        {{-- Baris atas: ikon tipe file + ukuran --}}
                         <div class="flex items-center justify-between">
                             <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0
                                 @if($doc->file_type === 'PDF') bg-red-50
@@ -166,19 +166,34 @@
                             </span>
                         </div>
 
-                        {{-- Judul & deskripsi --}}
+                        {{-- Judul & deskripsi collapsible --}}
                         <div class="flex-1">
                             <h3 class="font-bold text-navy text-sm leading-snug mb-2">
                                 {{ $doc->title }}
                             </h3>
+
                             @if($doc->description)
-                            <p class="text-xs text-neutral-400 leading-relaxed line-clamp-2">
-                                {{ $doc->description }}
-                            </p>
+                            <div>
+                                {{-- Collapsed: 2 baris | Expanded: full teks --}}
+                                <p class="text-xs text-neutral-400 leading-relaxed"
+                                   :class="expanded ? '' : 'line-clamp-2'"
+                                   style="word-break:break-word;">
+                                    {{ $doc->description }}
+                                </p>
+
+                                {{-- Hanya tampilkan tombol jika deskripsi cukup panjang (>120 karakter) --}}
+                                @if(strlen($doc->description) > 120)
+                                <button @click="expanded = !expanded"
+                                        class="mt-1 flex items-center gap-0.5 text-2xs font-bold text-primary
+                                               hover:text-primary-700 transition-colors duration-150 focus:outline-none">
+                                    <span x-text="expanded ? 'Sembunyikan ↑' : 'Selengkapnya ↓'"></span>
+                                </button>
+                                @endif
+                            </div>
                             @endif
                         </div>
 
-                        {{-- Meta unduhan --}}
+                        {{-- Meta: jumlah unduhan --}}
                         <div class="flex items-center gap-1.5 pt-1">
                             <svg class="w-3.5 h-3.5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -190,7 +205,7 @@
                         </div>
                     </div>
 
-                    {{-- Footer --}}
+                    {{-- Footer: tombol unduh --}}
                     <div class="px-6 py-4 bg-neutral-50 border-t border-neutral-100">
                         <a href="{{ route('documents.download', $doc->id) }}"
                            class="flex items-center justify-center gap-2 w-full py-2.5
