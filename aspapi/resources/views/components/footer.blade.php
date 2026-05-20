@@ -12,10 +12,9 @@
             {{-- Brand --}}
             <div class="lg:col-span-1">
                 <div class="flex items-center gap-3 mb-4">
-                    <img src="{{ asset('images/logo-aspapi.png') }}"
-                         alt="Logo ASPAPI"
-                         class="h-10 w-auto object-contain brightness-0 invert opacity-90"
-                         onerror="this.style.display='none'"/>
+                    <img src="{{ asset('images/logo-aspapi.png') }}" alt="Logo ASPAPI"
+                        class="h-10 w-auto object-contain opacity-90"
+                        onerror="this.style.display='none'"/>
                     <span class="text-white font-extrabold text-base tracking-wide">ASPAPI</span>
                 </div>
                 <p class="text-sm text-neutral-400 leading-relaxed mb-4">
