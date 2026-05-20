@@ -93,18 +93,18 @@
                         <svg class="w-4 h-4 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
-                        <a href="mailto:info@aspapi.or.id"
+                        <a href="mailto:aspapindonesia@gmail.com"
                            class="text-sm text-neutral-400 hover:text-accent-yellow transition-colors duration-200">
-                            info@aspapi.or.id
+                            aspapindonesia@gmail.com
                         </a>
                     </li>
                     <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
                         </svg>
-                        <a href="https://aspapi.or.id" target="_blank"
+                        <a href="https://aspapi.id" target="_blank"
                            class="text-sm text-neutral-400 hover:text-accent-yellow transition-colors duration-200">
-                            aspapi.or.id
+                            aspapi.id
                         </a>
                     </li>
                 </ul>
