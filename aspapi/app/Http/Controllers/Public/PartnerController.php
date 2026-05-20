@@ -9,47 +9,67 @@ use Illuminate\Http\Request;
 class PartnerController extends Controller
 {
     public function index(Request $request)
-{
-    $search    = $request->get('search');
-    $activeTab = $request->get('tab');
-    $categories = Partner::categories();
+    {
+        $search     = trim($request->get('search', ''));
+        $activeTab  = $request->get('tab');
+        $categories = Partner::categories();
 
-    // Total per kategori tanpa filter search
-    $totalCounts = Partner::active()
-        ->selectRaw('category, count(*) as total')
-        ->groupBy('category')
-        ->pluck('total', 'category');
+        // Pecah input berdasarkan koma → array kata kunci, buang yang kosong
+        // Contoh: "swasta, Jawa Barat" → ['swasta', 'Jawa Barat']
+        $keywords = $search
+            ? collect(explode(',', $search))
+            ->map(fn($k) => trim($k))
+            ->filter(fn($k) => $k !== '')
+            ->values()
+            ->all()
+            : [];
 
-    // Default active tab sebelum loop
-    if (!$activeTab || !$totalCounts->has($activeTab)) {
-        $activeTab = $totalCounts->keys()->first() ?? '';
-    }
+        // Total per kategori tanpa filter search
+        $totalCounts = Partner::active()
+            ->selectRaw('category, count(*) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category');
 
-    // Build paginated results per kategori
-    $partners = collect();
-    foreach ($categories as $key => $label) {
-        if ($totalCounts->get($key, 0) === 0) continue;
-
-        $query = Partner::active()
-            ->where('category', $key)
-            ->orderBy('sort_order')
-            ->orderBy('name');
-
-        // Search hanya diterapkan pada tab/kategori yang aktif
-        if ($search && $key === $activeTab) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('profile', 'like', '%' . $search . '%');
-            });
+        // Default active tab
+        if (!$activeTab || !$totalCounts->has($activeTab)) {
+            $activeTab = $totalCounts->keys()->first() ?? '';
         }
 
-        $paginated = $query->paginate(20, ['*'], 'page_' . $key)
-                           ->withQueryString()
-                           ->appends(['tab' => $key]);
+        // Build paginated results per kategori
+        $partners = collect();
+        foreach ($categories as $key => $label) {
+            if ($totalCounts->get($key, 0) === 0) continue;
 
-        $partners->put($key, $paginated);
+            $query = Partner::active()
+                ->where('category', $key)
+                ->orderBy('sort_order')
+                ->orderBy('name');
+
+            // AND search: setiap keyword harus ada di name ATAU profile
+            // Diterapkan hanya pada tab aktif
+            if (!empty($keywords) && $key === $activeTab) {
+                foreach ($keywords as $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('name', 'like', '%' . $keyword . '%')
+                            ->orWhere('profile', 'like', '%' . $keyword . '%');
+                    });
+                }
+            }
+
+            $paginated = $query->paginate(20, ['*'], 'page_' . $key)
+                ->withQueryString()
+                ->appends(['tab' => $key]);
+
+            $partners->put($key, $paginated);
+        }
+
+        return view('public.partners.index', compact(
+            'partners',
+            'categories',
+            'search',
+            'keywords',
+            'activeTab',
+            'totalCounts'
+        ));
     }
-
-    return view('public.partners.index', compact('partners', 'categories', 'search', 'activeTab', 'totalCounts'));
-}
 }

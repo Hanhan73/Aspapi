@@ -16,7 +16,7 @@
             pengembangan profesi di bidang administrasi/manajemen perkantoran Indonesia.
         </p>
 
-        {{-- Stats per kategori — selalu pakai total tanpa filter search --}}
+        {{-- Stats per kategori --}}
         <div class="mt-10 inline-flex flex-wrap justify-center gap-8 bg-white/10 px-10 py-5 rounded-sm">
             @foreach ($categories as $key => $label)
                 @php $count = $totalCounts->get($key, 0) @endphp
@@ -40,7 +40,7 @@
     activeTab: '{{ $activeTab }}',
     switchTab(key, cleanUrl) {
         this.activeTab = key;
-        @if ($search)
+        @if (!empty($keywords))
             window.location.href = cleanUrl;
         @endif
     }
@@ -50,7 +50,7 @@
         {{-- Search bar --}}
         <div class="mb-8">
             <form method="GET" action="{{ route('partners.index') }}"
-                  class="flex flex-col sm:flex-row gap-2 max-w-lg">
+                  class="flex flex-col sm:flex-row gap-2 max-w-xl">
 
                 <input type="hidden" name="tab" x-bind:value="activeTab">
 
@@ -63,7 +63,7 @@
                     <input type="text"
                            name="search"
                            value="{{ $search }}"
-                           placeholder="Cari nama atau deskripsi mitra..."
+                           placeholder="Cari mitra... gunakan koma untuk AND (contoh: swasta, Jawa Barat)"
                            class="w-full pl-9 pr-4 py-2.5 text-sm border border-neutral-200 rounded-lg
                                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                                   bg-white shadow-sm">
@@ -86,15 +86,28 @@
                 @endif
             </form>
 
-            {{-- Info hasil pencarian — hanya untuk tab aktif --}}
-            @if ($search)
+            {{-- Info hasil pencarian --}}
+            @if (!empty($keywords))
                 @php
                     $activeFound = $partners->get($activeTab)?->total() ?? 0;
                     $activeTotal = $totalCounts->get($activeTab, 0);
                     $activeLabel = $categories[$activeTab] ?? '';
                 @endphp
-                <div class="mt-3 flex items-center gap-1.5 text-xs text-neutral-500">
-                    <span>Hasil untuk <span class="font-semibold text-navy">"{{ $search }}"</span>:</span>
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+                    <span>Hasil pencarian AND:</span>
+
+                    {{-- Tampilkan setiap keyword sebagai badge --}}
+                    @foreach ($keywords as $kw)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary font-semibold rounded-full">
+                            {{ $kw }}
+                        </span>
+                        @if (!$loop->last)
+                            <span class="text-neutral-400 font-bold text-2xs">+</span>
+                        @endif
+                    @endforeach
+
+                    <span class="text-neutral-400">→</span>
+
                     <span class="font-bold {{ $activeFound > 0 ? 'text-primary' : 'text-neutral-400' }}">
                         {{ $activeFound }}
                     </span>
@@ -138,7 +151,6 @@
 
                 {{ $label }}
 
-                {{-- Badge selalu tampilkan total, bukan hasil filter --}}
                 <span class="ml-1 px-1.5 py-0.5 rounded text-2xs font-bold"
                       :class="activeTab === '{{ $key }}' ? 'bg-primary text-white' : 'bg-neutral-200 text-neutral-500'">
                     {{ $tabTotal }}
@@ -162,14 +174,16 @@
 
             @if (!$items || $items->isEmpty())
                 <div class="text-center py-20 text-neutral-400">
-                    @if ($search)
+                    @if (!empty($keywords))
                         <svg class="w-12 h-12 mx-auto mb-3 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <p class="text-sm">
-                            Tidak ada mitra yang cocok dengan
-                            <span class="font-semibold text-neutral-600">"{{ $search }}"</span>
+                            Tidak ada mitra yang mengandung semua kata kunci
+                            <span class="font-semibold text-neutral-600">
+                                "{{ implode('" + "', $keywords) }}"
+                            </span>
                             di kategori <span class="font-semibold text-neutral-600">{{ $label }}</span>.
                         </p>
                         <a href="{{ route('partners.index', ['tab' => $key]) }}"
@@ -181,7 +195,6 @@
                     @endif
                 </div>
             @else
-                {{-- Grid cards --}}
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-start">
                     @foreach ($items as $partner)
 
@@ -254,9 +267,9 @@
                         {{ $items->links() }}
                         <p class="text-xs text-neutral-400">
                             Menampilkan {{ $items->firstItem() }}–{{ $items->lastItem() }}
-                            dari {{ $items->total() }}
-                            @if ($search && $key === $activeTab && $items->total() !== $totalCounts->get($key, 0))
-                                hasil pencarian (total {{ $totalCounts->get($key) }} {{ $label }})
+                            dari {{ $items->total() }} hasil
+                            @if (!empty($keywords) && $key === $activeTab)
+                                pencarian (total {{ $totalCounts->get($key) }} {{ $label }})
                             @else
                                 mitra
                             @endif
@@ -265,7 +278,6 @@
                 @endif
 
             @endif
-
         </div>
         @endforeach
 
