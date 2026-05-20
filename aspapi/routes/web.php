@@ -151,8 +151,8 @@ Route::prefix('blog')->name('blog.')->group(function () {
 
 // ── DOKUMEN (PUBLIC) ──
 Route::prefix('download')->name('documents.')->group(function () {
-    Route::get('/',            [DocumentController::class, 'index'])->name('index');
-    Route::get('/{id}/unduh',  [DocumentController::class, 'download'])->name('download');
+    Route::get('/',                [DocumentController::class, 'index'])->name('index');
+    Route::get('/{document}/unduh', [DocumentController::class, 'download'])->name('download');
 });
 
 Route::get('/mitra', [PartnerController::class, 'index'])->name('partners.index');
