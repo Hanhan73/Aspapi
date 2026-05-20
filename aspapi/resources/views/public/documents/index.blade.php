@@ -11,7 +11,7 @@
             <p class="text-2xs font-bold tracking-[0.25em] uppercase text-primary-300 mb-4">
                 Pusat Dokumen
             </p>
-            <h1 class="text-5xl font-display font-bold leading-tight mb-5">
+            <h1 class="text-5xl font-display font-bold leading-tight text-primary-200 mb-5">
                 Download<br>Dokumen
             </h1>
             <p class="text-neutral-400 text-base leading-relaxed max-w-lg">
