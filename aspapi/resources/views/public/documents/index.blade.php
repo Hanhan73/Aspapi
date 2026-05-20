@@ -12,7 +12,7 @@
                 Pusat Dokumen
             </p>
             <h1 class="text-5xl font-display font-bold leading-tight text-primary-200 mb-5">
-                Download<br>Dokumen
+                Download Dokumen
             </h1>
             <p class="text-neutral-400 text-base leading-relaxed max-w-lg">
                 Unduh dokumen resmi ASPAPI — AD/ART, panduan keanggotaan,
