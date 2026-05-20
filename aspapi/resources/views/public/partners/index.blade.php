@@ -63,7 +63,7 @@
                     <input type="text"
                            name="search"
                            value="{{ $search }}"
-                           placeholder="Cari mitra... gunakan koma untuk AND (contoh: swasta, Jawa Barat)"
+                           placeholder="Cari mitra... gunakan koma untuk beberapa kata kunci"
                            class="w-full pl-9 pr-4 py-2.5 text-sm border border-neutral-200 rounded-lg
                                   focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
                                   bg-white shadow-sm">
@@ -94,7 +94,7 @@
                     $activeLabel = $categories[$activeTab] ?? '';
                 @endphp
                 <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
-                    <span>Hasil pencarian AND:</span>
+                    <span>Hasil pencarian:</span>
 
                     {{-- Tampilkan setiap keyword sebagai badge --}}
                     @foreach ($keywords as $kw)
