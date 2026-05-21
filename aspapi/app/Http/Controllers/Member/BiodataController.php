@@ -78,7 +78,7 @@ class BiodataController extends Controller
         }
  
         $member->update([
-            'biodata_status'        => 'pending',
+            'biodata_status'        => null,
             'biodata_reject_reason' => null,
         ]);
  
