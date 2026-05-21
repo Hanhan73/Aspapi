@@ -79,17 +79,21 @@ class RekapController extends Controller
      * #10 — Status Iuran Anggota
      * Route: GET /bendahara/iuran → name: bendahara.iuran
      *
-     * Aturan baru: iuran berbasis active_until (bukan per tahun kalender).
-     * "Sudah bayar" = active_until masih di masa depan.
-     * "Belum bayar / kadaluarsa" = active_until null atau sudah lewat.
+     * Scope anggota yang ditampilkan:
+     *   A) status = 'active'  + biodata_status = 'verified'  → anggota penuh
+     *   B) status = 'pending' + biodata_status = 'verified'  → biodata sudah disetujui,
+     *      belum bayar / belum diaktifkan (segmen "Belum Aktif")
+     *
+     * Status iuran berbasis active_until (bukan tahun kalender):
+     *   - Iuran Aktif       : active_until > now()
+     *   - Kadaluarsa        : active_until <= now() (pernah bayar, sudah lewat)
+     *   - Belum Aktif       : status = 'pending' (biodata verified, belum pernah bayar)
      */
     public function iuran(Request $request)
     {
-        // Filter status — tidak lagi pakai $year sebagai basis hitungan
-        // tapi tetap ada untuk keperluan filter tanggal bayar jika dibutuhkan
-        $filterStatus = $request->input('status_iuran'); // 'aktif' | 'kadaluarsa' | ''
+        $filterStatus = $request->input('status_iuran'); // 'aktif'|'kadaluarsa'|'belum_aktif'|''
 
-        // IDs anggota aktif yang iurannya masih berlaku (active_until > sekarang)
+        // IDs anggota active yang iurannya masih berlaku
         $aktifIds = Member::where('status', 'active')
             ->where('biodata_status', 'verified')
             ->whereNotNull('active_until')
@@ -97,19 +101,33 @@ class RekapController extends Controller
             ->pluck('id')
             ->toArray();
 
+        // IDs anggota active yang iurannya sudah kadaluarsa (pernah bayar tapi expired)
+        $kadaluarsaIds = Member::where('status', 'active')
+            ->where('biodata_status', 'verified')
+            ->where(fn($q) =>
+                $q->whereNull('active_until')
+                  ->orWhere('active_until', '<=', now())
+            )
+            ->pluck('id')
+            ->toArray();
+
+        // Query utama: gabungkan active + pending(biodata verified)
         $members = Member::with(['payments' => fn($q) =>
                 $q->where('type', 'iuran_tahunan')
                   ->where('status', 'verified')
                   ->latest('verified_at')
                   ->limit(1)
             ])
-            ->where('status', 'active')
             ->where('biodata_status', 'verified')
+            ->whereIn('status', ['active', 'pending'])
             ->when($filterStatus === 'aktif', fn($q) =>
                 $q->whereIn('id', $aktifIds)
             )
             ->when($filterStatus === 'kadaluarsa', fn($q) =>
-                $q->whereNotIn('id', $aktifIds)
+                $q->whereIn('id', $kadaluarsaIds)
+            )
+            ->when($filterStatus === 'belum_aktif', fn($q) =>
+                $q->where('status', 'pending')
             )
             ->when($request->filled('search'), fn($q) =>
                 $q->where(fn($sub) =>
@@ -118,20 +136,25 @@ class RekapController extends Controller
                         ->orWhere('member_number', 'like', '%' . $request->search . '%')
                 )
             )
+            ->orderByRaw("FIELD(status, 'active', 'pending')")
             ->orderBy('full_name')
             ->paginate(25)
             ->withQueryString();
 
+        // Summary counts
         $totalAktifMember  = Member::where('status', 'active')->where('biodata_status', 'verified')->count();
         $totalIuranAktif   = count($aktifIds);
-        $totalIuranExpired = $totalAktifMember - $totalIuranAktif;
+        $totalKadaluarsa   = count($kadaluarsaIds);
+        $totalBelumAktif   = Member::where('status', 'pending')->where('biodata_status', 'verified')->count();
 
         return view('bendahara.iuran', compact(
             'members',
             'aktifIds',
+            'kadaluarsaIds',
             'totalAktifMember',
             'totalIuranAktif',
-            'totalIuranExpired',
+            'totalKadaluarsa',
+            'totalBelumAktif',
             'filterStatus'
         ));
     }

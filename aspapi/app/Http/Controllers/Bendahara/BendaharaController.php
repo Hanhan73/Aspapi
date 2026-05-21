@@ -65,6 +65,7 @@ class BendaharaController extends Controller
             $member->update([
                 'dues_paid'    => true,
                 'dues_paid_at' => now(),
+                'status'       => 'active',
                 'active_until' => $baseDate->addYear(),
             ]);
 
@@ -150,6 +151,7 @@ class BendaharaController extends Controller
             $member->update([
                 'dues_paid'    => true,
                 'dues_paid_at' => $now,
+                'status'       => 'active',
                 'active_until' => $baseDate->addYear(),
             ]);
         }
