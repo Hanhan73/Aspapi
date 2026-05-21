@@ -83,6 +83,8 @@ Route::prefix('bendahara')->name('bendahara.')->middleware(['auth', 'role:bendah
     Route::post('/pembayaran/{id}/reject',   [BendaharaController::class, 'reject'])->name('payment.reject');
     Route::get('/batch',                     [BendaharaController::class, 'batches'])->name('batches');
     Route::post('/batch/{id}/verify',        [BendaharaController::class, 'verifyBatch'])->name('batch.verify');
+    Route::get('/batch/{id}',        [BendaharaController::class, 'showBatch'])->name('batch.show');
+    Route::post('/batch/{id}/reject', [BendaharaController::class, 'rejectBatch'])->name('batch.reject');
     // Dalam group bendahara
     Route::get('/rekap', [RekapController::class, 'rekap'])->name('rekap');
     Route::get('/iuran', [RekapController::class, 'iuran'])->name('iuran');
@@ -96,6 +98,8 @@ Route::prefix('daerah')->name('daerah.')->middleware(['auth', 'role:aspapi_daera
     Route::post('/daftar-batch', [RegionMemberController::class, 'batchStore'])->name('batch.store');
     Route::get('/bayar-batch',   [RegionMemberController::class, 'payBatchForm'])->name('pay.form');
     Route::post('/bayar-batch',  [RegionMemberController::class, 'payBatchStore'])->name('pay.store');
+    Route::get('/riwayat-batch',        [RegionMemberController::class, 'payBatchHistory'])->name('pay.batches');
+    Route::get('/riwayat-batch/{id}',   [RegionMemberController::class, 'payBatchShow'])->name('pay.batch.show');
     Route::get('/daftar-batch/template', [RegionMemberController::class, 'downloadTemplate'])
         ->name('batch.template');
     Route::post('/check-duplicates', [RegionMemberController::class, 'checkDuplicates'])

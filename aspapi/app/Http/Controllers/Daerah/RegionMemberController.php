@@ -51,8 +51,11 @@ class RegionMemberController extends Controller
         $region = $this->region();
 
         $members = Member::where('registered_by_region_id', $region->id)
-            ->when($request->filled('search'), fn($q) =>
-                $q->where(fn($sub) =>
+            ->when(
+                $request->filled('search'),
+                fn($q) =>
+                $q->where(
+                    fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
                         ->orWhere('email', 'like', '%' . $request->search . '%')
                         ->orWhere('institution', 'like', '%' . $request->search . '%')
@@ -155,7 +158,13 @@ class RegionMemberController extends Controller
 
             try {
                 DB::transaction(function () use (
-                    $email, $password, $namaLengkap, $telepon, $institusi, $gender, $region
+                    $email,
+                    $password,
+                    $namaLengkap,
+                    $telepon,
+                    $institusi,
+                    $gender,
+                    $region
                 ) {
                     $user = User::create([
                         'name'              => $namaLengkap,
@@ -247,7 +256,13 @@ class RegionMemberController extends Controller
 
             try {
                 DB::transaction(function () use (
-                    $email, $password, $namaLengkap, $telepon, $institusi, $gender, $region
+                    $email,
+                    $password,
+                    $namaLengkap,
+                    $telepon,
+                    $institusi,
+                    $gender,
+                    $region
                 ) {
                     $user = User::create([
                         'name'              => $namaLengkap,
@@ -326,13 +341,16 @@ class RegionMemberController extends Controller
         $members = Member::where('registered_by_region_id', $region->id)
             ->where('biodata_status', 'verified')
             ->whereIn('status', ['active', 'pending'])
-            ->where(fn($q) =>
+            ->where(
+                fn($q) =>
                 $q->whereNull('active_until')
-                  ->orWhere('active_until', '<=', now())
+                    ->orWhere('active_until', '<=', now())
             )
-            ->whereDoesntHave('payments', fn($q) =>
+            ->whereDoesntHave(
+                'payments',
+                fn($q) =>
                 $q->where('type', 'iuran_tahunan')
-                  ->where('status', 'pending')
+                    ->where('status', 'pending')
             )
             ->orderByRaw("FIELD(status, 'pending', 'active')")  // anggota baru tampil duluan
             ->orderBy('full_name')
@@ -393,7 +411,8 @@ class RegionMemberController extends Controller
             }
         });
 
-        return back()->with('success',
+        return back()->with(
+            'success',
             'Pembayaran kolektif untuk ' . count($memberIds) . ' anggota berhasil dikirim dan menunggu verifikasi bendahara.'
         );
     }
@@ -439,5 +458,28 @@ class RegionMemberController extends Controller
             'duplicates' => $duplicates,
             'total'      => count($duplicates),
         ]);
+    }
+
+    public function payBatchHistory(Request $request)
+    {
+        $region = $this->region();
+
+        $batches = PaymentBatch::where('region_id', $region->id)
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('daerah.pay-batch-history', compact('region', 'batches'));
+    }
+
+    public function payBatchShow(int $id)
+    {
+        $region = $this->region();
+
+        $batch = PaymentBatch::with(['payments.member', 'submitter', 'verifier'])
+            ->where('region_id', $region->id)  // security: hanya milik region ini
+            ->findOrFail($id);
+
+        return view('daerah.pay-batch-detail', compact('batch', 'region'));
     }
 }

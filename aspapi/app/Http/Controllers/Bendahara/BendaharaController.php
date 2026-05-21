@@ -30,8 +30,12 @@ class BendaharaController extends Controller
             ->when($request->filled('type'),   fn($q) => $q->where('type', $request->type))
             ->when($request->filled('method'), fn($q) => $q->where('payment_method', $request->method))
             ->when($request->filled('year'),   fn($q) => $q->where('payment_year', $request->year))
-            ->when($request->filled('search'), fn($q) =>
-                $q->whereHas('member', fn($sub) =>
+            ->when(
+                $request->filled('search'),
+                fn($q) =>
+                $q->whereHas(
+                    'member',
+                    fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
                         ->orWhere('email', 'like', '%' . $request->search . '%')
                 )
@@ -68,7 +72,6 @@ class BendaharaController extends Controller
                 'dues_paid_at' => now(),
                 'active_until' => $baseDate->addYear(),
             ]);
-
         } elseif ($payment->type === 'uang_pangkal') {
             // Uang pangkal bukan iuran periodik, tidak mengatur active_until
             $member->update([
@@ -163,5 +166,29 @@ class BendaharaController extends Controller
         ]);
 
         return back()->with('success', 'Batch berhasil diverifikasi. ' . $batch->member_count . ' anggota diperbarui.');
+    }
+
+    public function showBatch(int $id)
+    {
+        $batch = PaymentBatch::with(['payments.member', 'region', 'submitter', 'verifier'])
+            ->findOrFail($id);
+
+        return view('bendahara.batch-detail', compact('batch'));
+    }
+
+    public function rejectBatch(Request $request, int $id)
+    {
+        $request->validate(['reason' => 'required|string|max:500']);
+
+        $batch = PaymentBatch::findOrFail($id);
+        $batch->update([
+            'status'        => 'rejected',
+            'reject_reason' => $request->reason,
+            'verified_by'   => auth()->id(),
+            'verified_at'   => now(),
+        ]);
+
+        return redirect()->route('bendahara.batch.show', $id)
+            ->with('success', 'Batch ditolak.');
     }
 }

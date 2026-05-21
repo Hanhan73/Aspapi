@@ -91,12 +91,17 @@
                     </td>
                     <td style="padding:0.875rem 1rem;font-size:0.8rem;color:#4A6580;white-space:nowrap;">{{ $batch->created_at->format('d M Y') }}</td>
                     <td style="padding:0.875rem 1rem;">
+                        <a href="{{ route('bendahara.batch.show', $batch->id) }}"
+                            style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;border:1.5px solid #D6E8F7;color:#4A6580;border-radius:3px;text-decoration:none;white-space:nowrap;">
+                                Detail
+                        </a>
                         @if ($batch->status === 'pending')
+
                         <form method="POST" action="{{ route('bendahara.batch.verify', $batch->id) }}">
                             @csrf
                             <button type="submit"
                                     style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#276749;color:#fff;border:none;border-radius:3px;cursor:pointer;white-space:nowrap;">
-                                Verifikasi Semua
+                                Verifikasi
                             </button>
                         </form>
                         @endif

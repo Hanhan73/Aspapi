@@ -72,7 +72,10 @@
                 </svg>
                 Bayar Iuran Kolektif
             </a>
-
+            <a href="{{ route('daerah.pay.batches') }}"
+                class="sidebar-link {{ request()->routeIs('daerah.pay.batches*') ? 'sidebar-link-active' : '' }}">
+                    Riwayat Batch
+            </a>
         </nav>
 
         {{-- User info — SELALU di bawah --}}
