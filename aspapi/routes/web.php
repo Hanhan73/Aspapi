@@ -39,6 +39,8 @@ use App\Http\Controllers\Daerah\RegionMemberController;
 
 use App\Http\Controllers\AccountController;
 
+use App\Http\Controllers\Admin\ImpersonateController;
+
 
 
 /* ─────────────────────────────────────────
@@ -255,3 +257,12 @@ Route::prefix('admin')
         Route::post('/anggota/{member}/set-password', [ResetPasswordController::class, 'setPassword'])
             ->name('member.set-password');
     });
+
+
+    Route::middleware('auth')->group(function () {
+    Route::post('/impersonate/{userId}', [ImpersonateController::class, 'impersonate'])
+        ->name('impersonate');
+    Route::post('/impersonate-leave', [ImpersonateController::class, 'leave'])
+        ->name('impersonate.leave');
+});
+ 

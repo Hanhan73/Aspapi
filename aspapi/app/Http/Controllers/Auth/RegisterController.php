@@ -45,7 +45,7 @@ class RegisterController extends Controller
             'email'             => $request->email,
             'registration_type' => 'baru',
             'status'            => 'pending',
-            'biodata_status'    => 'pending',
+            'biodata_status'    => 'draft',
         ]);
 
         // Kirim email verifikasi
@@ -95,7 +95,7 @@ class RegisterController extends Controller
             'claims_old_member'  => true,
             'claimed_join_year'  => $request->claimed_join_year,
             'status'             => 'pending',
-            'biodata_status'     => 'pending',
+            'biodata_status'     => 'draft',
         ]);
 
         // Notif admin

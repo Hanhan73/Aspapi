@@ -354,6 +354,19 @@
                 </p>
                 @endif
 
+                @if ($member->user)
+<form method="POST" action="{{ route('impersonate', $member->user->id) }}">
+    @csrf
+    <button type="submit"
+            style="width:100%;padding:0.625rem;background:#1A2A3A;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
+        👁 Masuk sebagai Anggota Ini
+    </button>
+</form>
+@endif
+
+
+
+
                 {{-- Hapus Anggota --}}
                 <form method="POST" action="{{ route('admin.members.destroy', $member) }}"
                       onsubmit="return confirm('Hapus anggota ini secara permanen?')">
