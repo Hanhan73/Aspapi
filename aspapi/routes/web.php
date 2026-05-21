@@ -37,6 +37,8 @@ use App\Http\Controllers\Bendahara\RekapController;
 
 use App\Http\Controllers\Daerah\RegionMemberController;
 
+use App\Http\Controllers\AccountController;
+
 
 
 /* ─────────────────────────────────────────
@@ -156,6 +158,11 @@ Route::prefix('download')->name('documents.')->group(function () {
 });
 
 Route::get('/mitra', [PartnerController::class, 'index'])->name('partners.index');
+
+Route::prefix('account')->name('account.')->middleware('auth')->group(function () {
+    Route::get('/settings',  [AccountController::class, 'show'])->name('settings');
+    Route::post('/password', [AccountController::class, 'updatePassword'])->name('password');
+});
 
 
 /* ─────────────────────────────────────────
