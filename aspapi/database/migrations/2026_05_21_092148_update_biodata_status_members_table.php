@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('members', function (Blueprint $table) {
-            $table->enum('biodata_status', ['pending', 'draft', 'active', 'rejected'])->default('draft')->change();
+            $table->enum('biodata_status', ['pending', 'draft', 'verified', 'rejected'])->default('draft')->change();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('members', function (Blueprint $table) {
-            $table->enum('biodata_status', ['pending', 'active', 'rejected'])->default('draft')->change();
+            $table->enum('biodata_status', ['pending', 'verified', 'rejected'])->default('draft')->change();
         });
     }
 };
