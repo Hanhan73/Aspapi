@@ -2,7 +2,7 @@
 @php
     $title = 'Biodata Saya';
     // Terkunci jika pending atau verified (sudah pernah submit ke admin)
-    $isLocked = in_array($member?->biodata_status, ['pending', 'verified']);
+    $isLocked = in_array($member?->biodata_status, ['verified']);
     $isVerified = $member?->biodata_status === 'verified';
     $isPending  = $member?->biodata_status === 'pending';
     $isRejected = $member?->biodata_status === 'rejected';
