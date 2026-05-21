@@ -1,381 +1,116 @@
-@extends('layouts.daerah')
-@php $title = 'Data Anggota'; @endphp
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{{ $title ?? 'Portal Anggota' }} — ASPAPI</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-aspapi.png') }}" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
+</head>
+<body class="bg-neutral-100 font-sans antialiased">
+@include('components.impersonate-banner')
 
-@section('content')
+<div class="flex h-screen overflow-hidden">
 
-{{-- Filter --}}
-<div class="bg-white border border-neutral-200 rounded-lg px-5 py-4 mb-5">
-    <form method="GET" action="{{ route('daerah.members') }}" class="flex flex-wrap gap-3 items-center">
-        <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="Cari nama, email, institusi..."
-               class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary w-64"/>
+    {{-- ── SIDEBAR ── --}}
+    <aside class="w-64 flex-shrink-0 bg-navy flex flex-col overflow-hidden">
 
-        <select name="status"
-                class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
-            <option value="">Semua Status</option>
-            <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>Aktif</option>
-            <option value="pending"  {{ request('status') === 'pending'  ? 'selected' : '' }}>Pending</option>
-            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
-        </select>
-
-        <select name="dues"
-                class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
-            <option value="">Semua Iuran</option>
-            <option value="lunas" {{ request('dues') === 'lunas' ? 'selected' : '' }}>Lunas</option>
-            <option value="belum" {{ request('dues') === 'belum' ? 'selected' : '' }}>Belum Lunas</option>
-        </select>
-
-        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-        <a href="{{ route('daerah.members') }}" class="btn btn-ghost btn-sm">Reset</a>
-
-        <div class="ml-auto flex gap-2">
-            <a href="{{ route('daerah.batch.form') }}" class="btn btn-sm"
-               style="background:#E8B84B;color:#1A2A3A;border:none;">
-                + Daftar Batch
-            </a>
+        {{-- Logo --}}
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10 flex-shrink-0">
+            <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-white font-black text-2xs tracking-tight">ASP</span>
+            </div>
+            <div>
+                <p class="text-white font-extrabold text-sm leading-none tracking-wide">ASPAPI</p>
+                <p class="text-neutral-400 text-2xs tracking-wider uppercase mt-0.5">Portal Anggota</p>
+            </div>
         </div>
-    </form>
-</div>
 
-{{-- Info hasil filter --}}
-@if (request()->hasAny(['search', 'status', 'dues']))
-<div class="mb-4 text-sm text-neutral-500">
-    Menampilkan <strong class="text-navy">{{ $members->total() }}</strong> anggota
-    @if(request('search')) dengan kata kunci "<em>{{ request('search') }}</em>" @endif
-    @if(request('status')) — status: <em>{{ request('status') }}</em> @endif
-    @if(request('dues')) — iuran: <em>{{ request('dues') }}</em> @endif
-</div>
-@endif
-
-{{-- Tabel --}}
-<div class="bg-white border border-neutral-200 rounded-lg overflow-hidden">
-    <table class="w-full border-collapse">
-        <thead>
-            <tr class="bg-neutral-50">
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Nama</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Institusi</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Kontak</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Iuran</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Status</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Terdaftar</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-neutral-100">
-            @forelse ($members as $member)
-            <tr class="hover:bg-blue-50 transition-colors cursor-pointer"
-                onclick="openMemberModal({{ $member->id }})">
-                <td class="px-4 py-3.5">
-                    <p class="text-sm font-semibold text-navy">{{ $member->full_name }}</p>
-                    <p class="text-xs text-neutral-400">{{ $member->email }}</p>
-                </td>
-                <td class="px-4 py-3.5 text-sm text-neutral-600">{{ $member->institution ?? '—' }}</td>
-                <td class="px-4 py-3.5 text-sm text-neutral-600">{{ $member->phone ?? '—' }}</td>
-                <td class="px-4 py-3.5">
-                    @if ($member->dues_paid)
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold bg-green-50 text-green-700">Lunas</span>
-                    @else
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold bg-red-50 text-red-700">Belum</span>
-                    @endif
-                </td>
-                <td class="px-4 py-3.5">
-                    @php
-                        $statusClass = match($member->status) {
-                            'active'   => 'bg-green-50 text-green-700',
-                            'pending'  => 'bg-yellow-50 text-yellow-700',
-                            'inactive' => 'bg-neutral-100 text-neutral-500',
-                            default    => 'bg-neutral-100 text-neutral-500',
-                        };
-                        $statusLabel = match($member->status) {
-                            'active'   => 'Aktif',
-                            'pending'  => 'Pending',
-                            'inactive' => 'Tidak Aktif',
-                            default    => ucfirst($member->status),
-                        };
-                    @endphp
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold {{ $statusClass }}">
-                        {{ $statusLabel }}
-                    </span>
-                </td>
-                <td class="px-4 py-3.5 text-sm text-neutral-500">{{ $member->created_at->format('d M Y') }}</td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" class="px-4 py-12 text-center text-sm text-neutral-400">
-                    @if (request()->hasAny(['search', 'status', 'dues']))
-                        Tidak ada anggota yang cocok dengan filter.
-                        <a href="{{ route('daerah.members') }}" class="text-primary font-semibold">Reset filter</a>
-                    @else
-                        Belum ada anggota di wilayah ini.
-                    @endif
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-
-@if ($members->hasPages())
-<div class="mt-4 flex justify-end">{{ $members->links() }}</div>
-@endif
-
-{{-- ══ DATA ANGGOTA — embed sebagai JSON untuk modal ══ --}}
-<script>
-const MEMBERS_DATA = {
-    @foreach ($members as $member)
-    {{ $member->id }}: {
-        id:               {{ $member->id }},
-        user_id:          {{ $member->user_id ?? 'null' }},
-        full_name:        @json($member->full_name ?? '—'),
-        email:            @json($member->email ?? '—'),
-        member_number:    @json($member->member_number ?? null),
-        photo:            @json($member->photo ? Storage::url($member->photo) : null),
-        nik:              @json($member->nik ?? '—'),
-        gender:           @json($member->gender ?? '—'),
-        birth_place:      @json($member->birth_place ?? '—'),
-        birth_date:       @json($member->birth_date ? $member->birth_date->format('d M Y') : '—'),
-        last_education:   @json($member->last_education_label ?? '—'),
-        phone:            @json($member->phone ?? '—'),
-        institution:      @json($member->institution ?? '—'),
-        occupation:       @json($member->occupation ?? '—'),
-        position:         @json($member->position ?? '—'),
-        province:         @json($member->provinceModel?->name ?? $member->province ?? '—'),
-        city:             @json($member->cityModel?->name ?? $member->city ?? '—'),
-        address:          @json($member->address ?? '—'),
-        member_type:      @json($member->member_type_label ?? '—'),
-        registration_type:@json($member->registration_type === 'lama' ? 'Anggota Lama' : 'Anggota Baru'),
-        status:           @json($member->status ?? '—'),
-        status_label:     @json($member->status_label ?? '—'),
-        biodata_status:   @json($member->biodata_status ?? '—'),
-        biodata_label:    @json($member->biodata_status_label ?? '—'),
-        dues_paid:        {{ $member->dues_paid ? 'true' : 'false' }},
-        registered_at:    @json($member->registered_at ? $member->registered_at->format('d M Y') : '—'),
-        is_batch:         {{ $member->is_batch ? 'true' : 'false' }},
-        payments: [
-            @foreach ($member->payments as $payment)
+        {{-- Nav — scrollable jika banyak item --}}
+        <nav class="flex-1 py-4 px-3 overflow-y-auto">
             @php
-                $paymentTypeLabel   = $payment->type === 'uang_pangkal' ? 'Uang Pangkal' : 'Iuran Tahunan ' . $payment->payment_year;
-                $paymentAmountLabel = 'Rp ' . number_format($payment->amount, 0, ',', '.');
-                $paymentStatusLabel = $payment->status === 'verified' ? 'Terverifikasi' : ($payment->status === 'rejected' ? 'Ditolak' : 'Pending');
+                $links = [
+                    ['route' => 'member.dashboard', 'label' => 'Dashboard',    'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+                    ['route' => 'member.biodata',   'label' => 'Biodata Saya',  'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
+                    ['route' => 'member.payment',   'label' => 'Pembayaran',    'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
+                    ['route' => 'member.card',      'label' => 'Kartu Anggota', 'icon' => 'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2'],
+                ];
             @endphp
-            {
-                type:          @json($paymentTypeLabel),
-                amount:        @json($paymentAmountLabel),
-                status:        @json($payment->status),
-                status_label:  @json($paymentStatusLabel),
-                date:          @json($payment->created_at->format('d M Y')),
-                reject_reason: @json($payment->reject_reason ?? null),
-            },
+
+            <p class="sidebar-section-title">Menu</p>
+
+            @foreach ($links as $link)
+            <a href="{{ route($link['route']) }}"
+               class="sidebar-link {{ request()->routeIs($link['route']) ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $link['icon'] }}"/>
+                </svg>
+                {{ $link['label'] }}
+            </a>
             @endforeach
-        ],
-    },
-    @endforeach
-};
+        </nav>
 
-// CSRF token untuk form impersonate di dalam modal
-const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
-</script>
-
-{{-- ══ MODAL: Detail Anggota ══ --}}
-<div id="modal-member-detail"
-     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:center;justify-content:center;padding:1rem;">
-    <div style="background:#fff;border-radius:10px;width:720px;max-width:98vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-
-        {{-- Header --}}
-        <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-            <div style="display:flex;align-items:center;gap:1rem;">
-                <div id="md-avatar" style="width:48px;height:48px;border-radius:50%;background:#EEF4FB;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:2px solid #D6E8F7;"></div>
-                <div>
-                    <p id="md-name" style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:#1A2A3A;margin:0;"></p>
-                    <p id="md-email" style="font-size:0.78rem;color:#5C6B78;margin:0.1rem 0 0;"></p>
-                    <p id="md-nomer" style="font-size:0.72rem;font-family:monospace;color:#2A7FC1;font-weight:700;margin:0.1rem 0 0;letter-spacing:0.08em;display:none;"></p>
+        {{-- User info — SELALU di bawah, tidak terdorong --}}
+        <div class="flex-shrink-0 border-t border-white/10 px-4 py-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                    </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-neutral-500 text-2xs truncate">
+                        {{ auth()->user()->member?->member_type_label ?? 'Anggota' }}
+                    </p>
                 </div>
             </div>
-            <button onclick="closeMemberModal()"
-                    style="background:none;border:none;font-size:1.3rem;color:#8A97A4;cursor:pointer;line-height:1;">✕</button>
+            <a href="{{ route('account.settings') }}"
+                   class="mt-3 flex items-center gap-1.5 text-2xs font-bold tracking-widest uppercase text-neutral-500 hover:text-white transition-colors duration-200 {{ request()->routeIs('account.*') ? 'text-white' : '' }}">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Pengaturan Akun
+                </a>
+            <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                @csrf
+                <button type="submit"
+                        class="w-full text-left text-2xs font-bold tracking-widest uppercase text-neutral-500 hover:text-accent-red transition-colors duration-200">
+                    Keluar
+                </button>
+            </form>
         </div>
+    </aside>
 
-        {{-- Body --}}
-        <div style="overflow-y:auto;flex:1;padding:1.5rem;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+    {{-- ── MAIN AREA ── --}}
+    <div class="flex-1 flex flex-col overflow-hidden">
 
-                {{-- Kolom Kiri --}}
-                <div style="display:flex;flex-direction:column;gap:1.25rem;">
-                    <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Identitas</p>
-                        <div style="display:flex;flex-direction:column;gap:0.6rem;" id="md-identity"></div>
-                    </div>
-                    <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Kontak & Lokasi</p>
-                        <div style="display:flex;flex-direction:column;gap:0.6rem;" id="md-contact"></div>
-                    </div>
-                    <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Keanggotaan</p>
-                        <div style="display:flex;flex-direction:column;gap:0.6rem;" id="md-membership"></div>
-                    </div>
-                </div>
+        {{-- Top Bar --}}
+        <header class="bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between shadow-sm flex-shrink-0">
+            <h1 class="text-base font-bold text-navy">{{ $title ?? 'Dashboard' }}</h1>
+            <a href="{{ route('home') }}" target="_blank"
+               class="btn btn-ghost btn-sm">
+                Lihat Website ↗
+            </a>
+        </header>
 
-                {{-- Kolom Kanan --}}
-                <div style="display:flex;flex-direction:column;gap:1.25rem;">
-                    <div style="background:#F8FAFC;border:1px solid #EEF4FB;border-radius:8px;padding:1rem;">
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 0.75rem;">Status</p>
-                        <div style="display:flex;flex-direction:column;gap:0.5rem;" id="md-status-section"></div>
-                    </div>
-                    <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Riwayat Pembayaran</p>
-                        <div id="md-payments"></div>
-                    </div>
-                </div>
+        {{-- Page Content --}}
+        <main class="flex-1 overflow-y-auto p-6">
+            @if (session('success'))
+                <div class="alert alert-success mb-5">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger mb-5">{{ session('error') }}</div>
+            @endif
 
-            </div>
-        </div>
-
-        {{-- Footer --}}
-        <div style="padding:1rem 1.5rem;border-top:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#F8FAFC;">
-            {{-- Tombol impersonate — diisi via JS --}}
-            <div id="md-footer-actions"></div>
-            <button onclick="closeMemberModal()"
-                    style="padding:0.625rem 1.5rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.75rem;font-weight:700;color:#4A6580;background:#fff;cursor:pointer;">
-                Tutup
-            </button>
-        </div>
-
+            @yield('content')
+        </main>
     </div>
 </div>
 
-@push('scripts')
-<script>
-function openMemberModal(id) {
-    const m = MEMBERS_DATA[id];
-    if (!m) return;
-
-    // ── Avatar
-    const avatar = document.getElementById('md-avatar');
-    avatar.innerHTML = m.photo
-        ? `<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;"/>`
-        : `<span style="font-size:1.3rem;font-weight:700;color:#2A7FC1;">${(m.full_name || '?')[0].toUpperCase()}</span>`;
-
-    // ── Header
-    document.getElementById('md-name').textContent  = m.full_name;
-    document.getElementById('md-email').textContent = m.email;
-    const nomerEl = document.getElementById('md-nomer');
-    if (m.member_number) {
-        nomerEl.textContent = 'No. ' + m.member_number;
-        nomerEl.style.display = 'block';
-    } else {
-        nomerEl.style.display = 'none';
-    }
-
-    // ── Helper
-    const genderLabel = m.gender === 'L' ? 'Laki-laki' : m.gender === 'P' ? 'Perempuan' : '—';
-    const row = (label, value) => `
-        <div style="display:flex;gap:0.5rem;justify-content:space-between;font-size:0.82rem;">
-            <span style="color:#8A97A4;white-space:nowrap;flex-shrink:0;">${label}</span>
-            <span style="color:#1A2A3A;font-weight:500;text-align:right;">${value || '—'}</span>
-        </div>`;
-
-    // ── Identitas
-    document.getElementById('md-identity').innerHTML = [
-        row('NIK',           m.nik),
-        row('Jenis Kelamin', genderLabel),
-        row('Tempat Lahir',  m.birth_place),
-        row('Tanggal Lahir', m.birth_date),
-        row('Pendidikan',    m.last_education),
-    ].join('');
-
-    // ── Kontak & Lokasi
-    document.getElementById('md-contact').innerHTML = [
-        row('No. Telepon',   m.phone),
-        row('Institusi',     m.institution),
-        row('Jabatan/Prodi', m.position || m.occupation),
-        row('Provinsi',      m.province),
-        row('Kota',          m.city),
-        row('Alamat',        m.address),
-    ].join('');
-
-    // ── Keanggotaan
-    document.getElementById('md-membership').innerHTML = [
-        row('Jenis Anggota',   m.member_type),
-        row('Tipe Registrasi', m.registration_type),
-        row('Terdaftar',       m.registered_at),
-        row('Sumber',          m.is_batch ? 'Pendaftaran Batch' : 'Mandiri'),
-    ].join('');
-
-    // ── Status
-    const statusColor = { active: '#276749', pending: '#B8860B', inactive: '#5C6B78', rejected: '#C0392B' };
-    const statusBg    = { active: '#F0FFF4', pending: '#FEF8EC', inactive: '#F0F2F4', rejected: '#FDECEA' };
-    const bdColor     = { verified: '#276749', rejected: '#C0392B', pending: '#B8860B' };
-    const bdBg        = { verified: '#F0FFF4', rejected: '#FDECEA', pending: '#FEF8EC' };
-    const badge = (label, color, bg) =>
-        `<span style="display:inline-block;font-size:0.7rem;font-weight:700;padding:0.25rem 0.625rem;border-radius:3px;background:${bg};color:${color};">${label}</span>`;
-
-    document.getElementById('md-status-section').innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;">
-            <span style="color:#8A97A4;">Status Anggota</span>
-            ${badge(m.status_label, statusColor[m.status] || '#5C6B78', statusBg[m.status] || '#F0F2F4')}
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;">
-            <span style="color:#8A97A4;">Biodata</span>
-            ${badge(m.biodata_label, bdColor[m.biodata_status] || '#5C6B78', bdBg[m.biodata_status] || '#F0F2F4')}
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;">
-            <span style="color:#8A97A4;">Iuran</span>
-            ${m.dues_paid ? badge('Lunas', '#276749', '#F0FFF4') : badge('Belum Lunas', '#C0392B', '#FDECEA')}
-        </div>`;
-
-    // ── Pembayaran
-    const paymentsEl = document.getElementById('md-payments');
-    if (m.payments.length === 0) {
-        paymentsEl.innerHTML = `<p style="font-size:0.82rem;color:#B0CCDF;text-align:center;padding:1rem 0;">Belum ada riwayat pembayaran.</p>`;
-    } else {
-        const pc = { verified: '#276749', rejected: '#C0392B', pending: '#B8860B' };
-        const pb = { verified: '#F0FFF4', rejected: '#FDECEA', pending: '#FEF8EC' };
-        paymentsEl.innerHTML = m.payments.map(p => `
-            <div style="border:1px solid #EEF4FB;border-radius:6px;padding:0.75rem;margin-bottom:0.5rem;">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
-                    <div>
-                        <p style="font-size:0.82rem;font-weight:600;color:#1A2A3A;margin:0 0 0.2rem;">${p.type}</p>
-                        <p style="font-size:0.75rem;color:#5C6B78;margin:0;">${p.amount} &nbsp;·&nbsp; ${p.date}</p>
-                        ${p.reject_reason ? `<p style="font-size:0.72rem;color:#C0392B;margin:0.25rem 0 0;">Ditolak: ${p.reject_reason}</p>` : ''}
-                    </div>
-                    <span style="font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:3px;white-space:nowrap;background:${pb[p.status] || '#F0F2F4'};color:${pc[p.status] || '#5C6B78'};">
-                        ${p.status_label}
-                    </span>
-                </div>
-            </div>`).join('');
-    }
-
-    // ── Footer: tombol impersonate
-    const footerActions = document.getElementById('md-footer-actions');
-    if (m.user_id) {
-        footerActions.innerHTML = `
-            <form method="POST" action="/impersonate/${m.user_id}" style="margin:0;">
-                <input type="hidden" name="_token" value="${CSRF_TOKEN}">
-                <button type="submit"
-                        style="display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;background:#1A2A3A;color:#fff;border:none;border-radius:4px;font-size:0.72rem;font-weight:700;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">
-                    <svg style="width:13px;height:13px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                    Masuk sebagai Member Ini
-                </button>
-            </form>`;
-    } else {
-        footerActions.innerHTML = '';
-    }
-
-    document.getElementById('modal-member-detail').style.display = 'flex';
-}
-
-function closeMemberModal() {
-    document.getElementById('modal-member-detail').style.display = 'none';
-}
-
-document.getElementById('modal-member-detail').addEventListener('click', function(e) {
-    if (e.target === this) closeMemberModal();
-});
-</script>
-@endpush
-
-@endsection
+@stack('scripts')
+</body>
+</html>

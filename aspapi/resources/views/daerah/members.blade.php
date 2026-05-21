@@ -118,39 +118,38 @@
 <div class="mt-4 flex justify-end">{{ $members->links() }}</div>
 @endif
 
-{{-- ══════════════════════════════════════════════════════════════════
-     DATA ANGGOTA — embed sebagai JSON untuk modal
-══════════════════════════════════════════════════════════════════ --}}
+{{-- ══ DATA ANGGOTA — embed sebagai JSON untuk modal ══ --}}
 <script>
 const MEMBERS_DATA = {
     @foreach ($members as $member)
     {{ $member->id }}: {
-        id:              {{ $member->id }},
-        full_name:       @json($member->full_name ?? '—'),
-        email:           @json($member->email ?? '—'),
-        member_number:   @json($member->member_number ?? null),
-        photo:           @json($member->photo ? Storage::url($member->photo) : null),
-        nik:             @json($member->nik ?? '—'),
-        gender:          @json($member->gender ?? '—'),
-        birth_place:     @json($member->birth_place ?? '—'),
-        birth_date:      @json($member->birth_date ? $member->birth_date->format('d M Y') : '—'),
-        last_education:  @json($member->last_education_label ?? '—'),
-        phone:           @json($member->phone ?? '—'),
-        institution:     @json($member->institution ?? '—'),
-        occupation:      @json($member->occupation ?? '—'),
-        position:        @json($member->position ?? '—'),
-        province:        @json($member->provinceModel?->name ?? $member->province ?? '—'),
-        city:            @json($member->cityModel?->name ?? $member->city ?? '—'),
-        address:         @json($member->address ?? '—'),
-        member_type:     @json($member->member_type_label ?? '—'),
-        registration_type: @json($member->registration_type === 'lama' ? 'Anggota Lama' : 'Anggota Baru'),
-        status:          @json($member->status ?? '—'),
-        status_label:    @json($member->status_label ?? '—'),
-        biodata_status:  @json($member->biodata_status ?? '—'),
-        biodata_label:   @json($member->biodata_status_label ?? '—'),
-        dues_paid:       {{ $member->dues_paid ? 'true' : 'false' }},
-        registered_at:   @json($member->registered_at ? $member->registered_at->format('d M Y') : '—'),
-        is_batch:        {{ $member->is_batch ? 'true' : 'false' }},
+        id:               {{ $member->id }},
+        user_id:          {{ $member->user_id ?? 'null' }},
+        full_name:        @json($member->full_name ?? '—'),
+        email:            @json($member->email ?? '—'),
+        member_number:    @json($member->member_number ?? null),
+        photo:            @json($member->photo ? Storage::url($member->photo) : null),
+        nik:              @json($member->nik ?? '—'),
+        gender:           @json($member->gender ?? '—'),
+        birth_place:      @json($member->birth_place ?? '—'),
+        birth_date:       @json($member->birth_date ? $member->birth_date->format('d M Y') : '—'),
+        last_education:   @json($member->last_education_label ?? '—'),
+        phone:            @json($member->phone ?? '—'),
+        institution:      @json($member->institution ?? '—'),
+        occupation:       @json($member->occupation ?? '—'),
+        position:         @json($member->position ?? '—'),
+        province:         @json($member->provinceModel?->name ?? $member->province ?? '—'),
+        city:             @json($member->cityModel?->name ?? $member->city ?? '—'),
+        address:          @json($member->address ?? '—'),
+        member_type:      @json($member->member_type_label ?? '—'),
+        registration_type:@json($member->registration_type === 'lama' ? 'Anggota Lama' : 'Anggota Baru'),
+        status:           @json($member->status ?? '—'),
+        status_label:     @json($member->status_label ?? '—'),
+        biodata_status:   @json($member->biodata_status ?? '—'),
+        biodata_label:    @json($member->biodata_status_label ?? '—'),
+        dues_paid:        {{ $member->dues_paid ? 'true' : 'false' }},
+        registered_at:    @json($member->registered_at ? $member->registered_at->format('d M Y') : '—'),
+        is_batch:         {{ $member->is_batch ? 'true' : 'false' }},
         payments: [
             @foreach ($member->payments as $payment)
             @php
@@ -159,28 +158,29 @@ const MEMBERS_DATA = {
                 $paymentStatusLabel = $payment->status === 'verified' ? 'Terverifikasi' : ($payment->status === 'rejected' ? 'Ditolak' : 'Pending');
             @endphp
             {
-                type:         @json($paymentTypeLabel),
-                amount:       @json($paymentAmountLabel),
-                status:       @json($payment->status),
-                status_label: @json($paymentStatusLabel),
-                date:         @json($payment->created_at->format('d M Y')),
-                reject_reason:@json($payment->reject_reason ?? null),
+                type:          @json($paymentTypeLabel),
+                amount:        @json($paymentAmountLabel),
+                status:        @json($payment->status),
+                status_label:  @json($paymentStatusLabel),
+                date:          @json($payment->created_at->format('d M Y')),
+                reject_reason: @json($payment->reject_reason ?? null),
             },
             @endforeach
         ],
     },
     @endforeach
 };
+
+// CSRF token untuk form impersonate di dalam modal
+const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 </script>
 
-{{-- ══════════════════════════════════════════════════════════════════
-     MODAL: Detail Anggota
-══════════════════════════════════════════════════════════════════ --}}
+{{-- ══ MODAL: Detail Anggota ══ --}}
 <div id="modal-member-detail"
      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:center;justify-content:center;padding:1rem;">
     <div style="background:#fff;border-radius:10px;width:720px;max-width:98vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
 
-        {{-- Modal Header --}}
+        {{-- Header --}}
         <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
             <div style="display:flex;align-items:center;gap:1rem;">
                 <div id="md-avatar" style="width:48px;height:48px;border-radius:50%;background:#EEF4FB;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:2px solid #D6E8F7;"></div>
@@ -194,63 +194,45 @@ const MEMBERS_DATA = {
                     style="background:none;border:none;font-size:1.3rem;color:#8A97A4;cursor:pointer;line-height:1;">✕</button>
         </div>
 
-        {{-- Modal Body --}}
+        {{-- Body --}}
         <div style="overflow-y:auto;flex:1;padding:1.5rem;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
 
                 {{-- Kolom Kiri --}}
                 <div style="display:flex;flex-direction:column;gap:1.25rem;">
-
-                    {{-- Identitas --}}
                     <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">
-                            Identitas
-                        </p>
+                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Identitas</p>
                         <div style="display:flex;flex-direction:column;gap:0.6rem;" id="md-identity"></div>
                     </div>
-
-                    {{-- Kontak & Lokasi --}}
                     <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">
-                            Kontak & Lokasi
-                        </p>
+                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Kontak & Lokasi</p>
                         <div style="display:flex;flex-direction:column;gap:0.6rem;" id="md-contact"></div>
                     </div>
-
-                    {{-- Keanggotaan --}}
                     <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">
-                            Keanggotaan
-                        </p>
+                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Keanggotaan</p>
                         <div style="display:flex;flex-direction:column;gap:0.6rem;" id="md-membership"></div>
                     </div>
                 </div>
 
                 {{-- Kolom Kanan --}}
                 <div style="display:flex;flex-direction:column;gap:1.25rem;">
-
-                    {{-- Status badge --}}
                     <div style="background:#F8FAFC;border:1px solid #EEF4FB;border-radius:8px;padding:1rem;">
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 0.75rem;">
-                            Status
-                        </p>
+                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 0.75rem;">Status</p>
                         <div style="display:flex;flex-direction:column;gap:0.5rem;" id="md-status-section"></div>
                     </div>
-
-                    {{-- Riwayat Pembayaran --}}
                     <div>
-                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">
-                            Riwayat Pembayaran
-                        </p>
+                        <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#2A7FC1;margin:0 0 0.75rem;padding-bottom:0.4rem;border-bottom:1px solid #EEF4FB;">Riwayat Pembayaran</p>
                         <div id="md-payments"></div>
                     </div>
-
                 </div>
+
             </div>
         </div>
 
-        {{-- Modal Footer --}}
-        <div style="padding:1rem 1.5rem;border-top:1px solid #EEF4FB;display:flex;justify-content:flex-end;flex-shrink:0;background:#F8FAFC;">
+        {{-- Footer --}}
+        <div style="padding:1rem 1.5rem;border-top:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#F8FAFC;">
+            {{-- Tombol impersonate — diisi via JS --}}
+            <div id="md-footer-actions"></div>
             <button onclick="closeMemberModal()"
                     style="padding:0.625rem 1.5rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.75rem;font-weight:700;color:#4A6580;background:#fff;cursor:pointer;">
                 Tutup
@@ -268,11 +250,9 @@ function openMemberModal(id) {
 
     // ── Avatar
     const avatar = document.getElementById('md-avatar');
-    if (m.photo) {
-        avatar.innerHTML = `<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;"/>`;
-    } else {
-        avatar.innerHTML = `<span style="font-size:1.3rem;font-weight:700;color:#2A7FC1;">${(m.full_name || '?')[0].toUpperCase()}</span>`;
-    }
+    avatar.innerHTML = m.photo
+        ? `<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;"/>`
+        : `<span style="font-size:1.3rem;font-weight:700;color:#2A7FC1;">${(m.full_name || '?')[0].toUpperCase()}</span>`;
 
     // ── Header
     document.getElementById('md-name').textContent  = m.full_name;
@@ -304,12 +284,12 @@ function openMemberModal(id) {
 
     // ── Kontak & Lokasi
     document.getElementById('md-contact').innerHTML = [
-        row('No. Telepon',    m.phone),
-        row('Institusi',      m.institution),
-        row('Jabatan/Prodi',  m.position || m.occupation),
-        row('Provinsi',       m.province),
-        row('Kota',           m.city),
-        row('Alamat',         m.address),
+        row('No. Telepon',   m.phone),
+        row('Institusi',     m.institution),
+        row('Jabatan/Prodi', m.position || m.occupation),
+        row('Provinsi',      m.province),
+        row('Kota',          m.city),
+        row('Alamat',        m.address),
     ].join('');
 
     // ── Keanggotaan
@@ -320,12 +300,11 @@ function openMemberModal(id) {
         row('Sumber',          m.is_batch ? 'Pendaftaran Batch' : 'Mandiri'),
     ].join('');
 
-    // ── Status section
+    // ── Status
     const statusColor = { active: '#276749', pending: '#B8860B', inactive: '#5C6B78', rejected: '#C0392B' };
     const statusBg    = { active: '#F0FFF4', pending: '#FEF8EC', inactive: '#F0F2F4', rejected: '#FDECEA' };
     const bdColor     = { verified: '#276749', rejected: '#C0392B', pending: '#B8860B' };
     const bdBg        = { verified: '#F0FFF4', rejected: '#FDECEA', pending: '#FEF8EC' };
-
     const badge = (label, color, bg) =>
         `<span style="display:inline-block;font-size:0.7rem;font-weight:700;padding:0.25rem 0.625rem;border-radius:3px;background:${bg};color:${color};">${label}</span>`;
 
@@ -340,9 +319,7 @@ function openMemberModal(id) {
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;">
             <span style="color:#8A97A4;">Iuran</span>
-            ${m.dues_paid
-                ? badge('Lunas', '#276749', '#F0FFF4')
-                : badge('Belum Lunas', '#C0392B', '#FDECEA')}
+            ${m.dues_paid ? badge('Lunas', '#276749', '#F0FFF4') : badge('Belum Lunas', '#C0392B', '#FDECEA')}
         </div>`;
 
     // ── Pembayaran
@@ -350,10 +327,9 @@ function openMemberModal(id) {
     if (m.payments.length === 0) {
         paymentsEl.innerHTML = `<p style="font-size:0.82rem;color:#B0CCDF;text-align:center;padding:1rem 0;">Belum ada riwayat pembayaran.</p>`;
     } else {
-        paymentsEl.innerHTML = m.payments.map(p => {
-            const pc = { verified: '#276749', rejected: '#C0392B', pending: '#B8860B' };
-            const pb = { verified: '#F0FFF4', rejected: '#FDECEA', pending: '#FEF8EC' };
-            return `
+        const pc = { verified: '#276749', rejected: '#C0392B', pending: '#B8860B' };
+        const pb = { verified: '#F0FFF4', rejected: '#FDECEA', pending: '#FEF8EC' };
+        paymentsEl.innerHTML = m.payments.map(p => `
             <div style="border:1px solid #EEF4FB;border-radius:6px;padding:0.75rem;margin-bottom:0.5rem;">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
                     <div>
@@ -365,8 +341,28 @@ function openMemberModal(id) {
                         ${p.status_label}
                     </span>
                 </div>
-            </div>`;
-        }).join('');
+            </div>`).join('');
+    }
+
+    // ── Footer: tombol impersonate
+    const footerActions = document.getElementById('md-footer-actions');
+    if (m.user_id) {
+        footerActions.innerHTML = `
+            <form method="POST" action="/impersonate/${m.user_id}" style="margin:0;">
+                <input type="hidden" name="_token" value="${CSRF_TOKEN}">
+                <button type="submit"
+                        style="display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;background:#1A2A3A;color:#fff;border:none;border-radius:4px;font-size:0.72rem;font-weight:700;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">
+                    <svg style="width:13px;height:13px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    Masuk sebagai Member Ini
+                </button>
+            </form>`;
+    } else {
+        footerActions.innerHTML = '';
     }
 
     document.getElementById('modal-member-detail').style.display = 'flex';
@@ -376,7 +372,6 @@ function closeMemberModal() {
     document.getElementById('modal-member-detail').style.display = 'none';
 }
 
-// Tutup modal klik backdrop
 document.getElementById('modal-member-detail').addEventListener('click', function(e) {
     if (e.target === this) closeMemberModal();
 });
