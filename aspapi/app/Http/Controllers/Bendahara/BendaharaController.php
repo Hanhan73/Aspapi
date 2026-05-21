@@ -63,9 +63,9 @@ class BendaharaController extends Controller
                 : now();
 
             $member->update([
+                'status'       => 'active',      // aktifkan jika sebelumnya pending
                 'dues_paid'    => true,
                 'dues_paid_at' => now(),
-                'status'       => 'active',
                 'active_until' => $baseDate->addYear(),
             ]);
 
@@ -149,9 +149,9 @@ class BendaharaController extends Controller
                 : $now->copy();
 
             $member->update([
+                'status'       => 'active',      // aktifkan jika sebelumnya pending
                 'dues_paid'    => true,
                 'dues_paid_at' => $now,
-                'status'       => 'active',
                 'active_until' => $baseDate->addYear(),
             ]);
         }

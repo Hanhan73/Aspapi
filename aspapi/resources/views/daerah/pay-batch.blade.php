@@ -5,8 +5,12 @@
 
 <div class="bg-blue-50 border-l-4 border-primary rounded px-4 py-3 mb-6 text-sm text-blue-800">
     Pilih anggota yang iurannya akan dibayarkan secara kolektif, upload satu bukti transfer untuk semua,
-    lalu kirim ke Bendahara untuk diverifikasi.
-    <strong>Iuran tahunan: Rp 120.000/anggota.</strong>
+    lalu kirim ke Bendahara untuk diverifikasi. <strong>Iuran tahunan: Rp 120.000/anggota.</strong>
+    <br>
+    <span class="text-xs mt-1 block text-blue-700">
+        Anggota bertanda <span class="font-bold text-purple-700">⊕ Baru</span> akan langsung diaktifkan setelah pembayaran diverifikasi.
+        Anggota bertanda <span class="font-bold text-orange-600">↻ Perpanjang</span> akan diperpanjang masa aktifnya.
+    </span>
 </div>
 
 <form method="POST" action="{{ route('daerah.pay.store') }}" enctype="multipart/form-data">
@@ -17,7 +21,13 @@
         {{-- Daftar Anggota --}}
         <div class="bg-white border border-neutral-200 rounded-lg overflow-hidden">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-neutral-100">
-                <p class="text-2xs font-bold uppercase tracking-widest text-neutral-500">Pilih Anggota</p>
+                <div>
+                    <p class="text-2xs font-bold uppercase tracking-widest text-neutral-500">Pilih Anggota</p>
+                    <p class="text-xs text-neutral-400 mt-0.5">
+                        {{ $members->where('status', 'pending')->count() }} baru &nbsp;·&nbsp;
+                        {{ $members->where('status', 'active')->count() }} perpanjang
+                    </p>
+                </div>
                 <label class="flex items-center gap-2 cursor-pointer text-xs text-neutral-500 select-none">
                     <input type="checkbox" id="select-all" onchange="toggleAll(this)"
                            class="w-4 h-4 accent-primary"/>
@@ -25,20 +35,34 @@
                 </label>
             </div>
 
-            <div class="overflow-y-auto" style="max-height:420px;">
+            <div class="overflow-y-auto" style="max-height:460px;">
                 @forelse ($members as $member)
-                <label class="flex items-center gap-3.5 px-5 py-3.5 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50 transition-colors">
+                @php $isNew = $member->status === 'pending'; @endphp
+                <label class="flex items-center gap-3.5 px-5 py-3.5 border-b border-neutral-50 cursor-pointer hover:bg-neutral-50 transition-colors {{ $isNew ? 'bg-purple-50/40' : '' }}">
                     <input type="checkbox" name="member_ids[]" value="{{ $member->id }}"
                            class="member-check w-4 h-4 accent-primary flex-shrink-0"/>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-navy truncate">{{ $member->full_name }}</p>
-                        <p class="text-xs text-neutral-400 truncate">{{ $member->institution ?? '—' }}</p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-sm font-semibold text-navy truncate">{{ $member->full_name }}</p>
+                            @if ($isNew)
+                                <span style="font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:2px;background:#F5F0FF;color:#9B59B6;white-space:nowrap;">⊕ BARU</span>
+                            @else
+                                <span style="font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:2px;background:#FEF3E8;color:#E67E22;white-space:nowrap;">↻ PERPANJANG</span>
+                            @endif
+                        </div>
+                        <p class="text-xs text-neutral-400 truncate">
+                            {{ $member->institution ?? '—' }}
+                            @if (!$isNew && $member->active_until)
+                                &nbsp;· Kadaluarsa {{ $member->active_until->format('d M Y') }}
+                            @endif
+                        </p>
                     </div>
                     <span class="text-xs font-bold text-red-600 flex-shrink-0">Rp 120.000</span>
                 </label>
                 @empty
                 <div class="px-5 py-10 text-center text-sm text-neutral-400">
-                    Semua anggota sudah lunas iuran tahun ini.
+                    Tidak ada anggota yang perlu membayar iuran saat ini.<br>
+                    <span class="text-xs">Semua anggota sudah lunas atau ada yang sedang menunggu verifikasi.</span>
                 </div>
                 @endforelse
             </div>
@@ -56,17 +80,6 @@
 
             {{-- Form upload --}}
             <div class="bg-white border border-neutral-200 rounded-lg p-5">
-                <div class="mb-4">
-                    <label class="block text-2xs font-bold tracking-widest uppercase text-neutral-500 mb-1.5">
-                        Tahun Iuran *
-                    </label>
-                    <select name="year" required
-                            class="w-full px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
-                        @for ($y = now()->year; $y >= 2010; $y--)
-                        <option value="{{ $y }}" {{ $y === now()->year ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
                 <div>
                     <label class="block text-2xs font-bold tracking-widest uppercase text-neutral-500 mb-1.5">
                         Bukti Transfer *
@@ -85,7 +98,7 @@
                 <p class="text-xs text-blue-200">Sitti Hardiyanti Arhas</p>
             </div>
 
-            {{-- Submit --}}
+            {{-- Error --}}
             @if ($errors->any())
             <div class="alert alert-danger">
                 <ul class="list-disc list-inside space-y-1 text-xs">

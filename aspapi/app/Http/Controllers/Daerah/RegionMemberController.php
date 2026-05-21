@@ -84,14 +84,12 @@ class RegionMemberController extends Controller
     public function batchStore(Request $request)
     {
         $request->validate([
-            // File bersifat opsional — kalau tidak ada berarti mode manual
             'file'         => 'nullable|file|mimes:xlsx,xls|max:5120',
             'participants' => 'nullable|array',
         ]);
 
         $region = $this->region();
 
-        // Deteksi mode berdasarkan ada tidaknya file
         if ($request->hasFile('file')) {
             return $this->processBatchFromExcel($request, $region);
         }
@@ -153,12 +151,7 @@ class RegionMemberController extends Controller
                 $gender = 'L';
             }
 
-<<<<<<< Updated upstream
-            // Generate password sementara
-            $password = "password123";
-=======
             $password = Str::random(10);
->>>>>>> Stashed changes
 
             try {
                 DB::transaction(function () use (
@@ -169,12 +162,7 @@ class RegionMemberController extends Controller
                         'email'             => $email,
                         'password'          => Hash::make($password),
                         'role'              => 'anggota',
-<<<<<<< Updated upstream
-                        'email_verified' => true,
-                        'email_verified_at' => now(), // batch = langsung verified
-=======
                         'email_verified_at' => now(),
->>>>>>> Stashed changes
                     ]);
 
                     Member::create([
@@ -217,7 +205,6 @@ class RegionMemberController extends Controller
 
     private function processBatchManual(Request $request, $region)
     {
-        // Filter baris yang benar-benar kosong (keduanya nama dan email kosong)
         $participants = collect($request->input('participants', []))
             ->filter(fn($p) => !empty(trim($p['name'] ?? '')) || !empty(trim($p['email'] ?? '')))
             ->values();
@@ -330,13 +317,24 @@ class RegionMemberController extends Controller
     {
         $region = $this->region();
 
+        // Tampilkan anggota yang:
+        //   - terdaftar di region ini
+        //   - biodata sudah verified (sudah disetujui admin)
+        //   - status 'active' (perpanjang) ATAU 'pending' (baru, belum pernah bayar)
+        //   - iurannya belum aktif: active_until null atau sudah lewat
+        //   - tidak ada payment iuran yang masih pending (hindari double submit)
         $members = Member::where('registered_by_region_id', $region->id)
-            ->where('status', 'active')
+            ->where('biodata_status', 'verified')
+            ->whereIn('status', ['active', 'pending'])
+            ->where(fn($q) =>
+                $q->whereNull('active_until')
+                  ->orWhere('active_until', '<=', now())
+            )
             ->whereDoesntHave('payments', fn($q) =>
                 $q->where('type', 'iuran_tahunan')
-                  ->where('status', 'verified')
-                  ->where('payment_year', now()->year)
+                  ->where('status', 'pending')
             )
+            ->orderByRaw("FIELD(status, 'pending', 'active')")  // anggota baru tampil duluan
             ->orderBy('full_name')
             ->get();
 
@@ -348,14 +346,16 @@ class RegionMemberController extends Controller
         $request->validate([
             'member_ids'   => 'required|array|min:1',
             'member_ids.*' => 'exists:members,id',
-            'year'         => 'required|integer|min:2020|max:' . (now()->year + 1),
             'receipt'      => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         $region = $this->region();
 
+        // Security: pastikan member benar-benar milik region ini + eligible
         $memberIds = Member::whereIn('id', $request->member_ids)
             ->where('registered_by_region_id', $region->id)
+            ->where('biodata_status', 'verified')
+            ->whereIn('status', ['active', 'pending'])
             ->pluck('id')
             ->toArray();
 
@@ -367,7 +367,7 @@ class RegionMemberController extends Controller
         $iuranPerAnggota = 120000;
         $totalAmount     = count($memberIds) * $iuranPerAnggota;
 
-        DB::transaction(function () use ($memberIds, $region, $request, $receiptPath, $iuranPerAnggota, $totalAmount) {
+        DB::transaction(function () use ($memberIds, $region, $receiptPath, $iuranPerAnggota, $totalAmount) {
             $batch = PaymentBatch::create([
                 'region_id'    => $region->id,
                 'submitted_by' => auth()->id(),
@@ -375,7 +375,7 @@ class RegionMemberController extends Controller
                 'total_amount' => $totalAmount,
                 'member_count' => count($memberIds),
                 'status'       => 'pending',
-                'payment_year' => $request->year,
+                'payment_year' => now()->year,
             ]);
 
             foreach ($memberIds as $memberId) {
@@ -383,11 +383,11 @@ class RegionMemberController extends Controller
                     'member_id'      => $memberId,
                     'batch_id'       => $batch->id,
                     'type'           => 'iuran_tahunan',
-                    'payment_method' => 'transfer',
+                    'payment_method' => 'kolektif',
                     'amount'         => $iuranPerAnggota,
                     'receipt_path'   => $receiptPath,
                     'status'         => 'pending',
-                    'payment_year'   => $request->year,
+                    'payment_year'   => now()->year,
                     'notes'          => "Pembayaran kolektif batch #{$batch->id} oleh " . ($region->province ?? 'ASPAPI Daerah'),
                 ]);
             }
@@ -440,8 +440,4 @@ class RegionMemberController extends Controller
             'total'      => count($duplicates),
         ]);
     }
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 }
