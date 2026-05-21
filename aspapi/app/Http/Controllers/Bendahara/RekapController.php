@@ -12,15 +12,11 @@ class RekapController extends Controller
     /**
      * #9 — Rekap Pemasukan
      * Route: GET /bendahara/rekap → name: bendahara.rekap
-     *
-     * Menampilkan total pemasukan per bulan/tahun,
-     * breakdown per jenis pembayaran, dan daftar transaksi verified.
      */
     public function rekap(Request $request)
     {
         $year = $request->filled('year') ? (int) $request->year : now()->year;
 
-        // ── Total keseluruhan tahun ini ──────────────────────────────────────
         $totalTahun = Payment::where('status', 'verified')
             ->whereYear('verified_at', $year)
             ->sum('amount');
@@ -35,7 +31,6 @@ class RekapController extends Controller
             ->whereYear('verified_at', $year)
             ->sum('amount');
 
-        // ── Per bulan (untuk chart / tabel) ──────────────────────────────────
         $perBulan = [];
         for ($m = 1; $m <= 12; $m++) {
             $perBulan[$m] = [
@@ -55,18 +50,13 @@ class RekapController extends Controller
             $perBulan[$m]['total'] = $perBulan[$m]['uang_pangkal'] + $perBulan[$m]['iuran_tahunan'];
         }
 
-        // ── Daftar transaksi verified (paginated, filter bulan/type) ─────────
         $transaksi = Payment::with(['member', 'verifier'])
             ->where('status', 'verified')
             ->whereYear('verified_at', $year)
             ->when($request->filled('month'), fn($q) => $q->whereMonth('verified_at', $request->month))
             ->when($request->filled('type'),  fn($q) => $q->where('type', $request->type))
-            ->when(
-                $request->filled('search'),
-                fn($q) =>
-                $q->whereHas(
-                    'member',
-                    fn($sub) =>
+            ->when($request->filled('search'), fn($q) =>
+                $q->whereHas('member', fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
                         ->orWhere('email', 'like', '%' . $request->search . '%')
                 )
@@ -89,42 +79,40 @@ class RekapController extends Controller
      * #10 — Status Iuran Anggota
      * Route: GET /bendahara/iuran → name: bendahara.iuran
      *
-     * Menampilkan daftar anggota beserta status iuran tahunan,
-     * siapa sudah/belum bayar, dan info due date.
+     * Aturan baru: iuran berbasis active_until (bukan per tahun kalender).
+     * "Sudah bayar" = active_until masih di masa depan.
+     * "Belum bayar / kadaluarsa" = active_until null atau sudah lewat.
      */
     public function iuran(Request $request)
     {
-        $year = $request->filled('year') ? (int) $request->year : now()->year;
+        // Filter status — tidak lagi pakai $year sebagai basis hitungan
+        // tapi tetap ada untuk keperluan filter tanggal bayar jika dibutuhkan
+        $filterStatus = $request->input('status_iuran'); // 'aktif' | 'kadaluarsa' | ''
 
-        // "Sudah bayar" = active_until masih future (bukan berdasarkan payment_year)
-        $sudahBayarIds = Member::where('status', 'active')
+        // IDs anggota aktif yang iurannya masih berlaku (active_until > sekarang)
+        $aktifIds = Member::where('status', 'active')
             ->where('biodata_status', 'verified')
             ->whereNotNull('active_until')
             ->where('active_until', '>', now())
             ->pluck('id')
             ->toArray();
 
-        $members = Member::with([
-            'payments' => fn($q) =>
-            $q->where('type', 'iuran_tahunan')
-                ->where('status', 'verified')
-                ->latest('verified_at')
-                ->limit(1)
-        ])
+        $members = Member::with(['payments' => fn($q) =>
+                $q->where('type', 'iuran_tahunan')
+                  ->where('status', 'verified')
+                  ->latest('verified_at')
+                  ->limit(1)
+            ])
             ->where('status', 'active')
             ->where('biodata_status', 'verified')
-            ->when($request->filled('status_iuran'), function ($q) use ($request, $sudahBayarIds) {
-                if ($request->status_iuran === 'sudah') {
-                    $q->whereIn('id', $sudahBayarIds);
-                } elseif ($request->status_iuran === 'belum') {
-                    $q->whereNotIn('id', $sudahBayarIds);
-                }
-            })
-            ->when(
-                $request->filled('search'),
-                fn($q) =>
-                $q->where(
-                    fn($sub) =>
+            ->when($filterStatus === 'aktif', fn($q) =>
+                $q->whereIn('id', $aktifIds)
+            )
+            ->when($filterStatus === 'kadaluarsa', fn($q) =>
+                $q->whereNotIn('id', $aktifIds)
+            )
+            ->when($request->filled('search'), fn($q) =>
+                $q->where(fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
                         ->orWhere('email', 'like', '%' . $request->search . '%')
                         ->orWhere('member_number', 'like', '%' . $request->search . '%')
@@ -134,17 +122,17 @@ class RekapController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        $totalAktif      = Member::where('status', 'active')->where('biodata_status', 'verified')->count();
-        $totalSudahBayar = count($sudahBayarIds);
-        $totalBelumBayar = $totalAktif - $totalSudahBayar;
+        $totalAktifMember  = Member::where('status', 'active')->where('biodata_status', 'verified')->count();
+        $totalIuranAktif   = count($aktifIds);
+        $totalIuranExpired = $totalAktifMember - $totalIuranAktif;
 
         return view('bendahara.iuran', compact(
-            'year',
             'members',
-            'sudahBayarIds',
-            'totalAktif',
-            'totalSudahBayar',
-            'totalBelumBayar'
+            'aktifIds',
+            'totalAktifMember',
+            'totalIuranAktif',
+            'totalIuranExpired',
+            'filterStatus'
         ));
     }
 }
