@@ -26,7 +26,7 @@ class BiodataController extends Controller
         $member = auth()->user()->member;
  
         // ── Guard: tidak boleh update kalau sedang terkunci ────────────────
-        if (in_array($member->biodata_status, ['verified'])) {
+        if (in_array($member->biodata_status, ['pending', 'verified'])) {
             return back()->with('error', 'Biodata terkunci. Klik "Buka Kunci" terlebih dahulu untuk melakukan perubahan.');
         }
  
@@ -73,12 +73,12 @@ class BiodataController extends Controller
     {
         $member = auth()->user()->member;
  
-        if (!in_array($member->biodata_status, ['verified'])) {
+        if (!in_array($member->biodata_status, ['pending', 'verified'])) {
             return back()->with('error', 'Biodata tidak dalam kondisi terkunci.');
         }
  
         $member->update([
-            'biodata_status'        => 'pending',
+            'biodata_status'        => 'draft',
             'biodata_reject_reason' => null,
         ]);
  
