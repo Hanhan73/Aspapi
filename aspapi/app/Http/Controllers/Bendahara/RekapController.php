@@ -61,8 +61,12 @@ class RekapController extends Controller
             ->whereYear('verified_at', $year)
             ->when($request->filled('month'), fn($q) => $q->whereMonth('verified_at', $request->month))
             ->when($request->filled('type'),  fn($q) => $q->where('type', $request->type))
-            ->when($request->filled('search'), fn($q) =>
-                $q->whereHas('member', fn($sub) =>
+            ->when(
+                $request->filled('search'),
+                fn($q) =>
+                $q->whereHas(
+                    'member',
+                    fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
                         ->orWhere('email', 'like', '%' . $request->search . '%')
                 )
@@ -92,19 +96,23 @@ class RekapController extends Controller
     {
         $year = $request->filled('year') ? (int) $request->year : now()->year;
 
-        // ID anggota yang sudah bayar iuran tahun ini
-        $sudahBayarIds = Payment::where('status', 'verified')
-            ->where('type', 'iuran_tahunan')
-            ->where('payment_year', $year)
-            ->pluck('member_id')
+        // "Sudah bayar" = active_until masih future (bukan berdasarkan payment_year)
+        $sudahBayarIds = Member::where('status', 'active')
+            ->where('biodata_status', 'verified')
+            ->whereNotNull('active_until')
+            ->where('active_until', '>', now())
+            ->pluck('id')
             ->toArray();
 
-        $members = Member::with(['payments' => fn($q) =>
-                $q->where('type', 'iuran_tahunan')
-                  ->where('payment_year', $year)
-            ])
-            ->where('status', 'active')           // hanya anggota aktif
-            ->where('biodata_status', 'verified')  // biodata sudah verified
+        $members = Member::with([
+            'payments' => fn($q) =>
+            $q->where('type', 'iuran_tahunan')
+                ->where('status', 'verified')
+                ->latest('verified_at')
+                ->limit(1)
+        ])
+            ->where('status', 'active')
+            ->where('biodata_status', 'verified')
             ->when($request->filled('status_iuran'), function ($q) use ($request, $sudahBayarIds) {
                 if ($request->status_iuran === 'sudah') {
                     $q->whereIn('id', $sudahBayarIds);
@@ -112,17 +120,21 @@ class RekapController extends Controller
                     $q->whereNotIn('id', $sudahBayarIds);
                 }
             })
-            ->when($request->filled('search'), fn($q) =>
-                $q->where('full_name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%')
-                  ->orWhere('member_number', 'like', '%' . $request->search . '%')
+            ->when(
+                $request->filled('search'),
+                fn($q) =>
+                $q->where(
+                    fn($sub) =>
+                    $sub->where('full_name', 'like', '%' . $request->search . '%')
+                        ->orWhere('email', 'like', '%' . $request->search . '%')
+                        ->orWhere('member_number', 'like', '%' . $request->search . '%')
+                )
             )
             ->orderBy('full_name')
             ->paginate(25)
             ->withQueryString();
 
-        // Summary counts
-        $totalAktif     = Member::where('status', 'active')->where('biodata_status', 'verified')->count();
+        $totalAktif      = Member::where('status', 'active')->where('biodata_status', 'verified')->count();
         $totalSudahBayar = count($sudahBayarIds);
         $totalBelumBayar = $totalAktif - $totalSudahBayar;
 
