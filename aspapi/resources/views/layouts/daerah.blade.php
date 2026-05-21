@@ -74,6 +74,10 @@
             </a>
             <a href="{{ route('daerah.pay.batches') }}"
                 class="sidebar-link {{ request()->routeIs('daerah.pay.batches*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 012-2h6M9 19h6m-6 0l3.5-3.5M13 7h6m0 0V3m0 4l-3.5 3.5"/>
+                </svg>
                     Riwayat Batch
             </a>
         </nav>
