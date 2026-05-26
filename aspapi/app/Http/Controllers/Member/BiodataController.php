@@ -24,10 +24,11 @@ class BiodataController extends Controller
     public function update(Request $request)
     {
         $member = auth()->user()->member;
- 
-        // ── Guard: tidak boleh update kalau sedang terkunci ────────────────
-        if (in_array($member->biodata_status, ['pending', 'verified'])) {
-            return back()->with('error', 'Biodata terkunci. Klik "Buka Kunci" terlebih dahulu untuk melakukan perubahan.');
+        $isImpersonating = session()->has('impersonator_id');
+
+        // Guard: tidak boleh update kalau terkunci — KECUALI sedang diimpersonate
+        if (!$isImpersonating && in_array($member->biodata_status, ['pending', 'verified'])) {
+            return back()->with('error', 'Biodata terkunci. Klik "Buka Kunci" terlebih dahulu.');
         }
  
         $validated = $request->validate([
@@ -55,14 +56,23 @@ class BiodataController extends Controller
             $validated['photo'] = $request->file('photo')->store('member-photos', 'public');
         }
  
-        // Set ke pending → admin perlu verifikasi ulang
-        $validated['biodata_status']        = 'pending';
-        $validated['biodata_reject_reason'] = null;
+        if ($isImpersonating) {
+            // Admin yang edit → langsung verified, tidak perlu antri ke admin lagi
+            $validated['biodata_status']        = 'verified';
+            $validated['biodata_reject_reason'] = null;
+        } else {
+            // Member sendiri yang edit → masuk antrian verifikasi seperti biasa
+            $validated['biodata_status']        = 'pending';
+            $validated['biodata_reject_reason'] = null;
+        }
  
         $member->update($validated);
  
-        return redirect()->route('member.biodata')
-            ->with('success', 'Biodata berhasil disimpan dan diajukan ke Admin untuk diverifikasi.');
+        $msg = $isImpersonating
+            ? 'Biodata berhasil diperbarui dan langsung diverifikasi (mode admin).'
+            : 'Biodata berhasil disimpan dan diajukan ke Admin untuk diverifikasi.';
+
+        return redirect()->route('member.biodata')->with('success', $msg);
     }
  
     /**
@@ -72,17 +82,17 @@ class BiodataController extends Controller
     public function unlock(Request $request)
     {
         $member = auth()->user()->member;
- 
-        if (!in_array($member->biodata_status, ['pending', 'verified'])) {
+        $isImpersonating = session()->has('impersonator_id');
+
+        if (!$isImpersonating && !in_array($member->biodata_status, ['pending', 'verified'])) {
             return back()->with('error', 'Biodata tidak dalam kondisi terkunci.');
         }
- 
+
         $member->update([
             'biodata_status'        => 'draft',
             'biodata_reject_reason' => null,
         ]);
- 
-        return redirect()->route('member.biodata')
-            ->with('success', 'Biodata berhasil dibuka. Silakan edit dan ajukan verifikasi ulang setelah selesai.');
+
+        return redirect()->route('member.biodata')->with('success', 'Biodata berhasil dibuka.');
     }
 }

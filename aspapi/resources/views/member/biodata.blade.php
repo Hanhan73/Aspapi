@@ -1,8 +1,10 @@
 @extends('layouts.member')
 @php
     $title = 'Biodata Saya';
-    // Terkunci jika pending atau verified (sudah pernah submit ke admin)
-    $isLocked = in_array($member?->biodata_status, ['pending', 'verified']);
+    $isImpersonating = session()->has('impersonator_id');
+
+    // Kalau diimpersonate, anggap selalu editable
+    $isLocked   = !$isImpersonating && in_array($member?->biodata_status, ['pending', 'verified']);
     $isVerified = $member?->biodata_status === 'verified';
     $isPending  = $member?->biodata_status === 'pending';
     $isRejected = $member?->biodata_status === 'rejected';
