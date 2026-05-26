@@ -63,13 +63,14 @@
             {{-- ── MAIN CONTENT ── --}}
             <div>
 
-                {{-- Thumbnail --}}
-                @if($news->thumbnail)
-                <div class="rounded-lg overflow-hidden mb-8 shadow-card">
-                    <img src="{{ Storage::url($news->thumbnail) }}" alt="{{ $news->title }}"
-                        class="w-full h-auto max-h-[480px] object-cover" />
-                </div>
-                @endif
+ {{-- Thumbnail --}}
+@if($news->thumbnail)
+<div class="rounded-lg overflow-hidden mb-8 shadow-card bg-neutral-100">
+    <img src="{{ Storage::url($news->thumbnail) }}"
+         alt="{{ $news->title }}"
+         class="w-full h-auto object-contain"/>
+</div>
+@endif
 
                 {{-- Excerpt / Lead --}}
                 @if($news->excerpt)

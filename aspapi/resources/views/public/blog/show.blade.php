@@ -72,14 +72,14 @@
             {{-- ── MAIN CONTENT ── --}}
             <div>
 
-                {{-- Thumbnail --}}
-                @if($blog->thumbnail)
-                <div class="rounded-lg overflow-hidden mb-8 shadow-card">
-                    <img src="{{ Storage::url($blog->thumbnail) }}"
-                         alt="{{ $blog->title }}"
-                         class="w-full h-auto max-h-[480px] object-cover"/>
-                </div>
-                @endif
+{{-- Thumbnail --}}
+@if($blog->thumbnail)
+<div class="rounded-lg overflow-hidden mb-8 shadow-card bg-neutral-100">
+    <img src="{{ Storage::url($blog->thumbnail) }}"
+         alt="{{ $blog->title }}"
+         class="w-full h-auto object-contain"/>
+</div>
+@endif
 
                 {{-- Excerpt / Lead --}}
                 @if($blog->excerpt)
