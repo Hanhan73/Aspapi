@@ -1,13 +1,13 @@
 <article class="card card-top-blue card-hover flex flex-col">
 
-    {{-- Thumbnail --}}
-    @if($item->thumbnail)
-    <div class="h-44 overflow-hidden">
-        <img src="{{ Storage::url($item->thumbnail) }}"
-             alt="{{ $item->title }}"
-             class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
-    </div>
-    @else
+{{-- Thumbnail --}}
+@if($item->thumbnail)
+<div class="h-44 bg-white flex items-center justify-center overflow-hidden border-b border-neutral-100">
+    <img src="{{ Storage::url($item->thumbnail) }}"
+         alt="{{ $item->title }}"
+         class="w-full h-full object-contain hover:scale-105 transition-transform duration-500"/>
+</div>
+@else
     <div class="h-44 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
         <svg class="w-10 h-10 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
