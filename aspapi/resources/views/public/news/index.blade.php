@@ -42,8 +42,8 @@
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input type="text" name="cari"
-                       value="{{ request('cari') }}"
-                       placeholder="Cari berita..."
+                       value="{{ $search }}"
+                       placeholder="Cari berita... pisah kata kunci dengan koma"
                        class="w-full pl-9 pr-4 py-2 text-sm border border-neutral-200 rounded focus:outline-none focus:border-primary text-navy placeholder-neutral-300"/>
             </div>
 
@@ -61,7 +61,7 @@
 
             <button type="submit" class="btn btn-primary text-sm px-5 py-2">Cari</button>
 
-            @if(request()->hasAny(['cari', 'kategori']))
+            @if($search || request('kategori'))
             <a href="{{ route('news.index') }}"
                class="text-xs text-neutral-400 hover:text-accent-red transition-colors">
                 Reset ×
@@ -69,6 +69,27 @@
             @endif
 
         </form>
+
+        {{-- Info hasil pencarian --}}
+        @if(!empty($keywords))
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+            <span>Hasil pencarian:</span>
+            @foreach($keywords as $kw)
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary font-semibold rounded-full">
+                    {{ $kw }}
+                </span>
+                @if(!$loop->last)
+                    <span class="text-neutral-400 font-bold text-2xs">+</span>
+                @endif
+            @endforeach
+            <span class="text-neutral-400">→</span>
+            <span class="font-bold {{ $news->total() > 0 ? 'text-primary' : 'text-neutral-400' }}">
+                {{ $news->total() }}
+            </span>
+            <span>dari {{ $totalCount }} berita</span>
+        </div>
+        @endif
+
     </div>
 </section>
 
@@ -143,9 +164,9 @@
             </div>
             @endif
 
-            {{-- Pagination --}}
+{{-- Pagination --}}
             @if($news->hasPages())
-            <div class="mt-12 flex justify-center">
+            <div class="mt-12 flex flex-col items-center gap-2">
                 <div class="flex items-center gap-1">
                     @if($news->onFirstPage())
                         <span class="px-3 py-2 text-sm text-neutral-300 border border-neutral-200 rounded cursor-not-allowed">←</span>
@@ -170,9 +191,18 @@
                         <span class="px-3 py-2 text-sm text-neutral-300 border border-neutral-200 rounded cursor-not-allowed">→</span>
                     @endif
                 </div>
+                <p class="text-xs text-neutral-400">
+                    Menampilkan {{ $news->firstItem() }}–{{ $news->lastItem() }}
+                    dari {{ $news->total() }} hasil
+                    @if(!empty($keywords))
+                        pencarian (total {{ $totalCount }} berita)
+                    @else
+                        berita
+                    @endif
+                </p>
             </div>
             @endif
-
+            
         @endif
     </div>
 </section>
