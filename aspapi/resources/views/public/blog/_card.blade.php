@@ -2,10 +2,10 @@
 
 {{-- Thumbnail --}}
 @if($item->thumbnail)
-<div class="h-44 bg-white flex items-center justify-center overflow-hidden border-b border-neutral-100">
+<div class="h-56 overflow-hidden">
     <img src="{{ Storage::url($item->thumbnail) }}"
          alt="{{ $item->title }}"
-         class="w-full h-full object-contain hover:scale-105 transition-transform duration-500"/>
+         class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
 </div>
 @else
     <div class="h-44 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
