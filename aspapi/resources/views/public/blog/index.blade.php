@@ -159,10 +159,26 @@
                         <span class="px-3 py-2 text-sm text-neutral-300 border border-neutral-200 rounded cursor-not-allowed">→</span>
                     @endif
                 </div>
-                <p class="text-xs text-neutral-400">
-                    {{ $totalCount }} artikel tersedia
-                    @if(!empty($keywords)) — hasil pencarian @endif
-                </p>
+{{-- Pagination info --}}
+@php
+    // Koreksi offset karena featured tidak masuk paginator
+    // tapi tetap dihitung sebagai item ke-1
+    $displayFrom = $blogs->firstItem();
+    $displayTo   = $blogs->lastItem();
+    
+    if ($featured && $isFirstPage) {
+        // Page 1: featured = item #1, grid mulai dari #2
+        $displayFrom = 1;
+        $displayTo   = $blogs->lastItem() + 1;
+    } elseif ($featured && !$isFirstPage) {
+        // Page 2+: offset geser +1 karena featured tidak ada di paginator
+        $displayFrom = $blogs->firstItem() + 1;
+        $displayTo   = $blogs->lastItem() + 1;
+    }
+@endphp
+<p class="text-xs text-neutral-400">
+    Menampilkan {{ $displayFrom }}–{{ $displayTo }} dari {{ $totalCount }} artikel
+</p>
             </div>
             @endif
 
