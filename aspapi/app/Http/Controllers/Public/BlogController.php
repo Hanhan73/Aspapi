@@ -10,10 +10,9 @@ class BlogController extends Controller
 {
     public function index(Request $request)
     {
-        $search     = trim($request->get('cari', ''));
-        $kategori   = $request->get('kategori', '');
+        $search   = trim($request->get('cari', ''));
+        $kategori = $request->get('kategori', '');
 
-        // Multi-keyword: pisah dengan koma
         $keywords = $search
             ? collect(explode(',', $search))
                 ->map(fn($k) => trim($k))
@@ -22,7 +21,7 @@ class BlogController extends Controller
                 ->all()
             : [];
 
-        $hasFilter  = !empty($keywords) || $kategori !== '';
+        $hasFilter   = !empty($keywords) || $kategori !== '';
         $isFirstPage = $request->input('page', 1) == 1;
 
         $query = Blog::published()->latest('published_at');
@@ -33,22 +32,19 @@ class BlogController extends Controller
 
         foreach ($keywords as $keyword) {
             $query->where(function ($q) use ($keyword) {
-                $q->where('title',       'like', "%{$keyword}%")
-                  ->orWhere('excerpt',   'like', "%{$keyword}%")
+                $q->where('title',        'like', "%{$keyword}%")
+                  ->orWhere('excerpt',    'like', "%{$keyword}%")
                   ->orWhere('author_name','like', "%{$keyword}%");
             });
         }
 
-        // Featured: hanya di halaman 1 tanpa filter
+        // Featured: ambil item pertama hanya di page 1 tanpa filter
+        // TIDAK di-exclude dari query agar total count tetap akurat
         $featured = null;
         if (!$hasFilter && $isFirstPage) {
             $featured = (clone $query)->first();
-            if ($featured) {
-                $query->where('id', '!=', $featured->id);
-            }
         }
 
-        // Total tanpa filter search (hanya filter kategori)
         $totalQuery = Blog::published();
         if ($kategori) $totalQuery->where('category', $kategori);
         $totalCount = $totalQuery->count();
@@ -63,7 +59,7 @@ class BlogController extends Controller
 
         return view('public.blog.index', compact(
             'blogs', 'categories', 'featured',
-            'keywords', 'search', 'totalCount'
+            'keywords', 'search', 'totalCount', 'isFirstPage'
         ));
     }
 

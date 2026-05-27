@@ -2,47 +2,34 @@
 
 @section('content')
 
-{{-- ══════════════════════════════════════════════
-     PAGE HERO
-══════════════════════════════════════════════ --}}
+{{-- PAGE HERO --}}
 <section class="relative overflow-hidden bg-gradient-to-br from-navy-dark via-primary-600 to-primary py-16">
     <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent-red via-accent-yellow to-accent-yellow"></div>
     <div class="absolute -right-32 -top-32 w-96 h-96 rounded-full bg-white/5 pointer-events-none"></div>
     <div class="absolute -right-16 -bottom-24 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
-
     <div class="relative max-w-7xl mx-auto px-6">
         <div class="inline-flex items-center gap-2 mb-4">
             <span class="w-8 h-px bg-accent-yellow"></span>
-            <span class="text-accent-yellow text-2xs font-bold tracking-widest uppercase">
-                Artikel &amp; Opini
-            </span>
+            <span class="text-accent-yellow text-2xs font-bold tracking-widest uppercase">Artikel &amp; Opini</span>
         </div>
-        <h1 class="font-display text-white text-4xl leading-tight mb-3">
-            Blog ASPAPI
-        </h1>
+        <h1 class="font-display text-white text-4xl leading-tight mb-3">Blog ASPAPI</h1>
         <p class="text-primary-200 text-sm leading-relaxed max-w-xl">
-            Kumpulan artikel, opini, dan tulisan dari anggota serta praktisi
-            administrasi perkantoran Indonesia.
+            Kumpulan artikel, opini, dan tulisan dari anggota serta praktisi administrasi perkantoran Indonesia.
         </p>
     </div>
 </section>
 
-{{-- ══════════════════════════════════════════════
-     FILTER & SEARCH BAR
-══════════════════════════════════════════════ --}}
+{{-- FILTER & SEARCH BAR --}}
 <section class="bg-white border-b border-neutral-200 sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-6 py-4">
-        <form method="GET" action="{{ route('blog.index') }}"
-              class="flex flex-wrap items-center gap-3">
-
+        <form method="GET" action="{{ route('blog.index') }}" class="flex flex-wrap items-center gap-3">
             <div class="relative flex-1 min-w-[200px]">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-300"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input type="text" name="cari"
-                       value="{{ $search }}"
+                <input type="text" name="cari" value="{{ $search }}"
                        placeholder="Cari artikel... pisah kata kunci dengan koma"
                        class="w-full pl-9 pr-4 py-2 text-sm border border-neutral-200 rounded focus:outline-none focus:border-primary text-navy placeholder-neutral-300"/>
             </div>
@@ -52,9 +39,7 @@
                     class="py-2 px-3 text-sm border border-neutral-200 rounded focus:outline-none focus:border-primary text-navy">
                 <option value="">Semua Kategori</option>
                 @foreach($categories as $cat)
-                    <option value="{{ $cat }}" {{ request('kategori') === $cat ? 'selected' : '' }}>
-                        {{ $cat }}
-                    </option>
+                    <option value="{{ $cat }}" {{ request('kategori') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
                 @endforeach
             </select>
             @endif
@@ -62,40 +47,26 @@
             <button type="submit" class="btn btn-primary text-sm px-5 py-2">Cari</button>
 
             @if($search || request('kategori'))
-            <a href="{{ route('blog.index') }}"
-               class="text-xs text-neutral-400 hover:text-accent-red transition-colors">
-                Reset ×
-            </a>
+            <a href="{{ route('blog.index') }}" class="text-xs text-neutral-400 hover:text-accent-red transition-colors">Reset ×</a>
             @endif
-
         </form>
 
-        {{-- Info hasil pencarian --}}
         @if(!empty($keywords))
         <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
             <span>Hasil pencarian:</span>
             @foreach($keywords as $kw)
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary font-semibold rounded-full">
-                    {{ $kw }}
-                </span>
-                @if(!$loop->last)
-                    <span class="text-neutral-400 font-bold text-2xs">+</span>
-                @endif
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary font-semibold rounded-full">{{ $kw }}</span>
+                @if(!$loop->last)<span class="text-neutral-400 font-bold text-2xs">+</span>@endif
             @endforeach
             <span class="text-neutral-400">→</span>
-            <span class="font-bold {{ $blogs->total() > 0 ? 'text-primary' : 'text-neutral-400' }}">
-                {{ $blogs->total() }}
-            </span>
+            <span class="font-bold {{ $blogs->total() > 0 ? 'text-primary' : 'text-neutral-400' }}">{{ $blogs->total() }}</span>
             <span>dari {{ $totalCount }} artikel</span>
         </div>
         @endif
-
     </div>
 </section>
 
-{{-- ══════════════════════════════════════════════
-     BLOG GRID
-══════════════════════════════════════════════ --}}
+{{-- BLOG GRID --}}
 <section class="py-16 bg-neutral-50">
     <div class="max-w-7xl mx-auto px-6">
 
@@ -110,14 +81,12 @@
             </div>
         @else
 
-            {{-- Featured --}}
-            @if($featured)
+            {{-- Featured — hanya tampil di page 1 tanpa filter --}}
+            @if($featured && $isFirstPage)
             <article class="card card-top-blue card-hover mb-8 overflow-hidden grid grid-cols-1 lg:grid-cols-2">
-
                 @if($featured->thumbnail)
                 <div class="h-64 lg:h-auto overflow-hidden">
-                    <img src="{{ Storage::url($featured->thumbnail) }}"
-                         alt="{{ $featured->title }}"
+                    <img src="{{ Storage::url($featured->thumbnail) }}" alt="{{ $featured->title }}"
                          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
                 </div>
                 @else
@@ -128,7 +97,6 @@
                     </svg>
                 </div>
                 @endif
-
                 <div class="p-8 flex flex-col justify-center">
                     <div class="flex items-center gap-3 mb-4">
                         <span class="badge badge-blue">{{ $featured->category ?? 'Blog' }}</span>
@@ -137,20 +105,15 @@
                         </span>
                     </div>
                     <h2 class="font-display text-navy text-2xl leading-snug mb-3">
-                        <a href="{{ route('blog.show', $featured->slug) }}"
-                           class="hover:text-primary transition-colors">
+                        <a href="{{ route('blog.show', $featured->slug) }}" class="hover:text-primary transition-colors">
                             {{ $featured->title }}
                         </a>
                     </h2>
                     @if($featured->author_name)
-                    <p class="text-2xs text-neutral-400 font-medium mb-3">
-                        ✍ {{ $featured->author_name }}
-                    </p>
+                    <p class="text-2xs text-neutral-400 font-medium mb-3">✍ {{ $featured->author_name }}</p>
                     @endif
                     @if($featured->excerpt)
-                    <p class="text-sm text-neutral-500 leading-relaxed mb-6 line-clamp-3">
-                        {{ $featured->excerpt }}
-                    </p>
+                    <p class="text-sm text-neutral-500 leading-relaxed mb-6 line-clamp-3">{{ $featured->excerpt }}</p>
                     @endif
                     <a href="{{ route('blog.show', $featured->slug) }}"
                        class="text-2xs font-bold tracking-widest uppercase text-primary border-b-2 border-accent-yellow pb-0.5 w-fit hover:text-primary-600 transition-colors">
@@ -164,6 +127,10 @@
             @if($blogs->isNotEmpty())
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($blogs as $item)
+                    {{-- Skip featured item di page 1 agar tidak muncul dobel --}}
+                    @if($featured && $item->id === $featured->id)
+                        @continue
+                    @endif
                     @include('public.blog._card', ['item' => $item])
                 @endforeach
             </div>

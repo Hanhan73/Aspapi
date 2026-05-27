@@ -32,17 +32,16 @@ class NewsController extends Controller
 
         foreach ($keywords as $keyword) {
             $query->where(function ($q) use ($keyword) {
-                $q->where('title',   'like', "%{$keyword}%")
+                $q->where('title',  'like', "%{$keyword}%")
                   ->orWhere('excerpt','like', "%{$keyword}%");
             });
         }
 
+        // Featured: ambil item pertama hanya di page 1 tanpa filter
+        // TIDAK di-exclude dari query agar total count tetap akurat
         $featured = null;
         if (!$hasFilter && $isFirstPage) {
             $featured = (clone $query)->first();
-            if ($featured) {
-                $query->where('id', '!=', $featured->id);
-            }
         }
 
         $totalQuery = News::published();
@@ -59,7 +58,7 @@ class NewsController extends Controller
 
         return view('public.news.index', compact(
             'news', 'categories', 'featured',
-            'keywords', 'search', 'totalCount'
+            'keywords', 'search', 'totalCount', 'isFirstPage'
         ));
     }
 
