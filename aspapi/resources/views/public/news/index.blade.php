@@ -124,10 +124,6 @@
             @if($news->isNotEmpty())
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($news as $item)
-                    {{-- Skip featured item di page 1 agar tidak muncul dobel --}}
-                    @if($featured && $item->id === $featured->id)
-                        @continue
-                    @endif
                     @include('public.news._card', ['item' => $item])
                 @endforeach
             </div>
@@ -161,13 +157,8 @@
                     @endif
                 </div>
                 <p class="text-xs text-neutral-400">
-                    Menampilkan {{ $news->firstItem() }}–{{ $news->lastItem() }}
-                    dari {{ $news->total() }} hasil
-                    @if(!empty($keywords))
-                        pencarian (total {{ $totalCount }} berita)
-                    @else
-                        berita
-                    @endif
+                    {{ $totalCount }} berita tersedia
+                    @if(!empty($keywords)) — hasil pencarian @endif
                 </p>
             </div>
             @endif

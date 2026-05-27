@@ -38,13 +38,23 @@ class BlogController extends Controller
             });
         }
 
-        // Featured: ambil item pertama hanya di page 1 tanpa filter
-        // TIDAK di-exclude dari query agar total count tetap akurat
-        $featured = null;
-        if (!$hasFilter && $isFirstPage) {
-            $featured = (clone $query)->first();
+        // Featured: ambil item pertama, exclude dari query di SEMUA page
+        $featured   = null;
+        $featuredId = null;
+
+        if (!$hasFilter) {
+            $firstItem = (clone $query)->first();
+            if ($firstItem) {
+                $featuredId = $firstItem->id;
+                $query->where('id', '!=', $featuredId); // exclude di semua page → tidak ada dobel
+
+                if ($isFirstPage) {
+                    $featured = $firstItem; // hanya tampil di page 1
+                }
+            }
         }
 
+        // Total count menggunakan query terpisah (tidak terpengaruh exclude featured)
         $totalQuery = Blog::published();
         if ($kategori) $totalQuery->where('category', $kategori);
         $totalCount = $totalQuery->count();
