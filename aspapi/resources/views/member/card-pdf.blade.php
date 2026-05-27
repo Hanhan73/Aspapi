@@ -109,7 +109,7 @@
     /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
     .member-valid {
         position: absolute;
-        top: 40.9mm;     /* 39.5 × 1.03716 */
+        top: 45.9mm;     /* 39.5 × 1.03716 */
         left: 0;
         right: 0;
         font-size: 4pt;
