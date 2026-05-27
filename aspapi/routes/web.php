@@ -26,11 +26,13 @@ use App\Http\Controllers\Admin\MemberAdminController;
 use App\Http\Controllers\Admin\PartnerController as AdminPartnerController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\RegionController as AdminRegionController;
+use App\Http\Controllers\Admin\SeminarAdminController;
 
 use App\Http\Controllers\Member\DashboardController as MemberDashboard;
 use App\Http\Controllers\Member\BiodataController;
 use App\Http\Controllers\Member\PaymentController;
 use App\Http\Controllers\Member\CardController;
+use App\Http\Controllers\Member\SeminarController;
 
 use App\Http\Controllers\Bendahara\BendaharaController;
 use App\Http\Controllers\Bendahara\RekapController;
@@ -64,7 +66,7 @@ Route::get('/api/cities/{provinceId}', function ($provinceId) {
     );
 });
 
-// ── MEMBER PORTAL ──
+    // ── MEMBER PORTAL ──
 Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->group(function () {
     Route::get('/',                [MemberDashboard::class, 'index'])->name('dashboard');
     Route::get('/biodata',         [BiodataController::class, 'edit'])->name('biodata');
@@ -75,6 +77,34 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
     Route::get('/kartu',           [CardController::class, 'show'])->name('card');
     Route::post('/kartu/generate',  [CardController::class, 'generate'])->name('card.generate');
     Route::get('/kartu/download',  [CardController::class, 'download'])->name('card.download');
+
+    Route::prefix('seminar')->name('seminar.')->group(function () {
+        // Daftar seminar tersedia
+        Route::get('/',                                   [SeminarController::class, 'index'])->name('index');
+    
+        // Seminar saya
+        Route::get('/saya',                               [SeminarController::class, 'mySeminars'])->name('my-seminars');
+    
+        // Daftar ke seminar
+        Route::post('/{seminar}/daftar',                  [SeminarController::class, 'enroll'])->name('enroll');
+    
+        // Detail seminar (progress page)
+        Route::get('/enrollment/{enrollment}',            [SeminarController::class, 'show'])->name('show');
+    
+        // Pre-test
+        Route::get('/enrollment/{enrollment}/pre-test',   [SeminarController::class, 'startPreTest'])->name('pretest.start');
+        Route::post('/attempt/{attempt}/pre-test/submit', [SeminarController::class, 'submitPreTest'])->name('pretest.submit');
+    
+        // Tandai materi selesai
+        Route::post('/enrollment/{enrollment}/materi-selesai', [SeminarController::class, 'markMaterialRead'])->name('material.done');
+    
+        // Post-test
+        Route::get('/enrollment/{enrollment}/post-test',  [SeminarController::class, 'startPostTest'])->name('posttest.start');
+        Route::post('/attempt/{attempt}/post-test/submit',[SeminarController::class, 'submitPostTest'])->name('posttest.submit');
+    
+        // Sertifikat
+        Route::get('/sertifikat/{certificate}',           [SeminarController::class, 'certificate'])->name('certificate');
+    });
 });
 
 // ── BENDAHARA PORTAL ──
@@ -256,6 +286,28 @@ Route::prefix('admin')
 
         Route::post('/anggota/{member}/set-password', [ResetPasswordController::class, 'setPassword'])
             ->name('member.set-password');
+
+        Route::prefix('seminar')->name('seminar.')->group(function () {
+            Route::get('/',                                    [SeminarAdminController::class, 'index'])->name('index');
+            Route::get('/create',                              [SeminarAdminController::class, 'create'])->name('create');
+            Route::post('/',                                   [SeminarAdminController::class, 'store'])->name('store');
+            Route::get('/{seminar}/edit',                      [SeminarAdminController::class, 'edit'])->name('edit');
+            Route::put('/{seminar}',                           [SeminarAdminController::class, 'update'])->name('update');
+            Route::delete('/{seminar}',                        [SeminarAdminController::class, 'destroy'])->name('destroy');
+        
+            // Manajemen soal
+            Route::get('/{seminar}/soal',                      [SeminarAdminController::class, 'questions'])->name('questions');
+            Route::post('/{seminar}/soal',                     [SeminarAdminController::class, 'storeQuestion'])->name('questions.store');
+            Route::put('/soal/{question}',                     [SeminarAdminController::class, 'updateQuestion'])->name('questions.update');
+            Route::delete('/soal/{question}',                  [SeminarAdminController::class, 'destroyQuestion'])->name('questions.destroy');
+        
+                // Import soal dari Excel
+            Route::get('/soal/template',                 [SeminarAdminController::class, 'downloadTemplate'])->name('template');
+            Route::post('/{seminar}/soal/import',        [SeminarAdminController::class, 'importQuestions'])->name('import');
+
+            // Laporan peserta
+            Route::get('/{seminar}/peserta',                   [SeminarAdminController::class, 'enrollments'])->name('enrollments');
+        });
     });
 
 

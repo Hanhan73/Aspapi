@@ -17,8 +17,11 @@
     <aside class="w-64 flex-shrink-0 bg-navy flex flex-col overflow-hidden">
 
         {{-- Logo --}}
-        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10 flex-shrink-0">
-            <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+            <img src="{{ asset('images/logo-aspapi.png') }}" alt="Logo ASPAPI"
+                class="h-9 w-auto object-contain flex-shrink-0"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+            <div class="hidden w-9 h-9 bg-primary rounded-full items-center justify-center flex-shrink-0">
                 <span class="text-white font-black text-2xs tracking-tight">ASP</span>
             </div>
             <div>
@@ -49,16 +52,69 @@
                 {{ $link['label'] }}
             </a>
             @endforeach
+
+            @php
+                $memberStatus = auth()->user()->member?->status;
+            @endphp
+            
+            @if ($memberStatus === 'active')
+            <p class="sidebar-section-title mt-4">Pengembangan</p>
+            
+            {{-- Seminar — dengan submenu --}}
+            @php
+                $isSeminarActive = request()->routeIs('member.seminar.*');
+            @endphp
+            <div x-data="{ open: {{ $isSeminarActive ? 'true' : 'false' }} }">
+                <button @click="open = !open"
+                        class="sidebar-link w-full text-left {{ $isSeminarActive ? 'sidebar-link-active' : '' }}">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <span class="flex-1">Seminar</span>
+                    <svg class="w-3 h-3 transition-transform duration-200 flex-shrink-0"
+                        :class="open ? 'rotate-180' : ''"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+            
+                <div x-show="open" x-transition class="ml-4 mt-1 space-y-0.5">
+                    <a href="{{ route('member.seminar.index') }}"
+                    class="sidebar-link text-xs {{ request()->routeIs('member.seminar.index') ? 'sidebar-link-active' : '' }}">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                        Daftar Seminar
+                    </a>
+                    <a href="{{ route('member.seminar.my-seminars') }}"
+                    class="sidebar-link text-xs {{ request()->routeIs('member.seminar.my-seminars') ? 'sidebar-link-active' : '' }}">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                        Seminar Saya
+                    </a>
+                </div>
+            </div>
+            @endif
         </nav>
 
         {{-- User info — SELALU di bawah, tidak terdorong --}}
         <div class="flex-shrink-0 border-t border-white/10 px-4 py-4">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                    <span class="text-white text-xs font-bold">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                    </span>
-                </div>
+                @php $sidebarPhoto = auth()->user()->member?->photo; @endphp
+                @if ($sidebarPhoto)
+                    <img src="{{ Storage::url($sidebarPhoto) }}"
+                        class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-white/20"/>
+                @else
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-content-center flex-shrink-0">
+                        <span class="text-white text-xs font-bold">
+                            {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                        </span>
+                    </div>
+                @endif
                 <div class="flex-1 min-w-0">
                     <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->name }}</p>
                     <p class="text-neutral-500 text-2xs truncate">

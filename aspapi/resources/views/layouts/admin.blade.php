@@ -23,7 +23,10 @@
 
             {{-- Logo --}}
             <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
-                <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/logo-aspapi.png') }}" alt="Logo ASPAPI"
+                    class="h-9 w-auto object-contain flex-shrink-0"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                <div class="hidden w-9 h-9 bg-primary rounded-full items-center justify-center flex-shrink-0">
                     <span class="text-white font-black text-2xs tracking-tight">ASP</span>
                 </div>
                 <div>
@@ -115,6 +118,15 @@
                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     ASPAPI Daerah
+                </a>
+
+                <p class="sidebar-section-title">Program</p>
+                <a href="{{ route('admin.seminar.index') }}"
+                class="sidebar-link text-xs {{ request()->routeIs('admin.seminar.index') ? 'sidebar-link-active' : '' }}">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                    Seminar
                 </a>
 
                 <p class="sidebar-section-title">Kemitraan</p>

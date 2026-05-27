@@ -100,7 +100,7 @@
         left: 24.9mm;    /* 24 × 1.03855 */
         right: 18.7mm;   /* 18 × 1.03855 */
         font-size: 6pt;
-        font-weight: 900;
+        font-weight: 400;
         color: #0D2240;
         letter-spacing: 0.06em;
         line-height: 1.1;
@@ -109,11 +109,7 @@
     /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
     .member-valid {
         position: absolute;
-<<<<<<< Updated upstream
-        top: 39.8mm;
-=======
         top: 40.9mm;     /* 39.5 × 1.03716 */
->>>>>>> Stashed changes
         left: 0;
         right: 0;
         font-size: 4pt;

@@ -19,8 +19,11 @@
     <aside class="w-64 flex-shrink-0 bg-navy flex flex-col overflow-hidden">
 
         {{-- Logo --}}
-        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10 flex-shrink-0">
-            <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+            <img src="{{ asset('images/logo-aspapi.png') }}" alt="Logo ASPAPI"
+                class="h-9 w-auto object-contain flex-shrink-0"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+            <div class="hidden w-9 h-9 bg-primary rounded-full items-center justify-center flex-shrink-0">
                 <span class="text-white font-black text-2xs tracking-tight">ASP</span>
             </div>
             <div>

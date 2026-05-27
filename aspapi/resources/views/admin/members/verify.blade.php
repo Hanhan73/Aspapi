@@ -91,35 +91,35 @@
                 </td>
                 <td style="padding:0.875rem 1rem;">
                     <div style="display:flex;flex-wrap:wrap;gap:0.375rem;">
-                        @if ($member->biodata_status === 'pending')
+@if ($member->biodata_status === 'pending')
 
-                        {{-- Approve Biodata --}}
-                        <form method="POST" action="{{ route('admin.member.verify.approve', $member->id) }}">
-                            @csrf
-                            <button type="submit"
-                                    style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#276749;color:#fff;border:none;border-radius:3px;cursor:pointer;">
-                                Approve
-                            </button>
-                        </form>
+    {{-- Approve: jika klaim lama, pakai route approve-old; jika tidak, approve biasa --}}
+    @if ($member->claims_old_member)
+        <form method="POST" action="{{ route('admin.member.verify.approve-old', $member->id) }}">
+            @csrf
+            <button type="submit"
+                    style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#B8860B;color:#fff;border:none;border-radius:3px;cursor:pointer;"
+                    title="Verifikasi biodata sekaligus konfirmasi sebagai anggota lama sejak {{ $member->claimed_join_year }}">
+                ✓ Approve (Lama {{ $member->claimed_join_year }})
+            </button>
+        </form>
+    @else
+        <form method="POST" action="{{ route('admin.member.verify.approve', $member->id) }}">
+            @csrf
+            <button type="submit"
+                    style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#276749;color:#fff;border:none;border-radius:3px;cursor:pointer;">
+                ✓ Approve
+            </button>
+        </form>
+    @endif
 
-                        {{-- Reject Biodata --}}
-                        <button onclick="showRejectModal({{ $member->id }})"
-                                style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:transparent;border:1.5px solid #C0392B;color:#C0392B;border-radius:3px;cursor:pointer;">
-                            Tolak
-                        </button>
+    {{-- Tolak --}}
+    <button onclick="showRejectModal({{ $member->id }})"
+            style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:transparent;border:1.5px solid #C0392B;color:#C0392B;border-radius:3px;cursor:pointer;">
+        Tolak
+    </button>
 
-                        {{-- Confirm Old Member --}}
-                        @if ($member->claims_old_member)
-                        <form method="POST" action="{{ route('admin.member.verify.approve-old', $member->id) }}">
-                            @csrf
-                            <button type="submit"
-                                    style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#B8860B;color:#fff;border:none;border-radius:3px;cursor:pointer;">
-                                Konfirmasi Anggota Lama
-                            </button>
-                        </form>
-                        @endif
-
-                        @endif
+@endif
                     </div>
                 </td>
             </tr>
