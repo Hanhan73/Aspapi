@@ -157,14 +157,14 @@
                     @endif
                 </div>
 @php
-    if ($totalCount > $blogs->total()) {
+    if ($totalCount > $news->total()) {
         // Ada featured yang di-exclude dari paginator
-        $displayFrom = $isFirstPage ? 1 : $blogs->firstItem() + 1;
-        $displayTo   = min($blogs->lastItem() + 1, $totalCount);
+        $displayFrom = $isFirstPage ? 1 : $news->firstItem() + 1;
+        $displayTo   = min($news->lastItem() + 1, $totalCount);
     } else {
         // Tidak ada featured (mode filter/search)
-        $displayFrom = $blogs->firstItem();
-        $displayTo   = $blogs->lastItem();
+        $displayFrom = $news->firstItem();
+        $displayTo   = $news->lastItem();
     }
 @endphp
 <p class="text-xs text-neutral-400">
