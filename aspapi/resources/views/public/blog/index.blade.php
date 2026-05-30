@@ -181,7 +181,7 @@
                 Menampilkan {{ $displayFrom }}–{{ $displayTo }} dari {{ $totalCount }} artikel
             </p>
         </div>
-
+    @endif
     </div>
 </section>
 
