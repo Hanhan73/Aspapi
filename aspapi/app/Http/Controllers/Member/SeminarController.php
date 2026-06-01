@@ -144,7 +144,6 @@ class SeminarController extends Controller
 
         
         $member = $this->getMember();
-        dd($enrollment->member_id, $member?->id, $enrollment->member_id !== $member?->id);
         abort_if($enrollment->member_id !== $member->id, 403);
 
         $enrollment->load(['seminar.questions', 'certificate']);
