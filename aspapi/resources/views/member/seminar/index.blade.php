@@ -242,10 +242,10 @@
      onclick="if(event.target===this) closeEnrollModal()">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
 
-        {{-- Thumbnail --}}
-        <div id="modal-thumbnail" class="h-40 bg-neutral-100 overflow-hidden">
-            <img id="modal-thumb-img" src="" alt="" class="w-full h-full object-cover">
-        </div>
+{{-- Thumbnail --}}
+<div id="modal-thumbnail" class="h-40 bg-neutral-100 overflow-hidden flex items-center justify-center">
+    <img id="modal-thumb-img" src="" alt="" class="max-h-full max-w-full object-contain p-3">
+</div>
 
         <div class="p-6">
             {{-- Judul --}}
