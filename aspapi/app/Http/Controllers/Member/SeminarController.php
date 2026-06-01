@@ -140,6 +140,9 @@ class SeminarController extends Controller
 
     public function show(SeminarEnrollment $enrollment)
     {
+
+     dd($enrollment, auth()->user()->member);
+     
         $member = $this->getMember();
         abort_if($enrollment->member_id !== $member->id, 403);
 
