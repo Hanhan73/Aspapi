@@ -13,9 +13,11 @@ class SeminarEnrollment extends Model
         'member_id', 'seminar_id', 'membership_period_start', 'status',
     ];
 
-    protected $casts = [
-        'membership_period_start' => 'date',
-    ];
+protected $casts = [
+    'membership_period_start' => 'date',
+    'member_id'               => 'integer',  // tambah ini
+    'seminar_id'              => 'integer',  // tambah ini
+];
 
     // ── Relations ──────────────────────────────────────────────────────────────
 
