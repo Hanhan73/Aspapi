@@ -142,6 +142,7 @@ class SeminarController extends Controller
     {
 
     dd($enrollment->member_id, $member?->id, $enrollment->member_id !== $member?->id);
+    $member = $this->getMember();
      
         $member = $this->getMember();
         abort_if($enrollment->member_id !== $member->id, 403);
