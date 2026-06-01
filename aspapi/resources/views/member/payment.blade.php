@@ -11,7 +11,7 @@
     <div style="display:flex;gap:2rem;margin-top:1rem;flex-wrap:wrap;">
         <div>
             <p style="font-size:0.65rem;color:#A8D4F5;letter-spacing:0.08em;text-transform:uppercase;">Anggota Baru</p>
-            <p style="font-size:1rem;font-weight:700;">Rp 250.000</p>
+            <p style="font-size:1rem;font-weight:700;">Rp 130.000</p>
             <p style="font-size:0.72rem;color:#A8D4F5;">Uang Pangkal</p>
         </div>
         <div>
@@ -21,7 +21,7 @@
         </div>
         <div style="border-left:1px solid rgba(255,255,255,0.2);padding-left:2rem;">
             <p style="font-size:0.65rem;color:#A8D4F5;letter-spacing:0.08em;text-transform:uppercase;">Anggota Baru (Gabungan)</p>
-            <p style="font-size:1rem;font-weight:700;">Rp 370.000</p>
+            <p style="font-size:1rem;font-weight:700;">Rp 250.000</p>
             <p style="font-size:0.72rem;color:#A8D4F5;">Pangkal + Iuran sekaligus</p>
         </div>
     </div>
@@ -75,10 +75,10 @@
                 <select name="type" required x-model="selectedType"
                         style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;background:#fff;">
                     @if ($bisaGabungan)
-                    <option value="gabungan">Uang Pangkal + Iuran Tahunan (Rp 370.000) — Sekaligus</option>
+                    <option value="gabungan">Uang Pangkal + Iuran Tahunan (Rp 250.000) — Sekaligus</option>
                     @endif
                     @if ($bisaPangkal)
-                    <option value="uang_pangkal">Uang Pangkal saja (Rp 250.000)</option>
+                    <option value="uang_pangkal">Uang Pangkal saja (Rp 130.000)</option>
                     @endif
                     @if ($bisaIuran)
                     <option value="iuran_tahunan">Iuran Tahunan saja (Rp 120.000)</option>
@@ -186,8 +186,8 @@ function paymentForm() {
         init() {},
         getAmount() {
             const map = {
-                'gabungan':      'Rp 370.000',
-                'uang_pangkal':  'Rp 250.000',
+                'gabungan':      'Rp 250.000',
+                'uang_pangkal':  'Rp 130.000',
                 'iuran_tahunan': 'Rp 120.000',
             };
             return map[this.selectedType] ?? '';

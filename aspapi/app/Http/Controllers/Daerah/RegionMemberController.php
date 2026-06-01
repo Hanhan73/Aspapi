@@ -126,6 +126,7 @@ class RegionMemberController extends Controller
             $telepon     = trim($row['C'] ?? '');
             $institusi   = trim($row['D'] ?? '');
             $gender      = strtoupper(trim($row['E'] ?? 'L'));
+            $joinYear    = (int) trim($row['F'] ?? now()->year);
 
             // Lewati baris yang benar-benar kosong
             if (empty($namaLengkap) && empty($email)) {
@@ -154,7 +155,15 @@ class RegionMemberController extends Controller
                 $gender = 'L';
             }
 
-            $password = Str::random(10);
+            // Validasi & normalisasi tahun
+            if ($joinYear < 2000 || $joinYear > now()->year) {
+                $joinYear = now()->year;
+            }
+
+            // Anggota lama = tahun daftar sebelum tahun ini
+            $isOldMember = $joinYear < now()->year;
+
+            $password = 'password123'; // Password default untuk batch, bisa diubah atau dikirim ke email anggota
 
             try {
                 DB::transaction(function () use (
@@ -164,6 +173,8 @@ class RegionMemberController extends Controller
                     $telepon,
                     $institusi,
                     $gender,
+                    $joinYear,
+                    $isOldMember,
                     $region
                 ) {
                     $user = User::create([
@@ -183,7 +194,9 @@ class RegionMemberController extends Controller
                         'gender'                  => $gender,
                         'biodata_status'          => 'pending',
                         'status'                  => 'pending',
-                        'registration_type'       => 'baru',
+                        'registration_type'       => $isOldMember ? 'lama' : 'baru',
+                        'claims_old_member'       => $isOldMember,
+                        'claimed_join_year'       => $joinYear,
                         'is_batch'                => true,
                         'registered_by_region_id' => $region->id,
                         'registered_at'           => now(),
@@ -231,6 +244,7 @@ class RegionMemberController extends Controller
             $telepon     = trim($data['phone'] ?? '');
             $institusi   = trim($data['institution'] ?? '');
             $gender      = strtoupper(trim($data['gender'] ?? 'L'));
+            $joinYear    = (int) trim($data['join_year'] ?? now()->year);
             $noRow       = $i + 1;
 
             if (empty($namaLengkap) || empty($email)) {
@@ -252,6 +266,14 @@ class RegionMemberController extends Controller
                 $gender = 'L';
             }
 
+            // Validasi & normalisasi tahun
+            if ($joinYear < 2000 || $joinYear > now()->year) {
+                $joinYear = now()->year;
+            }
+
+            // Anggota lama = tahun daftar sebelum tahun ini
+            $isOldMember = $joinYear < now()->year;
+
             $password = Str::random(10);
 
             try {
@@ -262,6 +284,8 @@ class RegionMemberController extends Controller
                     $telepon,
                     $institusi,
                     $gender,
+                    $joinYear,
+                    $isOldMember,
                     $region
                 ) {
                     $user = User::create([
@@ -281,7 +305,9 @@ class RegionMemberController extends Controller
                         'gender'                  => $gender,
                         'biodata_status'          => 'pending',
                         'status'                  => 'pending',
-                        'registration_type'       => 'baru',
+                        'registration_type'       => $isOldMember ? 'lama' : 'baru',
+                        'claims_old_member'       => $isOldMember,
+                        'claimed_join_year'       => $joinYear,
                         'is_batch'                => true,
                         'registered_by_region_id' => $region->id,
                         'registered_at'           => now(),
@@ -332,12 +358,6 @@ class RegionMemberController extends Controller
     {
         $region = $this->region();
 
-        // Tampilkan anggota yang:
-        //   - terdaftar di region ini
-        //   - biodata sudah verified (sudah disetujui admin)
-        //   - status 'active' (perpanjang) ATAU 'pending' (baru, belum pernah bayar)
-        //   - iurannya belum aktif: active_until null atau sudah lewat
-        //   - tidak ada payment iuran yang masih pending (hindari double submit)
         $members = Member::where('registered_by_region_id', $region->id)
             ->where('biodata_status', 'verified')
             ->whereIn('status', ['active', 'pending'])
@@ -352,7 +372,7 @@ class RegionMemberController extends Controller
                 $q->where('type', 'iuran_tahunan')
                     ->where('status', 'pending')
             )
-            ->orderByRaw("FIELD(status, 'pending', 'active')")  // anggota baru tampil duluan
+            ->orderByRaw("FIELD(status, 'pending', 'active')")
             ->orderBy('full_name')
             ->get();
 
@@ -369,7 +389,6 @@ class RegionMemberController extends Controller
 
         $region = $this->region();
 
-        // Security: pastikan member benar-benar milik region ini + eligible
         $memberIds = Member::whereIn('id', $request->member_ids)
             ->where('registered_by_region_id', $region->id)
             ->where('biodata_status', 'verified')
@@ -477,7 +496,7 @@ class RegionMemberController extends Controller
         $region = $this->region();
 
         $batch = PaymentBatch::with(['payments.member', 'submitter', 'verifier'])
-            ->where('region_id', $region->id)  // security: hanya milik region ini
+            ->where('region_id', $region->id)
             ->findOrFail($id);
 
         return view('daerah.pay-batch-detail', compact('batch', 'region'));

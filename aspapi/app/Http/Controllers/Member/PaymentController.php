@@ -73,7 +73,7 @@ class PaymentController extends Controller
                 'member_id'      => $member->id,
                 'type'           => 'uang_pangkal',
                 'payment_method' => 'mandiri',
-                'amount'         => 250000,
+                'amount'         => 130000,
                 'receipt_path'   => $receiptPath,
                 'status'         => 'pending',
                 'payment_year'   => now()->year,
@@ -91,7 +91,7 @@ class PaymentController extends Controller
                 'notes'          => 'Pembayaran gabungan',
             ]);
         } else {
-            $amount = $type === 'uang_pangkal' ? 250000 : 120000;
+            $amount = $type === 'uang_pangkal' ? 130000 : 120000;
 
             Payment::create([
                 'member_id'      => $member->id,

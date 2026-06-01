@@ -36,6 +36,7 @@
 <div style="background:#EEF4FB;border-left:4px solid #2A7FC1;border-radius:4px;padding:0.875rem 1.25rem;margin-bottom:1.5rem;font-size:0.85rem;color:#1A3A5C;">
     <strong>Pendaftaran Batch</strong> — Daftarkan beberapa anggota sekaligus via upload Excel atau input manual.
     Setiap anggota akan langsung mendapat email berisi akun login.
+    Isi <strong>Tahun Daftar</strong> sesuai tahun pertama bergabung — tahun sebelumnya otomatis dicatat sebagai <em>anggota lama</em>.
 </div>
 
 <form method="POST" action="{{ route('daerah.batch.store') }}" enctype="multipart/form-data" id="batch-form">
@@ -83,7 +84,8 @@
                             <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Email *</th>
                             <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:120px;">No. Telepon</th>
                             <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:100px;">Institusi</th>
-                            <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:70px;">Gender</th>
+                            <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:60px;">Gender</th>
+                            <th style="padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:90px;">Thn Daftar *</th>
                             <th style="padding:0.6rem 0.75rem;text-align:center;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;width:50px;"></th>
                         </tr>
                     </thead>
@@ -97,6 +99,9 @@
             <div style="padding:0.75rem 1.25rem;border-top:1px solid #EEF4FB;background:#F8FAFC;display:flex;justify-content:space-between;align-items:center;">
                 <p style="font-size:0.78rem;color:#4A6580;margin:0;">
                     Total: <strong id="total-count">0</strong> peserta
+                    &nbsp;·&nbsp;
+                    <span id="count-baru" style="color:#2A7FC1;font-weight:700;">0</span> baru,
+                    <span id="count-lama" style="color:#B8860B;font-weight:700;">0</span> lama
                 </p>
                 <button type="button" id="btn-clear-all"
                         style="font-size:0.7rem;color:#C0392B;background:none;border:none;cursor:pointer;font-weight:600;display:none;">
@@ -124,6 +129,7 @@
                                 <th style="padding:0.4rem 0.75rem;text-align:left;color:#2A7FC1;font-weight:700;white-space:nowrap;border:1px solid #D6E8F7;">C — No. Telepon</th>
                                 <th style="padding:0.4rem 0.75rem;text-align:left;color:#2A7FC1;font-weight:700;white-space:nowrap;border:1px solid #D6E8F7;">D — Institusi</th>
                                 <th style="padding:0.4rem 0.75rem;text-align:left;color:#2A7FC1;font-weight:700;white-space:nowrap;border:1px solid #D6E8F7;">E — Gender (L/P)</th>
+                                <th style="padding:0.4rem 0.75rem;text-align:left;color:#2A7FC1;font-weight:700;white-space:nowrap;border:1px solid #D6E8F7;">F — Tahun Daftar *</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -133,9 +139,25 @@
                                 <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">08123456789</td>
                                 <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">Universitas XYZ</td>
                                 <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">L</td>
+                                <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">{{ now()->year }}</td>
+                            </tr>
+                            <tr style="border-top:1px solid #D6E8F7;background:#FEF8EC;">
+                                <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">Siti Rahayu</td>
+                                <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">siti@email.com</td>
+                                <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">08987654321</td>
+                                <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">SMKN 1 Bandung</td>
+                                <td style="padding:0.4rem 0.75rem;color:#4A6580;border:1px solid #EEF4FB;">P</td>
+                                <td style="padding:0.4rem 0.75rem;color:#B8860B;font-weight:600;border:1px solid #EEF4FB;">2022 ← anggota lama</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div style="margin-top:0.75rem;background:#F8FAFC;border-radius:4px;padding:0.625rem 0.875rem;font-size:0.72rem;color:#4A6580;">
+                    <strong>Aturan Tahun Daftar:</strong>
+                    Isi tahun pertama anggota bergabung (2000–{{ now()->year }}).
+                    Jika tahun &lt; {{ now()->year }} → dicatat sebagai <span style="color:#B8860B;font-weight:700;">anggota lama</span>.
+                    Jika tahun = {{ now()->year }} → dicatat sebagai <span style="color:#2A7FC1;font-weight:700;">anggota baru</span>.
+                    Kosong/tidak valid → otomatis dianggap {{ now()->year }} (anggota baru).
                 </div>
                 <p style="font-size:0.72rem;color:#8A97A4;margin:0.5rem 0 0;">
                     * Wajib diisi. Template memiliki 3 baris header — data diisi mulai baris ke-4.
@@ -167,6 +189,15 @@
                 <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#4A6580;">
                     <span>Email tidak valid</span>
                     <strong id="summary-invalid" style="color:#C0392B;">0</strong>
+                </div>
+                <div style="height:1px;background:#EEF4FB;margin:0.25rem 0;"></div>
+                <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#4A6580;">
+                    <span>Anggota baru</span>
+                    <strong id="summary-baru" style="color:#2A7FC1;">0</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#4A6580;">
+                    <span>Anggota lama</span>
+                    <strong id="summary-lama" style="color:#B8860B;">0</strong>
                 </div>
             </div>
         </div>
@@ -203,13 +234,13 @@
      MODAL: Upload Excel
 ══════════════════════════════════════════════════════════════════ --}}
 <div id="modal-upload" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:10px;width:700px;max-width:95vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">
+    <div style="background:#fff;border-radius:10px;width:750px;max-width:95vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">
 
         {{-- Modal header --}}
         <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #EEF4FB;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
             <div>
                 <p style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:#1A2A3A;margin:0;">Upload Data Peserta</p>
-                <p style="font-size:0.72rem;color:#8A97A4;margin:0.2rem 0 0;">Excel (.xlsx/.xls) atau CSV</p>
+                <p style="font-size:0.72rem;color:#8A97A4;margin:0.2rem 0 0;">Excel (.xlsx/.xls) — kolom A–F</p>
             </div>
             <button type="button" onclick="closeUploadModal()"
                     style="background:none;border:none;font-size:1.25rem;color:#8A97A4;cursor:pointer;">✕</button>
@@ -228,7 +259,7 @@
                     ⬇ Download Template Excel
                 </a>
                 <p style="font-size:0.7rem;color:#8A97A4;margin:0.5rem 0 0;">
-                    Isi data mulai <strong>baris ke-4</strong> (baris 1–3 adalah header/instruksi).
+                    Isi data mulai <strong>baris ke-4</strong>. Kolom F (Tahun Daftar) wajib diisi — gunakan 4 digit tahun, mis. <strong>2022</strong> atau <strong>{{ now()->year }}</strong>.
                 </p>
             </div>
 
@@ -239,7 +270,7 @@
                 </p>
                 <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv"
                        style="width:100%;padding:0.5rem;border:1.5px dashed #D6E8F7;border-radius:4px;font-size:0.82rem;color:#4A6580;cursor:pointer;"/>
-                <p style="font-size:0.7rem;color:#8A97A4;margin:0.4rem 0 0;">Maks 5MB. Format .xlsx, .xls, atau .csv</p>
+                <p style="font-size:0.7rem;color:#8A97A4;margin:0.4rem 0 0;">Maks 5MB. Format .xlsx atau .xls</p>
             </div>
 
             {{-- Preview area --}}
@@ -250,7 +281,8 @@
                     </p>
                     <p style="font-size:0.72rem;color:#4A6580;margin:0;">
                         <span id="preview-valid-count" style="color:#276749;font-weight:700;">0</span> valid,
-                        <span id="preview-invalid-count" style="color:#C0392B;font-weight:700;">0</span> tidak valid
+                        <span id="preview-invalid-count" style="color:#C0392B;font-weight:700;">0</span> tidak valid,
+                        <span id="preview-lama-count" style="color:#B8860B;font-weight:700;">0</span> lama
                     </p>
                 </div>
                 <div style="border:1px solid #D6E8F7;border-radius:6px;overflow:hidden;max-height:280px;overflow-y:auto;">
@@ -260,7 +292,9 @@
                                 <th style="padding:0.5rem 0.75rem;text-align:center;color:#2A7FC1;font-weight:700;width:35px;">#</th>
                                 <th style="padding:0.5rem 0.75rem;text-align:left;color:#2A7FC1;font-weight:700;">Nama</th>
                                 <th style="padding:0.5rem 0.75rem;text-align:left;color:#2A7FC1;font-weight:700;">Email</th>
-                                <th style="padding:0.5rem 0.75rem;text-align:center;color:#2A7FC1;font-weight:700;width:80px;">Status</th>
+                                <th style="padding:0.5rem 0.75rem;text-align:center;color:#2A7FC1;font-weight:700;width:70px;">Thn</th>
+                                <th style="padding:0.5rem 0.75rem;text-align:center;color:#2A7FC1;font-weight:700;width:80px;">Tipe</th>
+                                <th style="padding:0.5rem 0.75rem;text-align:center;color:#2A7FC1;font-weight:700;width:70px;">Status</th>
                             </tr>
                         </thead>
                         <tbody id="preview-tbody"></tbody>
@@ -318,14 +352,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
-//  STATE
+//  CONSTANTS
 // ══════════════════════════════════════════════════════════════════
-let rowIndex      = 0;       // counter untuk name attribute
-let importedRows  = [];      // data valid dari file
-let pendingSubmit = false;   // flag setelah cek duplikat
+const CURRENT_YEAR = {{ now()->year }};
+const MIN_YEAR     = 2000;
 
 // ══════════════════════════════════════════════════════════════════
-//  INIT — tambah 1 baris kosong saat load
+//  STATE
+// ══════════════════════════════════════════════════════════════════
+let rowIndex      = 0;
+let importedRows  = [];
+let pendingSubmit = false;
+
+// ══════════════════════════════════════════════════════════════════
+//  INIT
 // ══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function () {
     addRow();
@@ -335,15 +375,15 @@ document.addEventListener('DOMContentLoaded', function () {
 // ══════════════════════════════════════════════════════════════════
 //  ROW MANAGEMENT
 // ══════════════════════════════════════════════════════════════════
-function addRow(name = '', email = '', phone = '', inst = '', gender = '') {
-    const idx   = rowIndex++;
-    const tbody = document.getElementById('participants-body');
-    const tr    = document.createElement('tr');
+function addRow(name = '', email = '', phone = '', inst = '', gender = '', joinYear = '') {
+    const idx      = rowIndex++;
+    const tbody    = document.getElementById('participants-body');
+    const tr       = document.createElement('tr');
+    const yearVal  = joinYear || CURRENT_YEAR;
+    const isOld    = parseInt(yearVal) < CURRENT_YEAR;
     tr.style.cssText = 'border-bottom:1px solid #EEF4FB;';
     tr.dataset.rowId = idx;
 
-    // FIX: Tidak pakai `required` agar browser tidak memblokir submit
-    // saat baris lain kosong. Validasi dilakukan manual di JS sebelum submit.
     tr.innerHTML = `
         <td style="padding:0.5rem 0.75rem;text-align:center;font-size:0.78rem;color:#8A97A4;" class="row-num"></td>
         <td style="padding:0.4rem 0.5rem;">
@@ -378,6 +418,15 @@ function addRow(name = '', email = '', phone = '', inst = '', gender = '') {
                 <option value="P" ${gender === 'P' ? 'selected' : ''}>P</option>
             </select>
         </td>
+        <td style="padding:0.4rem 0.5rem;" class="year-cell">
+            <input type="number" name="participants[${idx}][join_year]" value="${yearVal}"
+                   min="${MIN_YEAR}" max="${CURRENT_YEAR}"
+                   class="year-input"
+                   style="width:100%;padding:0.375rem 0.5rem;border:1px solid ${isOld ? '#E8B84B' : '#D6E8F7'};border-radius:3px;font-size:0.8rem;color:${isOld ? '#8B6914' : '#1A2A3A'};outline:none;text-align:center;background:${isOld ? '#FEF8EC' : '#fff'};"
+                   onfocus="this.style.borderColor='#2A7FC1'"
+                   onblur="onYearBlur(this)"
+                   oninput="onYearInput(this)"/>
+        </td>
         <td style="padding:0.4rem 0.5rem;text-align:center;">
             <button type="button" onclick="removeRow(this)"
                     style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:0.9rem;padding:0.25rem;"
@@ -390,7 +439,7 @@ function addRow(name = '', email = '', phone = '', inst = '', gender = '') {
 
 function removeRow(btn) {
     const rows = document.querySelectorAll('#participants-body tr');
-    if (rows.length <= 1) return; // minimal 1 baris
+    if (rows.length <= 1) return;
     btn.closest('tr').remove();
     reindexRows();
     updateSummary();
@@ -414,6 +463,32 @@ document.getElementById('btn-clear-all').addEventListener('click', function () {
 });
 
 // ══════════════════════════════════════════════════════════════════
+//  YEAR INPUT HANDLERS
+// ══════════════════════════════════════════════════════════════════
+function onYearInput(input) {
+    updateRowYearStyle(input);
+    updateSummary();
+}
+
+function onYearBlur(input) {
+    let val = parseInt(input.value);
+    if (isNaN(val) || val < MIN_YEAR) val = CURRENT_YEAR;
+    if (val > CURRENT_YEAR)           val = CURRENT_YEAR;
+    input.value = val;
+    updateRowYearStyle(input);
+    updateSummary();
+}
+
+function updateRowYearStyle(input) {
+    const year  = parseInt(input.value);
+    const isOld = !isNaN(year) && year < CURRENT_YEAR;
+    input.style.borderColor  = isOld ? '#E8B84B' : '#D6E8F7';
+    input.style.color        = isOld ? '#8B6914'  : '#1A2A3A';
+    input.style.background   = isOld ? '#FEF8EC'  : '#fff';
+    input.style.fontWeight   = isOld ? '700'       : '400';
+}
+
+// ══════════════════════════════════════════════════════════════════
 //  VALIDASI EMAIL
 // ══════════════════════════════════════════════════════════════════
 function isValidEmail(email) {
@@ -422,7 +497,7 @@ function isValidEmail(email) {
 
 function validateEmailField(input) {
     const val = input.value.trim().toLowerCase();
-    input.value = val; // normalize
+    input.value = val;
     if (val && !isValidEmail(val)) {
         input.style.borderColor = '#C0392B';
         input.style.background  = '#FFF5F5';
@@ -439,23 +514,34 @@ function validateEmailField(input) {
 function updateSummary() {
     const rows  = document.querySelectorAll('#participants-body tr');
     const total = rows.length;
-    let valid   = 0, invalid = 0;
+    let valid   = 0, invalid = 0, baruCount = 0, lamaCount = 0;
     const badList = [];
 
     rows.forEach((tr, i) => {
-        const email = tr.querySelector('.email-input')?.value?.trim() || '';
+        const email    = tr.querySelector('.email-input')?.value?.trim() || '';
+        const yearInp  = tr.querySelector('.year-input');
+        const year     = yearInp ? parseInt(yearInp.value) : CURRENT_YEAR;
+        const isOld    = !isNaN(year) && year < CURRENT_YEAR;
+
         if (email && !isValidEmail(email)) {
             invalid++;
             badList.push(`Baris ${i + 1}: "${email}"`);
         } else if (email) {
             valid++;
         }
+
+        if (isOld) lamaCount++;
+        else       baruCount++;
     });
 
     document.getElementById('total-count').textContent     = total;
     document.getElementById('summary-count').textContent   = total;
     document.getElementById('summary-valid').textContent   = valid;
     document.getElementById('summary-invalid').textContent = invalid;
+    document.getElementById('summary-baru').textContent    = baruCount;
+    document.getElementById('summary-lama').textContent    = lamaCount;
+    document.getElementById('count-baru').textContent      = baruCount;
+    document.getElementById('count-lama').textContent      = lamaCount;
 
     const panel = document.getElementById('validation-panel');
     const list  = document.getElementById('validation-list');
@@ -501,49 +587,69 @@ document.getElementById('excel-file-input').addEventListener('change', function 
 });
 
 function parseAndPreview(rawRows) {
-    // FIX: Template memiliki 3 baris header (judul, instruksi, nama kolom).
-    // Skip 3 baris pertama agar data dimulai dari baris ke-4.
+    // Skip 3 baris header, ambil baris yang tidak kosong semua
     const dataRows = rawRows.slice(3).filter(r => r.some(c => String(c).trim() !== ''));
 
     importedRows = [];
     const errors = [];
     let tbody    = '';
+    let lamaPreview = 0;
 
     dataRows.forEach((cols, i) => {
-        const name   = String(cols[0] || '').trim();
-        const email  = String(cols[1] || '').trim().toLowerCase();
-        const phone  = String(cols[2] || '').trim();
-        const inst   = String(cols[3] || '').trim();
-        const gender = String(cols[4] || 'L').trim().toUpperCase();
+        const name     = String(cols[0] || '').trim();
+        const email    = String(cols[1] || '').trim().toLowerCase();
+        const phone    = String(cols[2] || '').trim();
+        const inst     = String(cols[3] || '').trim();
+        const gender   = String(cols[4] || 'L').trim().toUpperCase();
+        let   joinYear = parseInt(String(cols[5] || CURRENT_YEAR).trim());
 
-        // +4: 3 header rows + 1 untuk konversi dari 0-index ke nomor baris Excel
-        const rowNo   = i + 4;
+        // Normalisasi tahun
+        if (isNaN(joinYear) || joinYear < MIN_YEAR || joinYear > CURRENT_YEAR) {
+            joinYear = CURRENT_YEAR;
+        }
+
+        const isOld = joinYear < CURRENT_YEAR;
+        const rowNo = i + 4; // +4: 3 header rows + 1-index
         const rowErrs = [];
+
         if (!name)  rowErrs.push('Nama kosong');
         if (!email) rowErrs.push('Email kosong');
         else if (!isValidEmail(email)) rowErrs.push('Email tidak valid');
 
         const ok = rowErrs.length === 0;
-        if (ok) importedRows.push({ name, email, phone, inst, gender });
-        else    errors.push(`Baris ${rowNo}: ${rowErrs.join(', ')}`);
+        if (ok) {
+            importedRows.push({ name, email, phone, inst, gender, joinYear });
+            if (isOld) lamaPreview++;
+        } else {
+            errors.push(`Baris ${rowNo}: ${rowErrs.join(', ')}`);
+        }
 
         const statusBadge = ok
             ? `<span style="color:#276749;font-weight:700;">✓</span>`
-            : `<span style="color:#C0392B;font-weight:700;" title="${rowErrs.join(', ')}">✕</span>`;
+            : `<span style="color:#C0392B;font-weight:700;" title="${escHtml(rowErrs.join(', '))}">✕</span>`;
+
+        const tipeBadge = ok
+            ? (isOld
+                ? `<span style="font-size:0.65rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:2px;background:#FEF8EC;color:#B8860B;">Lama</span>`
+                : `<span style="font-size:0.65rem;font-weight:700;padding:0.15rem 0.4rem;border-radius:2px;background:#EEF4FB;color:#2A7FC1;">Baru</span>`)
+            : '—';
 
         tbody += `<tr style="border-bottom:1px solid #EEF4FB;background:${ok ? '#fff' : '#FFF5F5'}">
             <td style="padding:0.4rem 0.75rem;text-align:center;color:#8A97A4;">${i + 1}</td>
             <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:${ok ? '#1A2A3A' : '#C0392B'};">${escHtml(name) || '<em style="color:#aaa">kosong</em>'}</td>
             <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:${ok ? '#1A2A3A' : '#C0392B'};">${escHtml(email) || '<em style="color:#aaa">kosong</em>'}</td>
+            <td style="padding:0.4rem 0.75rem;text-align:center;font-size:0.78rem;color:${isOld ? '#8B6914' : '#4A6580'};font-weight:${isOld ? '700' : '400'};">${ok ? joinYear : '—'}</td>
+            <td style="padding:0.4rem 0.75rem;text-align:center;">${tipeBadge}</td>
             <td style="padding:0.4rem 0.75rem;text-align:center;">${statusBadge}</td>
         </tr>`;
     });
 
-    document.getElementById('preview-tbody').innerHTML            = tbody;
-    document.getElementById('preview-area').style.display         = 'block';
-    document.getElementById('preview-valid-count').textContent    = importedRows.length;
-    document.getElementById('preview-invalid-count').textContent  = errors.length;
-    document.getElementById('import-count-label').textContent     = importedRows.length;
+    document.getElementById('preview-tbody').innerHTML           = tbody;
+    document.getElementById('preview-area').style.display        = 'block';
+    document.getElementById('preview-valid-count').textContent   = importedRows.length;
+    document.getElementById('preview-invalid-count').textContent = errors.length;
+    document.getElementById('preview-lama-count').textContent    = lamaPreview;
+    document.getElementById('import-count-label').textContent    = importedRows.length;
 
     const errPanel = document.getElementById('preview-errors');
     if (errors.length) {
@@ -561,14 +667,11 @@ function parseAndPreview(rawRows) {
 function importFromFile() {
     if (!importedRows.length) return;
 
-    // Hapus semua baris yang ada
     document.getElementById('participants-body').innerHTML = '';
     rowIndex = 0;
 
-    // Tambah baris dari data import
-    importedRows.forEach(r => addRow(r.name, r.email, r.phone, r.inst, r.gender));
+    importedRows.forEach(r => addRow(r.name, r.email, r.phone, r.inst, r.gender, r.joinYear));
 
-    // Tutup modal & tampilkan notice
     closeUploadModal();
     const notice = document.getElementById('import-notice');
     document.getElementById('import-notice-text').textContent =
@@ -578,7 +681,6 @@ function importFromFile() {
     updateSummary();
 }
 
-// Tutup modal klik backdrop
 document.getElementById('modal-upload').addEventListener('click', function (e) {
     if (e.target === this) closeUploadModal();
 });
@@ -609,7 +711,15 @@ document.getElementById('batch-form').addEventListener('submit', async function 
         inp.value = inp.value.trim().toLowerCase();
     });
 
-    // 2. Kumpulkan baris yang terisi (minimal nama atau email)
+    // 2. Normalize year
+    document.querySelectorAll('.year-input').forEach(inp => {
+        let val = parseInt(inp.value);
+        if (isNaN(val) || val < MIN_YEAR) val = CURRENT_YEAR;
+        if (val > CURRENT_YEAR)           val = CURRENT_YEAR;
+        inp.value = val;
+    });
+
+    // 3. Kumpulkan baris yang terisi
     const rows = Array.from(document.querySelectorAll('#participants-body tr'));
     const filledRows = rows.filter(tr => {
         const name  = tr.querySelector('input[name*="[name]"]')?.value?.trim() || '';
@@ -622,15 +732,15 @@ document.getElementById('batch-form').addEventListener('submit', async function 
         return;
     }
 
-    // 3. Validasi baris yang terisi
+    // 4. Validasi baris yang terisi
     const errors = [];
     filledRows.forEach((tr, i) => {
         const name  = tr.querySelector('input[name*="[name]"]')?.value?.trim() || '';
         const email = tr.querySelector('.email-input')?.value?.trim() || '';
         const rowLabel = `Baris ${Array.from(rows).indexOf(tr) + 1}`;
 
-        if (!name)              errors.push(`${rowLabel}: Nama wajib diisi.`);
-        if (!email)             errors.push(`${rowLabel}: Email wajib diisi.`);
+        if (!name)                    errors.push(`${rowLabel}: Nama wajib diisi.`);
+        if (!email)                   errors.push(`${rowLabel}: Email wajib diisi.`);
         else if (!isValidEmail(email)) errors.push(`${rowLabel}: Email "${email}" tidak valid.`);
     });
 
@@ -639,19 +749,18 @@ document.getElementById('batch-form').addEventListener('submit', async function 
         return;
     }
 
-    // 4. Jika sudah di-flag proceed (setelah konfirmasi duplikat)
+    // 5. Jika sudah di-flag proceed (setelah konfirmasi duplikat)
     if (pendingSubmit) {
         pendingSubmit = false;
         submitForm();
         return;
     }
 
-    // 5. Kumpulkan semua email untuk cek duplikat
+    // 6. Kumpulkan semua email untuk cek duplikat
     const emails = filledRows.map(tr =>
         tr.querySelector('.email-input')?.value?.trim()
     ).filter(Boolean);
 
-    // 6. Cek duplikat via AJAX
     const btn     = document.getElementById('btn-submit');
     btn.disabled  = true;
     btn.textContent = 'Memeriksa...';
@@ -679,7 +788,6 @@ document.getElementById('batch-form').addEventListener('submit', async function 
             submitForm();
         }
     } catch (err) {
-        // Jika endpoint belum ada atau error → langsung submit saja
         pendingSubmit = true;
         submitForm();
     }
@@ -696,7 +804,7 @@ function submitForm() {
 //  MODAL DUPLIKAT
 // ══════════════════════════════════════════════════════════════════
 function showDuplicateModal(duplicates) {
-    document.getElementById('dup-count').textContent        = duplicates.length;
+    document.getElementById('dup-count').textContent         = duplicates.length;
     document.getElementById('duplicate-panel').style.display = 'block';
 
     let html = '';
@@ -726,7 +834,6 @@ function proceedSubmit() {
     submitForm();
 }
 
-// Tutup modal duplikat klik backdrop
 document.getElementById('modal-duplicate').addEventListener('click', function (e) {
     if (e.target === this) this.style.display = 'none';
 });
