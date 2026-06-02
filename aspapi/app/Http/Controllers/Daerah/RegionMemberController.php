@@ -163,7 +163,7 @@ class RegionMemberController extends Controller
             // Anggota lama = tahun daftar sebelum tahun ini
             $isOldMember = $joinYear < now()->year;
 
-            $password = 'password123'; // Password default untuk batch, bisa diubah atau dikirim ke email anggota
+            $password = 'password123'; // Password default untuk batch, bisa diubah atau dikirim ke email anggota 
 
             try {
                 DB::transaction(function () use (
