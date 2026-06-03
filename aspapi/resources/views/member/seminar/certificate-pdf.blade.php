@@ -19,33 +19,34 @@
 
     .bg-template {
         position: absolute;
-        top: 0;
-        left: 0;
+        top: 0; left: 0;
         width: 297mm;
         height: 210mm;
     }
 
+    /* Nomor — sejajar dengan label "Nomor:" di template */
     .nomor {
         position: absolute;
         top: 66mm;
-        left: 52mm;
+        left: 58mm;
         font-size: 10pt;
         color: #1a1a1a;
-        letter-spacing: 0.3px;
     }
 
+    /* "Diberikan kepada :" */
     .diberikan-label {
         position: absolute;
         top: 80mm;
-        left: 52mm;
+        left: 38mm;
         font-size: 10pt;
         color: #1a1a1a;
     }
 
+    /* Nama penerima */
     .recipient-name {
         position: absolute;
         top: 87mm;
-        left: 52mm;
+        left: 38mm;
         right: 20mm;
         font-size: 20pt;
         font-weight: bold;
@@ -53,20 +54,22 @@
         line-height: 1.2;
     }
 
+    /* Kalimat partisipasi */
     .atas-partisipasi {
         position: absolute;
-        top: 110mm;
-        left: 52mm;
+        top: 112mm;
+        left: 38mm;
         right: 22mm;
         font-size: 10pt;
         color: #1a1a1a;
         line-height: 1.6;
     }
 
+    /* Judul seminar */
     .tema-value {
         position: absolute;
-        top: 132mm;
-        left: 52mm;
+        top: 134mm;
+        left: 38mm;
         right: 22mm;
         font-size: 11pt;
         font-weight: bold;
@@ -74,22 +77,14 @@
         line-height: 1.4;
     }
 
+    /* Surakarta, tanggal — di atas nama penandatangan, tidak menutupi ttd */
     .kota-tanggal {
         position: absolute;
-        bottom: 42mm;
-        right: 52mm;
+        bottom: 47mm;
+        right: 68mm;
         font-size: 9pt;
         color: #1a1a1a;
-        text-align: right;
-    }
-
-    .footer-left {
-        position: absolute;
-        bottom: 28mm;
-        left: 52mm;
-        font-size: 8pt;
-        color: #444444;
-        line-height: 1.7;
+        text-align: center;
     }
 </style>
 </head>
@@ -99,12 +94,12 @@
     <img class="bg-template" src="data:image/jpeg;base64,{{ $templateBase64 }}" alt="">
 
     {{-- Nomor sertifikat --}}
-    <p class="nomor">Nomor:&nbsp;&nbsp;{{ $certificate->certificate_number }}</p>
+    <p class="nomor">{{ $certificate->certificate_number }}</p>
 
     {{-- Diberikan kepada --}}
     <p class="diberikan-label">Diberikan kepada :</p>
 
-    {{-- Nama penerima (merah bold, besar) --}}
+    {{-- Nama penerima --}}
     <p class="recipient-name">{{ $memberData->full_name }}</p>
 
     {{-- Kalimat partisipasi --}}
@@ -116,16 +111,10 @@
     {{-- Judul seminar --}}
     <p class="tema-value">{{ $enrollment->seminar->title }}</p>
 
-    {{-- Kota & tanggal di kanan atas area tanda tangan --}}
+    {{-- Surakarta, tanggal --}}
     <p class="kota-tanggal">
         Surakarta,&nbsp;{{ \Carbon\Carbon::parse($certificate->issued_at)->translatedFormat('d F Y') }}
     </p>
-
-    {{-- Info kiri bawah --}}
-    <div class="footer-left">
-        <p>No: {{ $certificate->certificate_number }}</p>
-        <p>Nilai: {{ $certificate->score }}</p>
-    </div>
 
 </body>
 </html>
