@@ -23,7 +23,7 @@ class SeminarController extends Controller
 
     private function getRemainingQuota($member): int
     {
-        $periodStart = $member->dues_paid_at; // awal periode = tanggal iuran terakhir diverifikasi
+        $periodStart = $member->dues_paid_at;
 
         $used = SeminarEnrollment::where('member_id', $member->id)
             ->where('membership_period_start', $periodStart)
@@ -32,10 +32,6 @@ class SeminarController extends Controller
         return max(0, self::QUOTA_PER_PERIOD - $used);
     }
 
-    /**
-     * Helper: acak urutan opsi dan kembalikan sebagai array key => value
-     * Key tetap asli (a/b/c/d/e) sehingga penilaian tetap valid.
-     */
     private function buildShuffledOptions($questions): array
     {
         $shuffledOptions = [];
@@ -43,7 +39,6 @@ class SeminarController extends Controller
             $opts = $q->getOptions();
             $keys = array_keys($opts);
             shuffle($keys);
-            // Simpan sebagai array [ ['key'=>'c','label'=>'...'], ... ]
             $shuffledOptions[$q->id] = array_map(fn($k) => ['key' => $k, 'label' => $opts[$k]], $keys);
         }
         return $shuffledOptions;
@@ -71,7 +66,9 @@ class SeminarController extends Controller
 
         $enrolledIds    = array_keys($enrolledMap);
         $remainingQuota = $this->getRemainingQuota($member);
-        $isActive       = $member->status === 'active';
+
+        // ✅ Fix: cek status DAN iuran masih berlaku
+        $isActive = $member->status === 'active' && $member->hasPaidIuranTahunan();
 
         return view('member.seminar.index', compact(
             'seminars', 'enrolledIds', 'enrolledMap', 'remainingQuota', 'isActive', 'member'
@@ -80,8 +77,10 @@ class SeminarController extends Controller
 
     public function mySeminars()
     {
-        $member   = $this->getMember();
-        $isActive = $member->status === 'active';
+        $member = $this->getMember();
+
+        // ✅ Fix: cek status DAN iuran masih berlaku
+        $isActive = $member->status === 'active' && $member->hasPaidIuranTahunan();
 
         $allEnrollments = SeminarEnrollment::where('member_id', $member->id)
             ->with(['seminar', 'certificate'])
@@ -109,7 +108,12 @@ class SeminarController extends Controller
     {
         $member = $this->getMember();
 
-        abort_if($member->status !== 'active', 403, 'Keanggotaan tidak aktif.');
+        // ✅ Fix: cek status DAN iuran masih berlaku
+        abort_if(
+            $member->status !== 'active' || ! $member->hasPaidIuranTahunan(),
+            403,
+            'Keanggotaan tidak aktif atau iuran sudah kadaluarsa.'
+        );
 
         $alreadyEnrolled = SeminarEnrollment::where('member_id', $member->id)
             ->where('seminar_id', $seminar->id)
@@ -140,9 +144,6 @@ class SeminarController extends Controller
 
     public function show(SeminarEnrollment $enrollment)
     {
-
-
-        
         $member = $this->getMember();
         abort_if($enrollment->member_id !== $member->id, 403);
 
@@ -153,16 +154,12 @@ class SeminarController extends Controller
         return view('member.seminar.show', compact('enrollment', 'preTest', 'postTest'));
     }
 
-    /**
-     * Mulai pre-test: 5 soal acak, urutan opsi juga diacak & disimpan di session.
-     */
     public function startPreTest(SeminarEnrollment $enrollment)
     {
         $member = $this->getMember();
         abort_if($enrollment->member_id !== $member->id, 403);
         abort_if($enrollment->isPreTestDone(), 403, 'Pre-test sudah selesai.');
 
-        // Soal diacak dari DB
         $questions = $enrollment->seminar->questions()
             ->inRandomOrder()
             ->limit(self::PRETEST_COUNT)
@@ -181,7 +178,6 @@ class SeminarController extends Controller
             ]);
         }
 
-        // Acak urutan opsi dan simpan ke session supaya tidak berubah saat reload
         $shuffledOptions = $this->buildShuffledOptions($questions);
         session(["test_options_{$attempt->id}" => $shuffledOptions]);
 
@@ -214,7 +210,6 @@ class SeminarController extends Controller
             $enrollment->update(['status' => 'pre_test_done']);
         });
 
-        // Hapus session opsi
         session()->forget("test_options_{$attempt->id}");
 
         return redirect()->route('member.seminar.show', $enrollment)
@@ -235,9 +230,6 @@ class SeminarController extends Controller
             ->with('success', 'Materi ditandai selesai dibaca. Silakan kerjakan post-test.');
     }
 
-    /**
-     * Mulai post-test: semua soal diacak, opsi juga diacak & disimpan di session.
-     */
     public function startPostTest(SeminarEnrollment $enrollment)
     {
         $member = $this->getMember();
@@ -245,7 +237,6 @@ class SeminarController extends Controller
         abort_if(! $enrollment->isMaterialRead(), 403, 'Baca materi dulu sebelum post-test.');
         abort_if($enrollment->isCompleted(), 403, 'Kamu sudah lulus seminar ini.');
 
-        // Cek attempt yang belum disubmit — lanjutkan jika ada
         $existingAttempt = SeminarAttempt::where('enrollment_id', $enrollment->id)
             ->where('type', 'post_test')
             ->whereNull('submitted_at')
@@ -253,13 +244,11 @@ class SeminarController extends Controller
             ->first();
 
         if ($existingAttempt) {
-            // Ambil soal sesuai urutan yang sudah tersimpan di answers
             $questions = $existingAttempt->answers()
                 ->with('question')
                 ->get()
                 ->pluck('question');
 
-            // Ambil shuffled options dari session, atau buat ulang jika session expired
             $shuffledOptions = session("test_options_{$existingAttempt->id}")
                 ?? $this->buildShuffledOptions($questions);
 
@@ -275,7 +264,6 @@ class SeminarController extends Controller
             ]);
         }
 
-        // Attempt baru: soal diacak dari DB
         $questions = $enrollment->seminar->questions()->inRandomOrder()->get();
 
         $attempt = SeminarAttempt::create([
@@ -291,7 +279,6 @@ class SeminarController extends Controller
             ]);
         }
 
-        // Acak opsi dan simpan ke session
         $shuffledOptions = $this->buildShuffledOptions($questions);
         session(["test_options_{$attempt->id}" => $shuffledOptions]);
 
@@ -336,7 +323,6 @@ class SeminarController extends Controller
             }
         });
 
-        // Hapus session opsi
         session()->forget("test_options_{$attempt->id}");
 
         $attempt->refresh();
