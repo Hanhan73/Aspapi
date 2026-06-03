@@ -114,7 +114,7 @@
 
     {{-- Surakarta, tanggal --}}
     <p class="kota-tanggal">
-        Surakarta,&nbsp;{{ \Carbon\Carbon::parse($certificate->issued_at)->translatedFormat('d F Y') }}
+        Surakarta,&nbsp;{{ \Carbon\Carbon::parse($certificate->issued_at)->locale('id')->translatedFormat('d F Y') }}
     </p>
 
 </body>
