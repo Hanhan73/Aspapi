@@ -37,15 +37,15 @@
     {{-- Urgency bar — warna berubah sesuai sisa hari --}}
     @if ($daysLeft <= 1)
     <div class="urgency-bar" style="background:#C0392B;color:#fff;">
-        🚨 KARTU ANGGOTA ANDA KADALUARSA BESOK!
+        KARTU ANGGOTA ANDA KADALUARSA BESOK!
     </div>
     @elseif ($daysLeft <= 7)
     <div class="urgency-bar" style="background:#E8B84B;color:#fff;">
-        ⚠ Kartu anggota Anda kadaluarsa dalam {{ $daysLeft }} hari
+        Kartu anggota Anda kadaluarsa dalam {{ $daysLeft }} hari
     </div>
     @else
     <div class="urgency-bar" style="background:#2A7FC1;color:#fff;">
-        ℹ Pengingat: Kartu anggota Anda akan kadaluarsa dalam {{ $daysLeft }} hari
+        Pengingat: Kartu anggota Anda akan kadaluarsa dalam {{ $daysLeft }} hari
     </div>
     @endif
 
@@ -74,7 +74,7 @@
                 <div>
                     <p class="label">Berlaku Hingga</p>
                     <p class="val" style="color:{{ $daysLeft <= 1 ? '#C0392B' : '#1A2A3A' }};">
-                        {{ $member->active_until?->translatedFormat('d F Y') ?? '—' }}
+                        {{ $member->active_until?->locale('id')->translatedFormat('d F Y') ?? '—' }}
                     </p>
                 </div>
                 <div>
