@@ -2,39 +2,32 @@
 
 /**
  * Testing generate sertifikat PDF
- * Jalankan via: php artisan tinker --execute="require base_path('test-sertifikat.php');"
- * Atau taruh di root project lalu: php artisan tinker
+ * Jalankan via: php artisan tinker
  *   >>> require base_path('test-sertifikat.php');
  *
  * Output: storage/app/public/test-sertifikat.pdf
  */
 
-use App\Models\Member;
-use App\Models\SeminarEnrollment;
 use App\Models\SeminarCertificate;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 // ── 1. Ambil data dari DB ────────────────────────────────────────────────────
 
-// Cari enrollment yang sudah punya sertifikat
 $certificate = SeminarCertificate::with([
     'enrollment.seminar',
     'enrollment.member',
 ])->first();
 
 if (! $certificate) {
-    // Kalau belum ada sertifikat, buat data dummy sementara
     echo "⚠  Tidak ada sertifikat di DB. Membuat data dummy...\n";
 
-    // Ambil enrollment pertama yang ada
-    $enrollment = SeminarEnrollment::with(['seminar', 'member'])->first();
+    $enrollment = \App\Models\SeminarEnrollment::with(['seminar', 'member'])->first();
 
     if (! $enrollment) {
-        echo "✗ Tidak ada enrollment sama sekali. Pastikan ada data seminar & enrollment dulu.\n";
+        echo "✗ Tidak ada enrollment. Pastikan ada data seminar & enrollment dulu.\n";
         return;
     }
 
-    // Buat object dummy (tidak disimpan ke DB)
     $certificate = new SeminarCertificate([
         'enrollment_id'      => $enrollment->id,
         'certificate_number' => 'TEST/ASPAPI/SF/001/2026',
@@ -42,7 +35,6 @@ if (! $certificate) {
         'issued_at'          => now(),
     ]);
     $certificate->setRelation('enrollment', $enrollment);
-
     $memberData = $enrollment->member;
 } else {
     $memberData = $certificate->enrollment->member;
@@ -59,7 +51,6 @@ $templatePath = public_path('images/sertifikat-template.jpg');
 
 if (! file_exists($templatePath)) {
     echo "✗ Template tidak ditemukan di: {$templatePath}\n";
-    echo "  Pastikan sudah upload sertifikat-template.jpg ke public/images/\n";
     return;
 }
 
@@ -90,11 +81,10 @@ try {
     $outputPath = storage_path('app/public/test-sertifikat.pdf');
     $pdf->save($outputPath);
 
-    echo "✓ PDF berhasil dibuat!\n";
-    echo "  Path  : {$outputPath}\n";
-    echo "  URL   : " . url('storage/test-sertifikat.pdf') . "\n";
+    echo "✓ PDF berhasil!\n";
+    echo "  Path: {$outputPath}\n";
+    echo "  URL : " . url('storage/test-sertifikat.pdf') . "\n";
 
 } catch (\Exception $e) {
-    echo "✗ Error generate PDF: " . $e->getMessage() . "\n";
-    echo $e->getTraceAsString();
+    echo "✗ Error: " . $e->getMessage() . "\n";
 }
