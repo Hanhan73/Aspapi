@@ -30,11 +30,25 @@ class SeminarCertificate extends Model
     /**
      * Generate nomor sertifikat unik: CERT/ASPAPI/2026/0001
      */
-    public static function generateNumber(): string
-    {
-        $year  = now()->year;
-        $count = static::whereYear('issued_at', $year)->count() + 1;
+public static function generateNumber(): string
+{
+    $now   = now();
+    $year  = $now->year;
+    $month = $now->month;
 
-        return 'CERT/ASPAPI/' . $year . '/' . str_pad($count, 4, '0', STR_PAD_LEFT);
-    }
+    $roman = [
+        1  => 'I',   2  => 'II',   3  => 'III',
+        4  => 'IV',  5  => 'V',    6  => 'VI',
+        7  => 'VII', 8  => 'VIII', 9  => 'IX',
+        10 => 'X',   11 => 'XI',   12 => 'XII',
+    ];
+
+    $count = static::whereYear('issued_at', $year)
+        ->whereMonth('issued_at', $month)
+        ->count();
+
+    $sequence = str_pad($count + 1, 2, '0', STR_PAD_LEFT);
+
+    return "{$sequence}/ASPAPI/SF/{$roman[$month]}/{$year}";
+}
 }
