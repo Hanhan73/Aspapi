@@ -83,10 +83,10 @@
     .kota-tanggal {
         position: absolute;
         bottom: 55mm;
-        right: 70mm;
-        font-size: 12pt;
+        right: 58mm;
+        font-size: 10pt;
         color: #1a1a1a;
-        font-weight: bolder;
+        font-weight: normal;
         text-align: center;
     }
 </style>
