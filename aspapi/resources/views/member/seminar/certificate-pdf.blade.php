@@ -53,6 +53,7 @@
         color: #CC1A1A;
         line-height: 1.2;
         border-bottom: 0.5mm solid #941212;
+        text-align: center;
     }
 
     /* Kalimat partisipasi */
