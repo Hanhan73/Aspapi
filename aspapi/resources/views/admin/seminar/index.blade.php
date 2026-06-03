@@ -31,7 +31,6 @@
     @endphp
 
     <div class="flex flex-col sm:flex-row gap-3 mb-4">
-        {{-- Search bar --}}
         <form method="GET" action="{{ route('admin.seminar.index') }}" class="flex gap-2 flex-1">
             @if ($activeCategory)
                 <input type="hidden" name="category" value="{{ $activeCategory }}">
@@ -93,33 +92,44 @@
 
     {{-- Tabel --}}
     <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm table-fixed">
+            <colgroup>
+                <col style="width: 35%">  {{-- Seminar --}}
+                <col style="width: 11%">  {{-- Kategori --}}
+                <col style="width: 6%">   {{-- Soal --}}
+                <col style="width: 7%">   {{-- Peserta --}}
+                <col style="width: 8%">   {{-- Passing --}}
+                <col style="width: 8%">   {{-- Status --}}
+                <col style="width: 25%">  {{-- Aksi --}}
+            </colgroup>
             <thead>
                 <tr class="border-b border-neutral-100 text-2xs font-bold uppercase tracking-wider text-neutral-400">
-                    <th class="px-5 py-3 text-left">Seminar</th>
-                    <th class="px-4 py-3 text-left">Kategori</th>
-                    <th class="px-4 py-3 text-center">Soal</th>
-                    <th class="px-4 py-3 text-center">Peserta</th>
-                    <th class="px-4 py-3 text-center">Passing Grade</th>
-                    <th class="px-4 py-3 text-center">Status</th>
-                    <th class="px-4 py-3 text-right">Aksi</th>
+                    <th class="px-4 py-3 text-left">Seminar</th>
+                    <th class="px-3 py-3 text-left">Kategori</th>
+                    <th class="px-2 py-3 text-center">Soal</th>
+                    <th class="px-2 py-3 text-center">Peserta</th>
+                    <th class="px-2 py-3 text-center">Passing</th>
+                    <th class="px-2 py-3 text-center">Status</th>
+                    <th class="px-3 py-3 text-right">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-neutral-100">
                 @forelse ($seminars as $seminar)
                 <tr class="hover:bg-neutral-50">
-                    <td class="px-5 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
+                    {{-- Seminar --}}
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-9 h-9 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
                                 <img src="{{ $seminar->thumbnail_url }}" class="w-full h-full object-cover">
                             </div>
-                            <div>
-                                <p class="font-semibold text-navy">{{ $seminar->title }}</p>
-                                <p class="text-xs text-neutral-400 truncate max-w-xs">{{ $seminar->description }}</p>
+                            <div class="min-w-0">
+                                <p class="font-semibold text-navy text-sm truncate">{{ $seminar->title }}</p>
+                                <p class="text-xs text-neutral-400 truncate">{{ $seminar->description }}</p>
                             </div>
                         </div>
                     </td>
-                    <td class="px-4 py-4">
+                    {{-- Kategori --}}
+                    <td class="px-3 py-3">
                         @if ($seminar->category)
                             <span class="text-2xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                                 {{ $seminar->category }}
@@ -128,34 +138,35 @@
                             <span class="text-xs text-neutral-300">—</span>
                         @endif
                     </td>
-                    <td class="px-4 py-4 text-center text-navy font-bold">{{ $seminar->questions_count }}</td>
-                    <td class="px-4 py-4 text-center text-navy font-bold">{{ $seminar->enrollments_count }}</td>
-                    <td class="px-4 py-4 text-center text-navy font-bold">{{ $seminar->passing_grade }}%</td>
-                    <td class="px-4 py-4 text-center">
+                    <td class="px-2 py-3 text-center text-navy font-bold">{{ $seminar->questions_count }}</td>
+                    <td class="px-2 py-3 text-center text-navy font-bold">{{ $seminar->enrollments_count }}</td>
+                    <td class="px-2 py-3 text-center text-navy font-bold">{{ $seminar->passing_grade }}%</td>
+                    <td class="px-2 py-3 text-center">
                         <span class="text-2xs font-bold px-2 py-0.5 rounded
                             {{ $seminar->is_active ? 'bg-green-50 text-green-700' : 'bg-neutral-100 text-neutral-500' }}">
                             {{ $seminar->is_active ? 'Aktif' : 'Non-aktif' }}
                         </span>
                     </td>
-                    <td class="px-4 py-4 text-right">
-                        <div class="flex justify-end gap-2">
+                    {{-- Aksi --}}
+                    <td class="px-3 py-3">
+                        <div class="flex justify-end items-center gap-1.5">
                             <a href="{{ route('admin.seminar.questions', $seminar) }}"
-                               class="text-xs px-3 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50">
+                               class="text-2xs font-bold px-2.5 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 whitespace-nowrap">
                                 Soal
                             </a>
                             <a href="{{ route('admin.seminar.enrollments', $seminar) }}"
-                               class="text-xs px-3 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50">
+                               class="text-2xs font-bold px-2.5 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 whitespace-nowrap">
                                 Peserta
                             </a>
                             <a href="{{ route('admin.seminar.edit', $seminar) }}"
-                               class="text-xs px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20">
+                               class="text-2xs font-bold px-2.5 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 whitespace-nowrap">
                                 Edit
                             </a>
                             <form method="POST" action="{{ route('admin.seminar.destroy', $seminar) }}"
                                   onsubmit="return confirm('Hapus seminar ini?')">
                                 @csrf @method('DELETE')
                                 <button type="submit"
-                                        class="text-xs px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100">
+                                        class="text-2xs font-bold px-2.5 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 whitespace-nowrap">
                                     Hapus
                                 </button>
                             </form>
@@ -184,7 +195,6 @@
         <div class="px-5 py-4 border-t border-neutral-100 flex items-center justify-between">
             <p class="text-xs text-neutral-400">Total {{ $seminars->total() }} seminar</p>
             <div class="flex items-center gap-1">
-                {{-- Prev --}}
                 @if ($seminars->onFirstPage())
                     <span class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-300 cursor-not-allowed">← Prev</span>
                 @else
@@ -206,7 +216,6 @@
                     @endif
                 @endforeach
 
-                {{-- Next --}}
                 @if ($seminars->hasMorePages())
                     <a href="{{ $seminars->nextPageUrl() }}&{{ http_build_query(request()->except('page')) }}"
                        class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-500 hover:bg-neutral-50 transition">Next →</a>
