@@ -48,10 +48,11 @@
         top: 90mm;
         left: 65mm;
         right: 20mm;
-        font-size: 32pt;
+        font-size: 28pt;
         font-weight: bold;
         color: #CC1A1A;
         line-height: 1.2;
+        border-bottom: 0.5mm solid #941212;
     }
 
     /* Kalimat partisipasi */
