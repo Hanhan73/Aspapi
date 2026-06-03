@@ -124,7 +124,6 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="font-semibold text-navy text-sm truncate">{{ $seminar->title }}</p>
-<p class="text-xs text-neutral-400 truncate max-w-[200px]">{{ $seminar->description }}</p>
                             </div>
                         </div>
                     </td>
