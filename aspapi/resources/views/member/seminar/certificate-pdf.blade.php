@@ -24,27 +24,29 @@
         height: 210mm;
     }
 
-    /* Nilai nomor — di sebelah kanan label "Nomor:" yg sudah ada di template */
+    /* Nomor — sejajar dengan label "Nomor:" di template */
     .nomor {
         position: absolute;
-        top: 65mm;
-        left: 92mm;
+        top: 69mm;
+        left: 65mm;
         font-size: 10pt;
         color: #1a1a1a;
     }
 
+    /* "Diberikan kepada :" */
     .diberikan-label {
         position: absolute;
-        top: 77mm;
-        left: 52mm;
+        top: 80mm;
+        left: 65mm;
         font-size: 10pt;
         color: #1a1a1a;
     }
 
+    /* Nama penerima */
     .recipient-name {
         position: absolute;
-        top: 84mm;
-        left: 52mm;
+        top: 87mm;
+        left: 65mm;
         right: 20mm;
         font-size: 20pt;
         font-weight: bold;
@@ -52,20 +54,22 @@
         line-height: 1.2;
     }
 
+    /* Kalimat partisipasi */
     .atas-partisipasi {
         position: absolute;
-        top: 106mm;
-        left: 52mm;
+        top: 112mm;
+        left: 65mm;
         right: 20mm;
         font-size: 10pt;
         color: #1a1a1a;
         line-height: 1.6;
     }
 
+    /* Judul seminar */
     .tema-value {
         position: absolute;
-        top: 124mm;
-        left: 52mm;
+        top: 128mm;
+        left: 65mm;
         right: 20mm;
         font-size: 11pt;
         font-weight: bold;
@@ -73,38 +77,44 @@
         line-height: 1.4;
     }
 
-    /* Tanggal — di atas stempel, tidak menutupi ttd */
+    /* Surakarta, tanggal — di atas nama penandatangan, tidak menutupi ttd */
     .kota-tanggal {
         position: absolute;
-        top: 148mm;
-        left: 195mm;
+        bottom: 47mm;
+        right: 60mm;
         font-size: 9pt;
         color: #1a1a1a;
+        font-weight: bolder;
         text-align: center;
-        width: 60mm;
     }
 </style>
 </head>
 <body>
 
+    {{-- Background: gambar template ASPAPI --}}
     <img class="bg-template" src="data:image/jpeg;base64,{{ $templateBase64 }}" alt="">
 
-    {{-- Nomor: label sudah ada di template, tinggal isi nomornya --}}
-    <p class="nomor">{{ $certificate->certificate_number }}</p>
+    {{-- Nomor sertifikat --}}
+    <p class="nomor">Nomor: {{ $certificate->certificate_number }}</p>
 
+    {{-- Diberikan kepada --}}
     <p class="diberikan-label">Diberikan kepada :</p>
 
+    {{-- Nama penerima --}}
     <p class="recipient-name">{{ $memberData->full_name }}</p>
 
+    {{-- Kalimat partisipasi --}}
     <p class="atas-partisipasi">
         Atas Partisipasinya sebagai <strong>PESERTA</strong> dalam Kegiatan <strong>Webinar Series</strong>
         Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia (ASPAPI) dengan Tema:
     </p>
 
+    {{-- Judul seminar --}}
     <p class="tema-value">{{ $enrollment->seminar->title }}</p>
 
+    {{-- Surakarta, tanggal --}}
     <p class="kota-tanggal">
-        Surakarta, {{ \Carbon\Carbon::parse($certificate->issued_at)->translatedFormat('d F Y') }}
+        Surakarta,&nbsp;{{ \Carbon\Carbon::parse($certificate->issued_at)->translatedFormat('d F Y') }}
     </p>
 
 </body>
