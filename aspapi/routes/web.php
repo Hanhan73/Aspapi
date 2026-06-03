@@ -85,6 +85,9 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
     
         // Seminar saya
         Route::get('/saya',                               [SeminarController::class, 'mySeminars'])->name('my-seminars');
+
+        Route::get('/seminar/certificate/{certificate}', [SeminarCertificateController::class, 'download'])
+            ->name('seminar.certificate');
     
         // Daftar ke seminar
         Route::post('/{seminar}/daftar',                  [SeminarController::class, 'enroll'])->name('enroll');
@@ -103,8 +106,6 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
         Route::get('/enrollment/{enrollment}/post-test',  [SeminarController::class, 'startPostTest'])->name('posttest.start');
         Route::post('/attempt/{attempt}/post-test/submit',[SeminarController::class, 'submitPostTest'])->name('posttest.submit');
     
-        // Sertifikat
-        Route::get('/seminar/certificate/{certificate}',    [SeminarCertificateController::class, 'download'])->name('seminar.certificate');
     });
 });
 
