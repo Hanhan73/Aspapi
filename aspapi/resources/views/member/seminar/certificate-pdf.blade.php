@@ -81,7 +81,7 @@
     .kota-tanggal {
         position: absolute;
         bottom: 47mm;
-        right: 60mm;
+        right: 48mm;
         font-size: 9pt;
         color: #1a1a1a;
         font-weight: bolder;
