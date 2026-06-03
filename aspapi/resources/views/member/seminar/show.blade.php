@@ -309,7 +309,7 @@
                     No. Sertifikat: <span class="font-mono font-semibold text-navy">{{ $enrollment->certificate->certificate_number }}</span>
                 </p>
                 <div class="flex items-center justify-center gap-3">
-                    <a style="color: white;" href="{{ route('member.seminar.certificate', $enrollment->certificate) }}"
+                    <a style="color: black;" href="{{ route('member.seminar.certificate', $enrollment->certificate) }}"
                        target="_blank"
                        class="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
