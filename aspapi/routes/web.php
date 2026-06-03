@@ -33,6 +33,7 @@ use App\Http\Controllers\Member\BiodataController;
 use App\Http\Controllers\Member\PaymentController;
 use App\Http\Controllers\Member\CardController;
 use App\Http\Controllers\Member\SeminarController;
+use App\Http\Controllers\Member\SeminarCertificateController;
 
 use App\Http\Controllers\Bendahara\BendaharaController;
 use App\Http\Controllers\Bendahara\RekapController;
@@ -103,7 +104,7 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
         Route::post('/attempt/{attempt}/post-test/submit',[SeminarController::class, 'submitPostTest'])->name('posttest.submit');
     
         // Sertifikat
-        Route::get('/sertifikat/{certificate}',           [SeminarController::class, 'certificate'])->name('certificate');
+        Route::get('/seminar/certificate/{certificate}',    [SeminarCertificateController::class, 'download'])->name('seminar.certificate');
     });
 });
 
