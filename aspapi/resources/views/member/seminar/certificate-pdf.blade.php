@@ -27,8 +27,8 @@
     /* Nomor — sejajar dengan label "Nomor:" di template */
     .nomor {
         position: absolute;
-        top: 66mm;
-        left: 58mm;
+        top: 69mm;
+        left: 65mm;
         font-size: 10pt;
         color: #1a1a1a;
     }
@@ -37,7 +37,7 @@
     .diberikan-label {
         position: absolute;
         top: 80mm;
-        left: 38mm;
+        left: 65mm;
         font-size: 10pt;
         color: #1a1a1a;
     }
@@ -46,7 +46,7 @@
     .recipient-name {
         position: absolute;
         top: 87mm;
-        left: 38mm;
+        left: 65mm;
         right: 20mm;
         font-size: 20pt;
         font-weight: bold;
@@ -58,8 +58,8 @@
     .atas-partisipasi {
         position: absolute;
         top: 112mm;
-        left: 38mm;
-        right: 22mm;
+        left: 65mm;
+        right: 20mm;
         font-size: 10pt;
         color: #1a1a1a;
         line-height: 1.6;
@@ -68,9 +68,9 @@
     /* Judul seminar */
     .tema-value {
         position: absolute;
-        top: 134mm;
-        left: 38mm;
-        right: 22mm;
+        top: 128mm;
+        left: 65mm;
+        right: 20mm;
         font-size: 11pt;
         font-weight: bold;
         color: #1a1a1a;
@@ -81,9 +81,10 @@
     .kota-tanggal {
         position: absolute;
         bottom: 47mm;
-        right: 68mm;
+        right: 60mm;
         font-size: 9pt;
         color: #1a1a1a;
+        font-weight: bolder;
         text-align: center;
     }
 </style>
@@ -94,7 +95,7 @@
     <img class="bg-template" src="data:image/jpeg;base64,{{ $templateBase64 }}" alt="">
 
     {{-- Nomor sertifikat --}}
-    <p class="nomor">{{ $certificate->certificate_number }}</p>
+    <p class="nomor">Nomor: {{ $certificate->certificate_number }}</p>
 
     {{-- Diberikan kepada --}}
     <p class="diberikan-label">Diberikan kepada :</p>
