@@ -82,9 +82,9 @@
     /* Surakarta, tanggal — di atas nama penandatangan, tidak menutupi ttd */
     .kota-tanggal {
         position: absolute;
-        bottom: 47mm;
-        right: 42mm;
-        font-size: 9pt;
+        bottom: 55mm;
+        right: 70mm;
+        font-size: 12pt;
         color: #1a1a1a;
         font-weight: bolder;
         text-align: center;
