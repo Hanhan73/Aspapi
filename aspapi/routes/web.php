@@ -87,7 +87,7 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
         Route::get('/saya',                               [SeminarController::class, 'mySeminars'])->name('my-seminars');
 
         Route::get('/seminar/certificate/{certificate}', [SeminarCertificateController::class, 'download'])
-            ->name('seminar.certificate');
+            ->name('certificate');
     
         // Daftar ke seminar
         Route::post('/{seminar}/daftar',                  [SeminarController::class, 'enroll'])->name('enroll');
