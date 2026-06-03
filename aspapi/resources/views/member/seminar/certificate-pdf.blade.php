@@ -45,10 +45,10 @@
     /* Nama penerima */
     .recipient-name {
         position: absolute;
-        top: 87mm;
+        top: 90mm;
         left: 65mm;
         right: 20mm;
-        font-size: 20pt;
+        font-size: 32pt;
         font-weight: bold;
         color: #CC1A1A;
         line-height: 1.2;
