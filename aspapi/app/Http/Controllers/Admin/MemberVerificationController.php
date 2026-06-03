@@ -87,7 +87,7 @@ class MemberVerificationController extends Controller
         $member = Member::findOrFail($id);
         $member->update([
             'biodata_status'    => 'verified',
-            'status'            => 'pending',
+            'status'            => $member->status === 'active' ? 'active' : 'pending',  // ← fix sama
             'registration_type' => 'lama',
             'registered_at'     => now()->setYear((int) $member->claimed_join_year), // fix cast ke int
         ]);

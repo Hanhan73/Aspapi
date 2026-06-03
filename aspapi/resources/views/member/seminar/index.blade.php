@@ -172,7 +172,7 @@
                         </a>
                     @elseif ($canEnroll)
                         <button type="button"
-                                onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}', '{{ addslashes($seminar->description ?? '') }}', '{{ $seminar->thumbnail_url }}')"
+onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}', '{{ addslashes($seminar->description ?? '') }}')"
                                 class="w-full text-xs font-bold py-2 px-4 rounded-lg bg-primary text-white hover:bg-primary/90 transition">
                             Daftar Seminar
                         </button>
@@ -290,12 +290,10 @@
 <script>
     let activeFormId = null;
 
-    function openEnrollModal(seminarId, title, desc, thumbUrl) {
+    function openEnrollModal(seminarId, title, desc) {
         activeFormId = 'enroll-form-' + seminarId;
         document.getElementById('modal-title').textContent    = title;
         document.getElementById('modal-desc').textContent     = desc;
-        document.getElementById('modal-thumb-img').src        = thumbUrl;
-        document.getElementById('modal-thumb-img').alt        = title;
         document.getElementById('modal-enroll').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
