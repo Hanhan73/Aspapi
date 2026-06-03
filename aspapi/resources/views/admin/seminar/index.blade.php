@@ -91,7 +91,7 @@
     </div>
 
     {{-- Tabel --}}
-    <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden">
+<div class="bg-white border border-neutral-200 rounded-xl overflow-hidden overflow-x-auto">
         <table class="w-full text-sm table-fixed">
             <colgroup>
                 <col style="width: 35%">  {{-- Seminar --}}
@@ -124,7 +124,7 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="font-semibold text-navy text-sm truncate">{{ $seminar->title }}</p>
-                                <p class="text-xs text-neutral-400 truncate">{{ $seminar->description }}</p>
+<p class="text-xs text-neutral-400 truncate max-w-[200px]">{{ $seminar->description }}</p>
                             </div>
                         </div>
                     </td>
