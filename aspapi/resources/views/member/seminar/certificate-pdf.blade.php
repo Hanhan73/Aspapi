@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <style>
 @font-face {
-    font-family: 'Brush ATF';
+    font-family: 'Anton';
     font-style: normal;
     font-weight: normal;
-    src: url('{{ storage_path('fonts/BrushATF-Bold.ttf') }}') format('truetype');
+    src: url('{{ storage_path('fonts/Anton-Regular.ttf') }}') format('truetype');
 }
 
     @page {
@@ -50,18 +50,18 @@
     }
 
     /* Nama penerima */
-    .recipient-name {
-        position: absolute;
-        top: 88mm;
-        left: 55mm;
-        right: 20mm;
-        font-size: 36pt;
-        font-weight: normal;
-        font-family: 'Brush ATF', cursive;
-        color: #38B6FF;
-        line-height: 1.2;
-        text-align: left;
-    }
+.recipient-name {
+    position: absolute;
+    top: 88mm;
+    left: 55mm;
+    right: 20mm;
+    font-size: 36pt;
+    font-weight: normal;
+    font-family: 'Anton', sans-serif;
+    color: #38B6FF;
+    line-height: 1.2;
+    text-align: left;
+}
 
     /* Kalimat partisipasi */
     .atas-partisipasi {
