@@ -7,7 +7,7 @@
     font-family: 'Brush ATF';
     font-style: normal;
     font-weight: normal;
-    src: url('{{ storage_path('fonts/BrushATF.otf') }}') format('opentype');
+    src: url('{{ storage_path('fonts/BrushATF.ttf') }}') format('truetype');
 }
 
     @page {
@@ -34,42 +34,42 @@
     /* Nomor — sejajar dengan label "Nomor:" di template */
     .nomor {
         position: absolute;
-        top: 69mm;
-        left: 65mm;
-        font-size: 10pt;
+        top: 72mm;
+        left: 55mm;
+        font-size: 12pt;
         color: #1a1a1a;
     }
 
     /* "Diberikan kepada :" */
     .diberikan-label {
         position: absolute;
-        top: 80mm;
-        left: 65mm;
-        font-size: 10pt;
+        top: 83mm;
+        left: 55mm;
+        font-size: 12pt;
         color: #1a1a1a;
     }
 
     /* Nama penerima */
-.recipient-name {
-    position: absolute;
-    top: 88mm;
-    left: 65mm;
-    right: 20mm;
-    font-size: 36pt;
-    font-weight: normal;
-    font-family: 'Brush ATF', cursive;
-    color: #38B6FF;
-    line-height: 1.2;
-    text-align: center;
-}
+    .recipient-name {
+        position: absolute;
+        top: 88mm;
+        left: 55mm;
+        right: 20mm;
+        font-size: 36pt;
+        font-weight: normal;
+        font-family: 'Brush ATF', cursive;
+        color: #38B6FF;
+        line-height: 1.2;
+        text-align: left;
+    }
 
     /* Kalimat partisipasi */
     .atas-partisipasi {
         position: absolute;
         top: 112mm;
-        left: 65mm;
+        left: 55mm;
         right: 20mm;
-        font-size: 10pt;
+        font-size: 12pt;
         color: #1a1a1a;
         line-height: 1.6;
     }
@@ -78,7 +78,7 @@
     .tema-value {
         position: absolute;
         top: 128mm;
-        left: 65mm;
+        left: 55mm;
         right: 20mm;
         font-size: 11pt;
         font-weight: bold;
