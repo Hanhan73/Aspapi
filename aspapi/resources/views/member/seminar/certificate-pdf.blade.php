@@ -52,7 +52,7 @@
     /* Nama penerima */
 .recipient-name {
     position: absolute;
-    top: 88mm;
+    top: 95mm;
     left: 55mm;
     right: 20mm;
     font-size: 36pt;
