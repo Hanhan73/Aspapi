@@ -110,12 +110,12 @@
     <p class="diberikan-label">Diberikan kepada :</p>
 
     {{-- Nama penerima --}}
-    <p class="recipient-name">{{ $memberData->full_name }}</p>
+    <p class="recipient-name">{{ ucwords(strtolower($memberData->full_name)) }}</p>
 
     {{-- Kalimat partisipasi --}}
     <p class="atas-partisipasi">
-        Atas Partisipasinya sebagai peserta dalam Kegiatan Webinar Series ASPAPI secara online (BISA-Online)
-        Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia (ASPAPI) dengan Tema: {{ $enrollment->seminar->title }}
+        atas partisipasinya sebagai PESERTA dalam Kegiatan Webinar Series Asosiasi Sarjana dan Praktisi Administrasi Perkantoran secara online (BISA-Online)
+        dengan tema: {{ $enrollment->seminar->title }}
     </p>
 
     {{-- Surakarta, tanggal --}}
