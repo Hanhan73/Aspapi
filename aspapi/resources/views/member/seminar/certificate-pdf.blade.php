@@ -55,8 +55,8 @@
     top: 88mm;
     left: 55mm;
     right: 20mm;
-    font-size: 28pt;
-    font-weight: bold;
+    font-size: 36pt;
+    font-weight: bolder;
     font-family: 'Oswald', sans-serif;
     color: #38B6FF;
     line-height: 1.2;
