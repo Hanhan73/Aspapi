@@ -7,7 +7,7 @@
     font-family: 'Brush ATF';
     font-style: normal;
     font-weight: normal;
-    src: url('{{ storage_path('fonts/BrushATF.ttf') }}') format('truetype');
+    src: url('{{ storage_path('fonts/BrushATF-Bold.ttf') }}') format('truetype');
 }
 
     @page {
