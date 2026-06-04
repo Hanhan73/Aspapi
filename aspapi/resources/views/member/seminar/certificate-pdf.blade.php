@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <style>
+@font-face {
+    font-family: 'Great Vibes';
+    font-style: normal;
+    font-weight: normal;
+    src: url('{{ storage_path('fonts/GreatVibes-Regular.ttf') }}') format('truetype');
+}
+
     @page {
         size: A4 landscape;
         margin: 0;
@@ -29,7 +36,7 @@
         position: absolute;
         top: 69mm;
         left: 65mm;
-        font-size: 10pt;
+        font-size: 14pt;
         color: #1a1a1a;
     }
 
@@ -38,7 +45,7 @@
         position: absolute;
         top: 80mm;
         left: 65mm;
-        font-size: 10pt;
+        font-size: 14pt;
         color: #1a1a1a;
     }
 
@@ -48,12 +55,12 @@
         top: 90mm;
         left: 65mm;
         right: 20mm;
-        font-size: 28pt;
-        font-weight: bold;
-        color: #CC1A1A;
+        font-size: 32pt;
+        font-weight: normal;
+        font-family: 'Great Vibes', cursive;
+        color: #38B6FF;
         line-height: 1.2;
-        border-bottom: 0.5mm solid #941212;
-        text-align: center;
+        text-align: left;
     }
 
     /* Kalimat partisipasi */
@@ -62,7 +69,7 @@
         top: 112mm;
         left: 65mm;
         right: 20mm;
-        font-size: 10pt;
+        font-size: 12pt;
         color: #1a1a1a;
         line-height: 1.6;
     }
@@ -73,7 +80,7 @@
         top: 128mm;
         left: 65mm;
         right: 20mm;
-        font-size: 11pt;
+        font-size: 12pt;
         font-weight: bold;
         color: #1a1a1a;
         line-height: 1.4;
@@ -107,12 +114,9 @@
 
     {{-- Kalimat partisipasi --}}
     <p class="atas-partisipasi">
-        Atas Partisipasinya sebagai <strong>PESERTA</strong> dalam Kegiatan <strong>Webinar Series</strong>
-        Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia (ASPAPI) dengan Tema:
+        Atas Partisipasinya sebagai peserta dalam Kegiatan Webinar Series ASPAPI secara online (BISA-Online)
+        Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia (ASPAPI) dengan Tema: {{ $enrollment->seminar->title }}
     </p>
-
-    {{-- Judul seminar --}}
-    <p class="tema-value">{{ $enrollment->seminar->title }}</p>
 
     {{-- Surakarta, tanggal --}}
     <p class="kota-tanggal">
