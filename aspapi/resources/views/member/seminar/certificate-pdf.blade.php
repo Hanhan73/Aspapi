@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <style>
     @font-face {
-        font-family: 'Kaushan Script';
-        font-style: normal;
-        font-weight: normal;
-        src: url('{{ storage_path('fonts/KaushanScript-Regular.ttf') }}') format('truetype');
-    }
+    font-family: 'Pinyon Script';
+    font-style: normal;
+    font-weight: normal;
+    src: url('{{ storage_path('fonts/PinyonScript-Regular.ttf') }}') format('truetype');
+}
 
     @page {
         size: A4 landscape;
@@ -31,6 +31,7 @@
         height: 210mm;
     }
 
+    /* Nomor — sejajar dengan label "Nomor:" di template */
     .nomor {
         position: absolute;
         top: 69mm;
@@ -39,6 +40,7 @@
         color: #1a1a1a;
     }
 
+    /* "Diberikan kepada :" */
     .diberikan-label {
         position: absolute;
         top: 80mm;
@@ -47,33 +49,24 @@
         color: #1a1a1a;
     }
 
-    /* Nama — center seperti file _37 */
+    /* Nama penerima */
     .recipient-name {
         position: absolute;
-        top: 88mm;
+        top: 90mm;
         left: 65mm;
         right: 20mm;
-        font-size: 36pt;
-        font-weight: normal;
-        font-family: 'Kaushan Script', cursive;
+        font-size: 38pt;        /* Pinyon Script agak kecil, naikin ukurannya */
+        font-weight: normal;    /* tidak ada bold */
+        font-family: 'Pinyon Script', cursive;
         color: #38B6FF;
         line-height: 1.2;
-        text-align: center;
+        text-align: left;
     }
 
-    /* Garis bawah nama seperti file _37 */
-    .recipient-underline {
-        position: absolute;
-        top: 106mm;
-        left: 65mm;
-        right: 20mm;
-        height: 0.4mm;
-        background: #38B6FF;
-    }
-
+    /* Kalimat partisipasi */
     .atas-partisipasi {
         position: absolute;
-        top: 110mm;
+        top: 112mm;
         left: 65mm;
         right: 20mm;
         font-size: 10pt;
@@ -81,10 +74,10 @@
         line-height: 1.6;
     }
 
-    /* Judul seminar terpisah dan bold seperti file _37 */
+    /* Judul seminar */
     .tema-value {
         position: absolute;
-        top: 130mm;
+        top: 128mm;
         left: 65mm;
         right: 20mm;
         font-size: 11pt;
@@ -93,6 +86,7 @@
         line-height: 1.4;
     }
 
+    /* Surakarta, tanggal — di atas nama penandatangan, tidak menutupi ttd */
     .kota-tanggal {
         position: absolute;
         bottom: 55mm;
