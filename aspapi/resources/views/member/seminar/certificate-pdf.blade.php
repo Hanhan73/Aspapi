@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <style>
-@font-face {
-    font-family: 'Great Vibes';
+    @font-face {
+    font-family: 'Pinyon Script';
     font-style: normal;
     font-weight: normal;
-    src: url('{{ storage_path('fonts/GreatVibes-Regular.ttf') }}') format('truetype');
+    src: url('{{ storage_path('fonts/PinyonScript-Regular.ttf') }}') format('truetype');
 }
 
     @page {
@@ -36,7 +36,7 @@
         position: absolute;
         top: 69mm;
         left: 65mm;
-        font-size: 14pt;
+        font-size: 11pt;
         color: #1a1a1a;
     }
 
@@ -45,7 +45,7 @@
         position: absolute;
         top: 80mm;
         left: 65mm;
-        font-size: 14pt;
+        font-size: 11pt;
         color: #1a1a1a;
     }
 
@@ -55,9 +55,9 @@
         top: 90mm;
         left: 65mm;
         right: 20mm;
-        font-size: 32pt;
-        font-weight: normal;
-        font-family: 'Great Vibes', cursive;
+        font-size: 38pt;        /* Pinyon Script agak kecil, naikin ukurannya */
+        font-weight: normal;    /* tidak ada bold */
+        font-family: 'Pinyon Script', cursive;
         color: #38B6FF;
         line-height: 1.2;
         text-align: left;
@@ -69,7 +69,7 @@
         top: 112mm;
         left: 65mm;
         right: 20mm;
-        font-size: 12pt;
+        font-size: 11pt;
         color: #1a1a1a;
         line-height: 1.6;
     }
@@ -80,7 +80,7 @@
         top: 128mm;
         left: 65mm;
         right: 20mm;
-        font-size: 12pt;
+        font-size: 11pt;
         font-weight: bold;
         color: #1a1a1a;
         line-height: 1.4;
