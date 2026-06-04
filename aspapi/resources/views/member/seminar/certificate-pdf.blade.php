@@ -110,7 +110,7 @@
     <p class="diberikan-label">Diberikan kepada :</p>
 
     {{-- Nama penerima --}}
-    <p class="recipient-name">{{ ucwords(strtolower($memberData->full_name)) }}</p>
+    <p class="recipient-name">{{ ucwords($memberData->full_name) }}</p>
 
     {{-- Kalimat partisipasi --}}
     <p class="atas-partisipasi">
