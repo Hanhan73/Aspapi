@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <style>
-    @font-face {
-    font-family: 'Pinyon Script';
+@font-face {
+    font-family: 'Brush ATF';
     font-style: normal;
     font-weight: normal;
-    src: url('{{ storage_path('fonts/PinyonScript-Regular.ttf') }}') format('truetype');
+    src: url('{{ storage_path('fonts/BrushATF.otf') }}') format('opentype');
 }
 
     @page {
@@ -50,18 +50,18 @@
     }
 
     /* Nama penerima */
-    .recipient-name {
-        position: absolute;
-        top: 90mm;
-        left: 65mm;
-        right: 20mm;
-        font-size: 38pt;        /* Pinyon Script agak kecil, naikin ukurannya */
-        font-weight: normal;    /* tidak ada bold */
-        font-family: 'Pinyon Script', cursive;
-        color: #38B6FF;
-        line-height: 1.2;
-        text-align: left;
-    }
+.recipient-name {
+    position: absolute;
+    top: 88mm;
+    left: 65mm;
+    right: 20mm;
+    font-size: 36pt;
+    font-weight: normal;
+    font-family: 'Brush ATF', cursive;
+    color: #38B6FF;
+    line-height: 1.2;
+    text-align: center;
+}
 
     /* Kalimat partisipasi */
     .atas-partisipasi {
