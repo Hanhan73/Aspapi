@@ -50,6 +50,8 @@
             @php
                 $infoRows = [
                     ['label' => 'NIK',            'value' => $member->nik ?? '—'],
+                    ['label' => 'Gelar Depan',    'value' => $member->front_title ?? '—'],
+                    ['label' => 'Gelar Belakang', 'value' => $member->back_title ?? '—'],
                     ['label' => 'Jenis Kelamin',   'value' => $member->gender === 'L' ? 'Laki-laki' : ($member->gender === 'P' ? 'Perempuan' : '—')],
                     ['label' => 'No. Telepon',     'value' => $member->phone ?? '—'],
                     ['label' => 'Provinsi',        'value' => $member->provinceModel?->name ?? $member->province ?? '—'],

@@ -33,6 +33,8 @@ class BiodataController extends Controller
  
         $validated = $request->validate([
             'full_name'      => 'required|string|max:255',
+            'front_title'  => 'nullable|string|max:50',
+            'back_title'   => 'nullable|string|max:100',
             'nik'            => 'required|digits:16',
             'birth_place'    => 'required|string|max:100',
             'birth_date'     => 'required|date|before:today',

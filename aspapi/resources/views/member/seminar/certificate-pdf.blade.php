@@ -110,7 +110,7 @@
     <p class="diberikan-label">Diberikan kepada :</p>
 
     {{-- Nama penerima --}}
-    <p class="recipient-name">{{ $memberData->full_name }}</p>
+    <p class="recipient-name">{{ $memberData->full_name_with_title }}</p>
 
     {{-- Kalimat partisipasi --}}
     <p class="atas-partisipasi">

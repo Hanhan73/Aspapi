@@ -12,7 +12,7 @@ class Member extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'member_number', 'full_name', 'email', 'phone', 'nik',
+        'user_id', 'member_number', 'full_name', 'front_title', 'back_title', 'email', 'phone', 'nik',
         'birth_place', 'birth_date', 'gender', 'last_education',
         'member_type', 'registration_type', 'claims_old_member', 'claimed_join_year',
         'biodata_status', 'biodata_reject_reason',
@@ -239,4 +239,12 @@ class Member extends Model
             && filled($this->province_id)
             && filled($this->city_id);
     }
+
+    public function getFullNameWithTitleAttribute(): string
+{
+    $name = ucwords(strtolower($this->full_name));
+    $front = $this->front_title ? $this->front_title . ' ' : '';
+    $back  = $this->back_title  ? ', ' . $this->back_title : '';
+    return $front . $name . $back;
+}
 }

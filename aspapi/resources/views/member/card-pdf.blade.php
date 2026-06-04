@@ -147,7 +147,7 @@
         </div>
         @endif
 
-        <div class="member-name">{{ strtoupper($member->full_name) }}</div>
+        <div class="member-name">{{ strtoupper($member->full_name_with_title) }}</div>
         <div class="member-nia">NIA. {{ $member->member_number }}</div>
         <div class="member-valid">Berlaku Sampai: {{ $member->active_until
             ? $member->active_until->translatedFormat('d F Y')

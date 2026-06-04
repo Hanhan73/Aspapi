@@ -107,18 +107,20 @@
                 {{-- Preview data (read-only) --}}
                 <div style="text-align:left;background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 1.5rem;">
                     @foreach ([
-                        'Nama Lengkap'  => $member?->full_name,
-                        'NIK'           => $member?->nik,
-                        'Tempat Lahir'  => $member?->birth_place,
-                        'Tanggal Lahir' => $member?->birth_date?->format('d M Y'),
-                        'No. Telepon'   => $member?->phone,
-                        'Email'         => $member?->email,
-                        'Jenis Kelamin' => $member?->gender === 'L' ? 'Laki-laki' : 'Perempuan',
-                        'Pendidikan'    => $member?->last_education_label,
-                        'Provinsi'      => $member?->provinceModel?->name,
-                        'Kota'          => $member?->cityModel?->name,
-                        'Pekerjaan'     => $member?->occupation,
-                        'Institusi'     => $member?->institution,
+                        'Nama Lengkap'   => $member?->full_name,
+                        'Gelar Depan'    => $member?->front_title ?: '—',
+                        'Gelar Belakang' => $member?->back_title ?: '—',
+                        'NIK'            => $member?->nik,
+                        'Tempat Lahir'   => $member?->birth_place,
+                        'Tanggal Lahir'  => $member?->birth_date?->format('d M Y'),
+                        'No. Telepon'    => $member?->phone,
+                        'Email'          => $member?->email,
+                        'Jenis Kelamin'  => $member?->gender === 'L' ? 'Laki-laki' : 'Perempuan',
+                        'Pendidikan'     => $member?->last_education_label,
+                        'Provinsi'       => $member?->provinceModel?->name,
+                        'Kota'           => $member?->cityModel?->name,
+                        'Pekerjaan'      => $member?->occupation,
+                        'Institusi'      => $member?->institution,
                     ] as $label => $val)
                     <div>
                         <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#B0CCDF;">{{ $label }}</p>
@@ -139,43 +141,40 @@
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
                 <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Data Pribadi</p>
 
+                {{-- Nama Lengkap --}}
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Nama Lengkap (tanpa gelar) *</label>
+                    <input type="text" name="full_name" value="{{ old('full_name', $member?->full_name) }}" required
+                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                    <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.3rem;">Isi nama tanpa gelar. Gelar diisi di field di bawah.</p>
+                </div>
+
+                {{-- Gelar --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
-                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Nama Lengkap *</label>
-                        <input type="text" name="full_name" value="{{ old('full_name', $member?->full_name) }}" required
-                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Gelar Depan</label>
+                        <input type="text" name="front_title" value="{{ old('front_title', $member?->front_title) }}"
+                            placeholder="Contoh: Dr., Prof., Ir."
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
                     </div>
+                    <div>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Gelar Belakang</label>
+                        <input type="text" name="back_title" value="{{ old('back_title', $member?->back_title) }}"
+                            placeholder="Contoh: M.Pd., S.E., Ph.D."
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                    </div>
+                </div>
+
+                {{-- sisa field lainnya tetap sama persis --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">NIK (16 digit) *</label>
                         <input type="text" name="nik" value="{{ old('nik', $member?->nik) }}" maxlength="16" required
-                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
-                    </div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-                    <div>
-                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tempat Lahir *</label>
-                        <input type="text" name="birth_place" value="{{ old('birth_place', $member?->birth_place) }}" required
-                               placeholder="Kota tempat lahir..."
-                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tanggal Lahir *</label>
-                        <input type="date" name="birth_date" value="{{ old('birth_date', $member?->birth_date?->format('Y-m-d')) }}" required
-                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
-                    </div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
-                    <div>
-                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">No. Telepon *</label>
-                        <input type="text" name="phone" value="{{ old('phone', $member?->phone) }}" required
-                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Jenis Kelamin *</label>
@@ -185,6 +184,31 @@
                             <option value="L" {{ old('gender', $member?->gender) === 'L' ? 'selected' : '' }}>Laki-laki</option>
                             <option value="P" {{ old('gender', $member?->gender) === 'P' ? 'selected' : '' }}>Perempuan</option>
                         </select>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <div>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tempat Lahir *</label>
+                        <input type="text" name="birth_place" value="{{ old('birth_place', $member?->birth_place) }}" required
+                            placeholder="Kota tempat lahir..."
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tanggal Lahir *</label>
+                        <input type="date" name="birth_date" value="{{ old('birth_date', $member?->birth_date?->format('Y-m-d')) }}" required
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <div>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">No. Telepon *</label>
+                        <input type="text" name="phone" value="{{ old('phone', $member?->phone) }}" required
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Pendidikan Terakhir *</label>
@@ -201,8 +225,8 @@
                 <div>
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Email *</label>
                     <input type="email" name="email" value="{{ old('email', $member?->email ?? $member?->user?->email) }}" required
-                           style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                           onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
                 </div>
             </div>
 
