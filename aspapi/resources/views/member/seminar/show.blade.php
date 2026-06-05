@@ -399,50 +399,138 @@
         </iframe>
     </div>
 
-    <div class="flex-shrink-0 flex items-center justify-between px-5 py-3"
-         style="background: #1B3A6B;">
-        <div class="flex items-center gap-3">
-            <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
-            </svg>
-            <div>
-                <p class="text-2xs text-white/50">Materi Seminar — hanya bisa dilihat, tidak bisa diunduh atau dicetak</p>
-                <p class="text-xs font-bold text-white" id="modal-material-label">{{ $enrollment->seminar->title }}</p>
+    {{-- Toolbar bawah --}}
+    <div class="flex-shrink-0 flex flex-col gap-0" style="background: #1B3A6B;">
+
+        {{-- List materi (hanya muncul kalau > 1 materi) --}}
+        @if ($materials->count() > 1)
+        <div class="flex items-center gap-2 px-5 py-2 border-b border-white/10 overflow-x-auto flex-shrink-0">
+            @foreach ($materials as $i => $material)
+            <button type="button"
+                    id="modal-tab-{{ $i }}"
+                    onclick="modalGoTo({{ $i }})"
+                    class="flex-shrink-0 text-2xs font-bold px-3 py-1.5 rounded-full border transition whitespace-nowrap"
+                    style="border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6);">
+                {{ $i + 1 }}. {{ Str::limit($material->label, 35) }}
+            </button>
+            @endforeach
+        </div>
+        @endif
+
+        {{-- Nav bar --}}
+        <div class="flex items-center justify-between px-5 py-3">
+            <div class="flex items-center gap-3">
+                <svg class="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
+                </svg>
+                <div>
+                    <p class="text-2xs text-white/50">Materi Seminar — hanya bisa dilihat, tidak bisa diunduh</p>
+                    <p class="text-xs font-bold text-white" id="modal-material-label"></p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+                {{-- Prev / Next (hanya muncul kalau > 1 materi) --}}
+                @if ($materials->count() > 1)
+                <button type="button" onclick="modalPrev()"
+                        id="modal-btn-prev"
+                        class="flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-lg transition"
+                        style="background: rgba(255,255,255,0.12); color: white;">
+                    ← Sebelumnya
+                </button>
+                <span class="text-xs text-white/40" id="modal-counter"></span>
+                <button type="button" onclick="modalNext()"
+                        id="modal-btn-next"
+                        class="flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-lg transition"
+                        style="background: rgba(255,255,255,0.12); color: white;">
+                    Berikutnya →
+                </button>
+                @endif
+
+                <button onclick="closeMaterialModal()"
+                        class="flex items-center gap-2 text-sm font-bold px-5 py-2 rounded-lg transition ml-2"
+                        style="background: rgba(255,255,255,0.15); color: white;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Tutup
+                </button>
             </div>
         </div>
-        <button onclick="closeMaterialModal()"
-                class="flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-lg transition"
-                style="background: rgba(255,255,255,0.15); color: white;"
-                onmouseover="this.style.background='rgba(255,255,255,0.25)'"
-                onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-            Tutup Materi
-        </button>
     </div>
 </div>
 
 @push('scripts')
 <script>
-    function openMaterialModal(embedUrl, label) {
-        document.getElementById('material-iframe').src        = embedUrl;
-        document.getElementById('modal-material-label').textContent = label || '';
-        document.getElementById('modal-material').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+const MODAL_MATERIALS = @json($materials->map(fn($m) => [
+    'label'    => $m->label,
+    'embedUrl' => $m->embed_url,
+])->values());
+
+let modalCurrentIdx = 0;
+
+function openMaterialModal(embedUrl, label) {
+    const idx = MODAL_MATERIALS.findIndex(m => m.embedUrl === embedUrl);
+    modalGoTo(idx >= 0 ? idx : 0);
+    document.getElementById('modal-material').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMaterialModal() {
+    document.getElementById('modal-material').classList.add('hidden');
+    document.getElementById('material-iframe').src = '';
+    document.body.style.overflow = '';
+}
+
+function modalGoTo(idx) {
+    if (idx < 0 || idx >= MODAL_MATERIALS.length) return;
+    modalCurrentIdx = idx;
+
+    const mat = MODAL_MATERIALS[idx];
+    document.getElementById('material-iframe').src = mat.embedUrl;
+    document.getElementById('modal-material-label').textContent = mat.label;
+
+    const counter = document.getElementById('modal-counter');
+    if (counter) counter.textContent = (idx + 1) + ' / ' + MODAL_MATERIALS.length;
+
+    const btnPrev = document.getElementById('modal-btn-prev');
+    const btnNext = document.getElementById('modal-btn-next');
+    if (btnPrev) {
+        btnPrev.style.opacity      = idx === 0 ? '0.3' : '1';
+        btnPrev.style.pointerEvents = idx === 0 ? 'none' : 'auto';
+    }
+    if (btnNext) {
+        btnNext.style.opacity      = idx === MODAL_MATERIALS.length - 1 ? '0.3' : '1';
+        btnNext.style.pointerEvents = idx === MODAL_MATERIALS.length - 1 ? 'none' : 'auto';
     }
 
-    function closeMaterialModal() {
-        document.getElementById('modal-material').classList.add('hidden');
-        document.getElementById('material-iframe').src = '';
-        document.body.style.overflow = '';
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeMaterialModal();
+    MODAL_MATERIALS.forEach(function (_, i) {
+        const tab = document.getElementById('modal-tab-' + i);
+        if (!tab) return;
+        if (i === idx) {
+            tab.style.background  = 'rgba(255,255,255,0.2)';
+            tab.style.color       = 'white';
+            tab.style.borderColor = 'rgba(255,255,255,0.5)';
+        } else {
+            tab.style.background  = 'transparent';
+            tab.style.color       = 'rgba(255,255,255,0.6)';
+            tab.style.borderColor = 'rgba(255,255,255,0.2)';
+        }
     });
+}
+
+function modalPrev() { modalGoTo(modalCurrentIdx - 1); }
+function modalNext() { modalGoTo(modalCurrentIdx + 1); }
+
+document.addEventListener('keydown', function (e) {
+    if (document.getElementById('modal-material').classList.contains('hidden')) return;
+    if (e.key === 'Escape')     closeMaterialModal();
+    if (e.key === 'ArrowRight') modalNext();
+    if (e.key === 'ArrowLeft')  modalPrev();
+});
 </script>
 @endpush
-
 @endsection
