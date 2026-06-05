@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Seminar;
+use App\Models\SeminarMaterial;
 use App\Models\SeminarQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -37,13 +38,15 @@ class SeminarAdminController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'         => 'required|string|max:255',
-            'category'      => 'nullable|string|max:100',
-            'description'   => 'nullable|string',
-            'thumbnail'     => 'nullable|image|max:2048',
-            'material_url'  => 'required|url',
-            'passing_grade' => 'required|integer|min:1|max:100',
-            'is_active'     => 'boolean',
+            'title'                  => 'required|string|max:255',
+            'category'               => 'nullable|string|max:100',
+            'description'            => 'nullable|string',
+            'thumbnail'              => 'nullable|image|max:2048',
+            'passing_grade'          => 'required|integer|min:1|max:100',
+            'is_active'              => 'boolean',
+            'materials'              => 'required|array|min:1',
+            'materials.*.label'      => 'required|string|max:255',
+            'materials.*.url'        => 'required|url|max:2048',
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -51,7 +54,17 @@ class SeminarAdminController extends Controller
                 ->store('seminars/thumbnails', 'public');
         }
         $data['is_active'] = $request->boolean('is_active', true);
-        Seminar::create($data);
+
+        $seminar = Seminar::create(\Arr::except($data, ['materials']));
+
+        foreach ($request->input('materials', []) as $i => $mat) {
+            SeminarMaterial::create([
+                'seminar_id' => $seminar->id,
+                'label'      => $mat['label'],
+                'url'        => $mat['url'],
+                'sort_order' => $i,
+            ]);
+        }
 
         return redirect()->route('admin.seminar.index')
             ->with('success', 'Seminar berhasil dibuat.');
@@ -59,19 +72,22 @@ class SeminarAdminController extends Controller
 
     public function edit(Seminar $seminar)
     {
+        $seminar->load('materials');
         return view('admin.seminar.edit', compact('seminar'));
     }
 
     public function update(Request $request, Seminar $seminar)
     {
         $data = $request->validate([
-            'title'         => 'required|string|max:255',
-            'category'      => 'nullable|string|max:100',
-            'description'   => 'nullable|string',
-            'thumbnail'     => 'nullable|image|max:2048',
-            'material_url'  => 'required|url',
-            'passing_grade' => 'required|integer|min:1|max:100',
-            'is_active'     => 'boolean',
+            'title'                  => 'required|string|max:255',
+            'category'               => 'nullable|string|max:100',
+            'description'            => 'nullable|string',
+            'thumbnail'              => 'nullable|image|max:2048',
+            'passing_grade'          => 'required|integer|min:1|max:100',
+            'is_active'              => 'boolean',
+            'materials'              => 'required|array|min:1',
+            'materials.*.label'      => 'required|string|max:255',
+            'materials.*.url'        => 'required|url|max:2048',
         ]);
 
         if ($request->hasFile('thumbnail')) {
@@ -80,7 +96,19 @@ class SeminarAdminController extends Controller
                 ->store('seminars/thumbnails', 'public');
         }
         $data['is_active'] = $request->boolean('is_active');
-        $seminar->update($data);
+
+        $seminar->update(\Arr::except($data, ['materials']));
+
+        // Sync materials: hapus semua lama, insert ulang sesuai urutan baru
+        $seminar->materials()->delete();
+        foreach ($request->input('materials', []) as $i => $mat) {
+            SeminarMaterial::create([
+                'seminar_id' => $seminar->id,
+                'label'      => $mat['label'],
+                'url'        => $mat['url'],
+                'sort_order' => $i,
+            ]);
+        }
 
         return redirect()->route('admin.seminar.index')
             ->with('success', 'Seminar berhasil diperbarui.');
@@ -164,14 +192,12 @@ class SeminarAdminController extends Controller
         $imported = 0;
         $lastSort = $seminar->questions()->max('sort_order') ?? 0;
 
-        // Baris 1=judul, 2=petunjuk, 3=header → data mulai baris 4
         $highestRow = $sheet->getHighestDataRow();
 
         for ($row = 4; $row <= $highestRow; $row++) {
             $no       = trim((string) $sheet->getCell("A{$row}")->getValue());
             $question = trim((string) $sheet->getCell("B{$row}")->getValue());
 
-            // Baris kosong → skip
             if ($question === '') continue;
 
             $optA    = trim((string) $sheet->getCell("C{$row}")->getValue());
@@ -181,7 +207,6 @@ class SeminarAdminController extends Controller
             $optE    = trim((string) $sheet->getCell("G{$row}")->getValue());
             $correct = strtolower(trim((string) $sheet->getCell("H{$row}")->getValue()));
 
-            // Validasi
             $rowErrors = [];
             if ($optA === '') $rowErrors[] = 'Opsi A kosong';
             if ($optB === '') $rowErrors[] = 'Opsi B kosong';

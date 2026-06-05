@@ -11,8 +11,9 @@ class Seminar extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'title', 'category', 'description', 'thumbnail', 'material_url',
+        'title', 'category', 'description', 'thumbnail',
         'passing_grade', 'is_active',
+        // material_url dihapus — pakai relasi materials()
     ];
 
     protected $casts = [
@@ -30,6 +31,11 @@ class Seminar extends Model
     public function enrollments()
     {
         return $this->hasMany(SeminarEnrollment::class);
+    }
+
+    public function materials()
+    {
+        return $this->hasMany(SeminarMaterial::class)->orderBy('sort_order');
     }
 
     // ── Accessors ──────────────────────────────────────────────────────────────

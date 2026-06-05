@@ -23,10 +23,7 @@
     @endif
 
     @php
-        $driveUrl = $enrollment->seminar->material_url;
-        preg_match('/\/d\/([a-zA-Z0-9_-]+)/', $driveUrl, $matches);
-        $fileId   = $matches[1] ?? null;
-        $embedUrl = $fileId ? "https://drive.google.com/file/d/{$fileId}/preview" : $driveUrl;
+        $materials = $enrollment->seminar->materials; // Collection, sudah ordered
     @endphp
 
     {{-- ── Header Seminar ── --}}
@@ -172,30 +169,55 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
                 <div>
                     <h2 class="font-bold text-navy text-sm">Materi Seminar</h2>
-                    <p class="text-xs text-neutral-400 mt-0.5">Baca materi berikut sebelum mengerjakan post-test.</p>
+                    <p class="text-xs text-neutral-400 mt-0.5">
+                        Baca semua materi berikut sebelum mengerjakan post-test.
+                        ({{ $materials->count() }} {{ $materials->count() === 1 ? 'materi' : 'materi' }})
+                    </p>
                 </div>
-                <div class="flex items-center gap-3">
-                    @if ($preTest)
-                    <span class="text-2xs px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full font-bold">
-                        Pre-test: {{ $preTest->score }}
-                    </span>
-                    @endif
-                    {{-- Buka fullscreen --}}
-                    <button onclick="openMaterialModal()"
-                            class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 transition">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                        </svg>
-                        Fullscreen
-                    </button>
-                </div>
+                @if ($preTest)
+                <span class="text-2xs px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full font-bold flex-shrink-0">
+                    Pre-test: {{ $preTest->score }}
+                </span>
+                @endif
             </div>
 
-            {{-- Iframe embed --}}
-            <div style="height: 560px;">
-                <iframe src="{{ $embedUrl }}" width="100%" height="100%"
-                        allow="autoplay" style="border:none; display:block;"></iframe>
+            {{-- Daftar materi --}}
+            <div class="divide-y divide-neutral-100" x-data="{ active: 0 }">
+                @foreach ($materials as $i => $material)
+                @php $embedUrl = $material->embed_url; @endphp
+                <div>
+                    {{-- Tab header --}}
+                    <button type="button"
+                            @click="active = {{ $i }}"
+                            class="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-neutral-50 transition"
+                            :class="active === {{ $i }} ? 'bg-primary/5' : ''">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                                    bg-primary/10 text-primary">
+                            {{ $i + 1 }}
+                        </div>
+                        <span class="text-sm font-semibold text-navy flex-1 text-left">{{ $material->label }}</span>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            {{-- Tombol fullscreen per materi --}}
+                            <button type="button"
+                                    @click.stop="openMaterialModal('{{ addslashes($embedUrl) }}', '{{ addslashes($material->label) }}')"
+                                    class="text-2xs font-bold px-2 py-1 border border-neutral-200 rounded text-neutral-500 hover:bg-white transition">
+                                Fullscreen
+                            </button>
+                            <svg class="w-4 h-4 text-neutral-400 transition-transform"
+                                 :class="active === {{ $i }} ? 'rotate-180' : ''"
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </button>
+
+                    {{-- Iframe --}}
+                    <div x-show="active === {{ $i }}" style="height: 520px;">
+                        <iframe src="{{ $embedUrl }}" width="100%" height="100%"
+                                allow="autoplay" style="border:none; display:block;"></iframe>
+                    </div>
+                </div>
+                @endforeach
             </div>
 
             {{-- Bottom bar --}}
@@ -221,7 +243,6 @@
     @elseif (! $enrollment->isCompleted())
         <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden">
             <div class="p-6">
-                {{-- Info post-test --}}
                 <div class="flex items-start gap-4 mb-5">
                     <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
                         <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,8 +273,10 @@
                 </div>
                 @endif
 
-                {{-- Tombol baca ulang materi (accordion) --}}
-                <div class="mb-5 border border-neutral-200 rounded-xl overflow-hidden" x-data="{ open: false }">
+                {{-- Accordion baca ulang materi --}}
+                @if ($materials->isNotEmpty())
+                <div class="mb-5 border border-neutral-200 rounded-xl overflow-hidden"
+                     x-data="{ open: false, activeTab: 0 }">
                     <button @click="open = !open"
                             class="w-full flex items-center justify-between px-4 py-3 bg-neutral-50 hover:bg-neutral-100 transition text-left">
                         <div class="flex items-center gap-2">
@@ -261,24 +284,49 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
                             </svg>
-                            <span class="text-xs font-bold text-neutral-600">Baca ulang materi sebelum post-test</span>
+                            <span class="text-xs font-bold text-neutral-600">
+                                Baca ulang materi ({{ $materials->count() }} materi)
+                            </span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button @click.stop="openMaterialModal()"
-                                    class="text-2xs font-bold px-2 py-1 border border-neutral-300 rounded text-neutral-500 hover:bg-white transition">
+                        <svg class="w-4 h-4 text-neutral-400 transition-transform" :class="open ? 'rotate-180' : ''"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div x-show="open" x-transition>
+                        {{-- Tab selector --}}
+                        @if ($materials->count() > 1)
+                        <div class="flex gap-1 px-4 py-2 bg-neutral-50 border-t border-neutral-100 flex-wrap">
+                            @foreach ($materials as $i => $material)
+                            <button type="button"
+                                    @click="activeTab = {{ $i }}"
+                                    class="text-2xs font-bold px-3 py-1.5 rounded-full border transition"
+                                    :class="activeTab === {{ $i }}
+                                        ? 'bg-primary text-white border-primary'
+                                        : 'border-neutral-200 text-neutral-500 hover:border-primary hover:text-primary'">
+                                {{ $i + 1 }}. {{ Str::limit($material->label, 30) }}
+                            </button>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        {{-- Iframe per tab --}}
+                        @foreach ($materials as $i => $material)
+                        <div x-show="activeTab === {{ $i }}"
+                             class="relative" style="height: 460px;">
+                            <button type="button"
+                                    @click.stop="openMaterialModal('{{ addslashes($material->embed_url) }}', '{{ addslashes($material->label) }}')"
+                                    class="absolute top-2 right-2 z-10 text-2xs font-bold px-2 py-1 bg-white border border-neutral-200 rounded shadow text-neutral-600 hover:bg-neutral-50 transition">
                                 Fullscreen
                             </button>
-                            <svg class="w-4 h-4 text-neutral-400 transition-transform" :class="open ? 'rotate-180' : ''"
-                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <iframe src="{{ $material->embed_url }}" width="100%" height="100%"
+                                    allow="autoplay" style="border:none; display:block;"></iframe>
                         </div>
-                    </button>
-                    <div x-show="open" x-transition style="height: 500px;">
-                        <iframe src="{{ $embedUrl }}" width="100%" height="100%"
-                                allow="autoplay" style="border:none; display:block;"></iframe>
+                        @endforeach
                     </div>
                 </div>
+                @endif
 
                 <a href="{{ route('member.seminar.posttest.start', $enrollment) }}"
                    class="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition">
@@ -308,18 +356,19 @@
                 <p class="text-xs text-neutral-400 mb-6">
                     No. Sertifikat: <span class="font-mono font-semibold text-navy">{{ $enrollment->certificate->certificate_number }}</span>
                 </p>
-                <div class="flex items-center justify-center gap-3">
+                <div class="flex items-center justify-center gap-3 flex-wrap">
                     <a href="{{ route('member.seminar.certificate', $enrollment->certificate) }}"
                        target="_blank"
-                       class="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 text-black text-sm font-bold rounded-lg hover:bg-green-700 transition">
+                       class="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                         Unduh Sertifikat
                     </a>
-                    {{-- Baca ulang materi tetap tersedia --}}
-                    <button onclick="openMaterialModal()"
+                    {{-- Baca ulang materi --}}
+                    @if ($materials->isNotEmpty())
+                    <button onclick="openMaterialModal('{{ addslashes($materials->first()->embed_url) }}', '{{ addslashes($materials->first()->label) }}')"
                             class="inline-flex items-center gap-2 px-6 py-2.5 border border-neutral-200 text-neutral-600 text-sm font-bold rounded-lg hover:bg-neutral-50 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -327,6 +376,7 @@
                         </svg>
                         Baca Materi Lagi
                     </button>
+                    @endif
                 </div>
             @endif
         </div>
@@ -339,11 +389,9 @@
      class="hidden fixed inset-0 z-50 flex flex-col"
      style="background: rgba(0,0,0,0.92);">
 
-    {{-- Iframe fullscreen — ambil semua ruang --}}
     <div class="flex-1 overflow-hidden">
         <iframe id="material-iframe"
                 src=""
-                data-src="{{ $embedUrl }}"
                 width="100%"
                 height="100%"
                 allow="autoplay"
@@ -351,7 +399,6 @@
         </iframe>
     </div>
 
-    {{-- Toolbar di BAWAH — selalu terlihat, tidak tertutup bar notifikasi --}}
     <div class="flex-shrink-0 flex items-center justify-between px-5 py-3"
          style="background: #1B3A6B;">
         <div class="flex items-center gap-3">
@@ -361,7 +408,7 @@
             </svg>
             <div>
                 <p class="text-2xs text-white/50">Materi Seminar — hanya bisa dilihat, tidak bisa diunduh atau dicetak</p>
-                <p class="text-xs font-bold text-white">{{ $enrollment->seminar->title }}</p>
+                <p class="text-xs font-bold text-white" id="modal-material-label">{{ $enrollment->seminar->title }}</p>
             </div>
         </div>
         <button onclick="closeMaterialModal()"
@@ -379,19 +426,16 @@
 
 @push('scripts')
 <script>
-    function openMaterialModal() {
-        const modal  = document.getElementById('modal-material');
-        const iframe = document.getElementById('material-iframe');
-        // Lazy load iframe src saat modal dibuka
-        if (! iframe.src || iframe.src === window.location.href) {
-            iframe.src = iframe.dataset.src;
-        }
-        modal.classList.remove('hidden');
+    function openMaterialModal(embedUrl, label) {
+        document.getElementById('material-iframe').src        = embedUrl;
+        document.getElementById('modal-material-label').textContent = label || '';
+        document.getElementById('modal-material').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
 
     function closeMaterialModal() {
         document.getElementById('modal-material').classList.add('hidden');
+        document.getElementById('material-iframe').src = '';
         document.body.style.overflow = '';
     }
 

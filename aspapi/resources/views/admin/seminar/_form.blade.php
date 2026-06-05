@@ -61,19 +61,30 @@
                       placeholder="Deskripsi singkat tentang seminar ini...">{{ old('description', $seminar?->description) }}</textarea>
         </div>
 
-        {{-- Link Materi Google Drive --}}
+        {{-- ── Materi (repeater) ── --}}
         <div class="bg-white border border-neutral-200 rounded-xl p-5">
-            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-                Link Materi Google Drive <span class="text-red-500">*</span>
-            </label>
-            <input type="url" name="material_url"
-                   value="{{ old('material_url', $seminar?->material_url) }}"
-                   required
-                   class="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-primary/30"
-                   placeholder="https://drive.google.com/file/d/...">
-            <p class="text-2xs text-neutral-400 mt-2">
-                Gunakan link share Google Drive (format: <code class="bg-neutral-100 px-1 rounded">drive.google.com/file/d/ID/view</code>).
-                Pastikan file bisa diakses oleh siapapun yang memiliki link.
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                        Materi Seminar <span class="text-red-500">*</span>
+                    </label>
+                    <p class="text-2xs text-neutral-400 mt-0.5">
+                        Tambahkan satu atau lebih materi. Setiap materi butuh judul dan link Google Drive.
+                    </p>
+                </div>
+                <button type="button" onclick="addMaterial()"
+                        class="flex-shrink-0 text-xs font-bold px-3 py-1.5 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition">
+                    + Tambah Materi
+                </button>
+            </div>
+
+            <div id="materials-list" class="space-y-3">
+                {{-- Diisi JS saat load, atau dari old()/existing data --}}
+            </div>
+
+            <p class="text-2xs text-neutral-400 mt-3">
+                Format link: <code class="bg-neutral-100 px-1 rounded">drive.google.com/file/d/ID/view</code> —
+                pastikan file dibagikan ke "Siapa saja yang memiliki link".
             </p>
         </div>
 
@@ -129,7 +140,6 @@
                 Thumbnail
             </label>
 
-            {{-- Preview --}}
             <div id="thumbnail-preview"
                  class="w-full h-40 rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200 mb-3 flex items-center justify-center">
                 @if ($seminar?->thumbnail)
@@ -164,7 +174,104 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
+// ── Data awal dari server (untuk edit) ──────────────────────────────────────
+@php
+    // old() dulu, fallback ke data seminar yang ada
+    $initialMaterials = old('materials');
+    if (! $initialMaterials && $seminar?->relationLoaded('materials')) {
+        $initialMaterials = $seminar->materials->map(fn($m) => [
+            'label' => $m->label,
+            'url'   => $m->url,
+        ])->toArray();
+    }
+    if (! $initialMaterials) {
+        $initialMaterials = [['label' => '', 'url' => '']]; // minimal 1 baris kosong untuk create
+    }
+@endphp
+
+const INITIAL_MATERIALS = @json($initialMaterials);
+
+// ── Render saat halaman load ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    INITIAL_MATERIALS.forEach(function (mat) {
+        addMaterial(mat.label, mat.url);
+    });
+});
+
+// ── Tambah baris materi baru ────────────────────────────────────────────────
+function addMaterial(label, url) {
+    label = label || '';
+    url   = url   || '';
+
+    const list  = document.getElementById('materials-list');
+    const index = list.children.length;
+
+    const row = document.createElement('div');
+    row.className = 'flex gap-2 items-start';
+    row.innerHTML = `
+        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input type="text"
+                   name="materials[${index}][label]"
+                   value="${escHtml(label)}"
+                   placeholder="Judul materi, misal: Modul 1 — Pengantar"
+                   required
+                   class="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <input type="url"
+                   name="materials[${index}][url]"
+                   value="${escHtml(url)}"
+                   placeholder="https://drive.google.com/file/d/..."
+                   required
+                   class="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-primary/30">
+        </div>
+        <button type="button"
+                onclick="removeMaterial(this)"
+                class="flex-shrink-0 w-9 h-9 mt-0.5 flex items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-500 hover:bg-red-100 transition"
+                title="Hapus materi">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+
+    list.appendChild(row);
+    reindexMaterials();
+    updateRemoveButtons();
+}
+
+// ── Hapus baris ─────────────────────────────────────────────────────────────
+function removeMaterial(btn) {
+    const list = document.getElementById('materials-list');
+    if (list.children.length <= 1) return; // minimal 1 baris
+    btn.closest('.flex.gap-2').remove();
+    reindexMaterials();
+    updateRemoveButtons();
+}
+
+// ── Re-index name attribute setelah add/remove ──────────────────────────────
+function reindexMaterials() {
+    const list = document.getElementById('materials-list');
+    Array.from(list.children).forEach(function (row, i) {
+        row.querySelectorAll('input[name]').forEach(function (input) {
+            input.name = input.name.replace(/materials\[\d+\]/, `materials[${i}]`);
+        });
+    });
+}
+
+// ── Nonaktifkan tombol hapus jika hanya 1 baris ──────────────────────────────
+function updateRemoveButtons() {
+    const list    = document.getElementById('materials-list');
+    const btns    = list.querySelectorAll('button[onclick="removeMaterial(this)"]');
+    const disable = list.children.length <= 1;
+    btns.forEach(function (btn) {
+        btn.disabled = disable;
+        btn.style.opacity = disable ? '0.3' : '1';
+        btn.style.cursor  = disable ? 'not-allowed' : 'pointer';
+    });
+}
+
+// ── Thumbnail preview ────────────────────────────────────────────────────────
 function previewSeminarThumb(input) {
     if (!input.files || !input.files[0]) return;
     const reader = new FileReader();
@@ -174,4 +281,14 @@ function previewSeminarThumb(input) {
     };
     reader.readAsDataURL(input.files[0]);
 }
+
+// ── Escape HTML helper ───────────────────────────────────────────────────────
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
 </script>
+@endpush
