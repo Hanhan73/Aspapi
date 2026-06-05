@@ -425,7 +425,7 @@
                           d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
                 </svg>
                 <div>
-                    <p class="text-2xs text-white/50">Materi Seminar — hanya bisa dilihat, tidak bisa diunduh</p>
+                    <p class="text-2xs text-white">Materi Seminar — hanya bisa dilihat, tidak bisa diunduh</p>
                     <p class="text-xs font-bold text-white" id="modal-material-label"></p>
                 </div>
             </div>
