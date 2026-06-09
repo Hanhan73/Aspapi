@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Log;
 class SendCardExpiryReminders extends Command
 {
     protected $signature   = 'aspapi:send-card-expiry-reminders';
-    protected $description = 'Kirim reminder email ke anggota yang kartunya akan kadaluarsa (H-30, H-7, H-1)';
+    protected $description = 'Kirim reminder email ke anggota yang kartunya akan kadaluarsa (H-7, H-1)';
 
     /**
      * Hari-hari sebelum kadaluarsa yang memicu reminder.
      */
-    private array $triggerDays = [30, 7, 1];
+    private array $triggerDays = [7, 1];
 
     public function handle(): int
     {

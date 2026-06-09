@@ -48,7 +48,7 @@
                 font-family:Arial,sans-serif;font-size:9px;font-weight:900;
                 color:#0D2240;letter-spacing:0.02em;line-height:1.2;
                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-        {{ strtoupper($member->full_name) }}
+        {{ strtoupper($member->full_name_with_title) }}
     </div>
  
     {{-- NIA --}}
