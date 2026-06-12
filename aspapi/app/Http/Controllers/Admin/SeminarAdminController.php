@@ -174,7 +174,7 @@ class SeminarAdminController extends Controller
 
     public function downloadTemplate()
     {
-        $path = public_path('templates\template-import-soal-aspapi.xlsx');
+        $path = public_path('templates/template-import-soal-aspapi.xlsx');
         return response()->download($path, 'template-import-soal-aspapi.xlsx');
     }
 
