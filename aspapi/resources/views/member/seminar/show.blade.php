@@ -348,7 +348,7 @@
                           d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <h2 class="font-bold text-navy text-xl mb-1">Selamat, anda lulus!</h2>
+            <h2 class="font-bold text-navy text-xl mb-1">Selamat, Anda lulus!</h2>
             @if ($enrollment->certificate)
                 <p class="text-sm text-neutral-500 mb-1">
                     Skor akhir: <strong class="text-green-600 text-base">{{ $postTest?->score ?? $enrollment->certificate->score }}</strong>

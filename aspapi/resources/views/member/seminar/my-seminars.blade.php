@@ -8,7 +8,7 @@
     <div class="mb-6 flex items-start justify-between">
         <div>
             <h1 class="text-xl font-extrabold text-navy">Seminar Saya</h1>
-            <p class="text-sm text-neutral-500 mt-1">Riwayat seminar yang sudah anda ikuti.</p>
+            <p class="text-sm text-neutral-500 mt-1">Riwayat seminar yang sudah Anda ikuti.</p>
         </div>
         @if ($isActive)
         <a href="{{ route('member.seminar.index') }}"
