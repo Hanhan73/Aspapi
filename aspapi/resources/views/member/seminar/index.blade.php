@@ -282,9 +282,24 @@
      onclick="if(event.target===this) closeEnrollModal()">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         <div class="p-6">
-            <h3 class="font-extrabold text-navy text-base mb-1" id="modal-title"></h3>
-            <p class="text-xs text-neutral-500 line-clamp-2 mb-5" id="modal-desc"></p>
 
+            {{-- Judul --}}
+            <h3 class="font-extrabold text-navy text-base mb-1" id="modal-title"></h3>
+
+            {{-- Deskripsi collapsible --}}
+            <div class="mb-5">
+                <p id="modal-desc"
+                   class="text-xs text-neutral-500 leading-relaxed"
+                   style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"></p>
+                <button type="button"
+                        id="modal-desc-toggle"
+                        onclick="toggleModalDesc()"
+                        style="display:none;color:#2A7FC1;background:none;border:none;cursor:pointer;padding:0;font-size:0.65rem;font-weight:700;line-height:1.4;margin-top:4px;">
+                    ↓ Selengkapnya
+                </button>
+            </div>
+
+            {{-- Peringatan kuota --}}
             <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-100 rounded-lg mb-5">
                 <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -324,15 +339,53 @@
 
 @push('scripts')
 <script>
-    let activeFormId = null;
+    let activeFormId  = null;
+    let modalDescOpen = false;
 
     function openEnrollModal(btn) {
         const seminarId = btn.dataset.seminarId;
         activeFormId = 'enroll-form-' + seminarId;
+
+        const descEl = document.getElementById('modal-desc');
+        const toggle = document.getElementById('modal-desc-toggle');
+
+        // Isi konten
         document.getElementById('modal-title').textContent = btn.dataset.seminarTitle;
-        document.getElementById('modal-desc').textContent  = btn.dataset.seminarDesc;
+        descEl.textContent = btn.dataset.seminarDesc;
+
+        // Reset state collapse
+        modalDescOpen                = false;
+        descEl.style.webkitLineClamp = '2';
+        descEl.style.overflow        = 'hidden';
+        toggle.textContent           = '↓ Selengkapnya';
+        toggle.style.display         = 'none';
+
+        // Tampilkan modal
         document.getElementById('modal-enroll').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+
+        // Cek apakah teks terpotong setelah render
+        requestAnimationFrame(function() {
+            if (descEl.scrollHeight > descEl.clientHeight + 4) {
+                toggle.style.display = 'block';
+            }
+        });
+    }
+
+    function toggleModalDesc() {
+        const descEl = document.getElementById('modal-desc');
+        const toggle = document.getElementById('modal-desc-toggle');
+        modalDescOpen = !modalDescOpen;
+
+        if (modalDescOpen) {
+            descEl.style.webkitLineClamp = 'unset';
+            descEl.style.overflow        = 'visible';
+            toggle.textContent           = '↑ Tutup';
+        } else {
+            descEl.style.webkitLineClamp = '2';
+            descEl.style.overflow        = 'hidden';
+            toggle.textContent           = '↓ Selengkapnya';
+        }
     }
 
     function closeEnrollModal() {
@@ -343,7 +396,7 @@
 
     function submitEnroll() {
         if (!activeFormId) return;
-        const btn = document.getElementById('modal-confirm-btn');
+        const btn    = document.getElementById('modal-confirm-btn');
         btn.disabled    = true;
         btn.textContent = 'Mendaftar...';
         document.getElementById(activeFormId).submit();
