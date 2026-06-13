@@ -140,7 +140,7 @@
                         </div>
                     @endif
 
-                    {{-- Badge kategori di atas thumbnail --}}
+                    {{-- Badge kategori --}}
                     @if($seminar->category)
                     <div style="position:absolute;top:10px;left:10px;">
                         <span style="background:rgba(26,42,58,0.75);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);">
@@ -149,7 +149,7 @@
                     </div>
                     @endif
 
-                    {{-- Badge status enrolled --}}
+                    {{-- Badge terdaftar --}}
                     @if($enrolled)
                     <div style="position:absolute;top:10px;right:10px;">
                         <span style="background:#2A7FC1;color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:3px 8px;border-radius:4px;">
@@ -166,12 +166,10 @@
                     {{-- Deskripsi collapsible --}}
                     @if($seminar->description)
                     <div x-data="{ open: false }" class="mb-3 flex-1">
-                        {{-- Collapsed: 2 baris --}}
                         <p x-show="!open"
                            class="text-xs text-neutral-500 leading-relaxed line-clamp-2">
                             {{ $seminar->description }}
                         </p>
-                        {{-- Expanded: full --}}
                         <p x-show="open"
                            style="display:none;"
                            class="text-xs text-neutral-500 leading-relaxed">
@@ -215,7 +213,10 @@
                         </a>
                     @elseif ($canEnroll)
                         <button type="button"
-                                onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}', '{{ addslashes($seminar->description ?? '') }}')"
+                                data-seminar-id="{{ $seminar->id }}"
+                                data-seminar-title="{{ $seminar->title }}"
+                                data-seminar-desc="{{ $seminar->description ?? '' }}"
+                                onclick="openEnrollModal(this)"
                                 class="w-full text-xs font-bold py-2 px-4 rounded-lg bg-primary text-white hover:bg-primary/90 transition">
                             Daftar Seminar
                         </button>
@@ -325,10 +326,11 @@
 <script>
     let activeFormId = null;
 
-    function openEnrollModal(seminarId, title, desc) {
+    function openEnrollModal(btn) {
+        const seminarId = btn.dataset.seminarId;
         activeFormId = 'enroll-form-' + seminarId;
-        document.getElementById('modal-title').textContent = title;
-        document.getElementById('modal-desc').textContent  = desc;
+        document.getElementById('modal-title').textContent = btn.dataset.seminarTitle;
+        document.getElementById('modal-desc').textContent  = btn.dataset.seminarDesc;
         document.getElementById('modal-enroll').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
