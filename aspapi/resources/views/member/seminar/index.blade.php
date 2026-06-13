@@ -126,7 +126,7 @@
             <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
 
                 {{-- Thumbnail --}}
-                <div style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;background:#EEF4FB;flex-shrink:0;">
+                <div style="position:relative;width:100%;padding-top:100%;overflow:hidden;background:#EEF4FB;flex-shrink:0;">
                     @if($seminar->thumbnail)
                         <img src="{{ Storage::url($seminar->thumbnail) }}"
                              style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;"
