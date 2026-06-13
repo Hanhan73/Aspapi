@@ -8,7 +8,7 @@
     <div class="mb-6 flex items-start justify-between">
         <div>
             <h1 class="text-xl font-extrabold text-navy">Seminar Saya</h1>
-            <p class="text-sm text-neutral-500 mt-1">Riwayat seminar yang sudah kamu ikuti.</p>
+            <p class="text-sm text-neutral-500 mt-1">Riwayat seminar yang sudah anda ikuti.</p>
         </div>
         @if ($isActive)
         <a href="{{ route('member.seminar.index') }}"
@@ -30,7 +30,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                       d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
-            <p class="text-sm font-medium text-neutral-500">Kamu belum mengambil seminar apapun.</p>
+            <p class="text-sm font-medium text-neutral-500">Anda belum mengambil seminar apapun.</p>
             @if ($isActive)
                 <a href="{{ route('member.seminar.index') }}"
                    class="mt-3 inline-block text-xs font-bold text-primary hover:underline">

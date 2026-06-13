@@ -308,8 +308,8 @@
                 <div>
                     <p class="text-xs font-bold text-amber-700 mb-0.5">Perhatikan sebelum mendaftar</p>
                     <p class="text-xs text-amber-600">
-                        Seminar yang sudah dipilih akan mengurangi kuota kamu.
-                        Dalam satu periode keanggotaan, kamu hanya bisa memilih
+                        Seminar yang sudah dipilih akan mengurangi kuota anda.
+                        Dalam satu periode keanggotaan, anda hanya bisa memilih
                         <strong>maksimal 3 seminar</strong>.
                         Pilihan tidak dapat dibatalkan.
                     </p>
@@ -317,7 +317,7 @@
             </div>
 
             <p class="text-sm text-neutral-600 mb-5">
-                Apakah kamu yakin ingin mendaftar seminar ini?
+                Apakah anda yakin ingin mendaftar seminar ini?
             </p>
 
             <div class="flex gap-3">
