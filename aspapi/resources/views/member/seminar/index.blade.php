@@ -41,7 +41,6 @@
     @endphp
 
     <div class="flex flex-col sm:flex-row gap-3 mb-5">
-        {{-- Search --}}
         <form method="GET" action="{{ route('member.seminar.index') }}" class="flex gap-2 flex-1">
             @if ($activeCategory)
                 <input type="hidden" name="category" value="{{ $activeCategory }}">
@@ -122,30 +121,74 @@
                 $enrollmentId = $enrolledMap[$seminar->id] ?? null;
                 $enrolled     = $enrollmentId !== null;
                 $canEnroll    = $isActive && ! $enrolled && $remainingQuota > 0;
+                $isLong       = strlen($seminar->description ?? '') > 120;
             @endphp
             <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
 
                 {{-- Thumbnail --}}
-                <div class="h-40 bg-neutral-100 overflow-hidden relative flex-shrink-0">
-                    <img src="{{ $seminar->thumbnail_url }}"
-                         alt="{{ $seminar->title }}"
-                         class="w-full h-full object-contain p-2">
-                    @if ($seminar->category)
-                    <span class="absolute top-2.5 left-2.5 text-2xs font-bold px-2.5 py-1 rounded-full bg-black/50 text-white backdrop-blur-sm">
-                        {{ $seminar->category }}
-                    </span>
+                <div style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;background:#EEF4FB;flex-shrink:0;">
+                    @if($seminar->thumbnail)
+                        <img src="{{ Storage::url($seminar->thumbnail) }}"
+                             style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;"
+                             alt="{{ $seminar->title }}">
+                    @else
+                        <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+                            <svg style="width:40px;height:40px;color:#B0CCDF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
                     @endif
-                    @if ($enrolled)
-                    <span class="absolute top-2.5 right-2.5 text-2xs font-bold px-2.5 py-1 rounded-full bg-primary text-white">
-                        Terdaftar
-                    </span>
+
+                    {{-- Badge kategori di atas thumbnail --}}
+                    @if($seminar->category)
+                    <div style="position:absolute;top:10px;left:10px;">
+                        <span style="background:rgba(26,42,58,0.75);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);">
+                            {{ $seminar->category }}
+                        </span>
+                    </div>
+                    @endif
+
+                    {{-- Badge status enrolled --}}
+                    @if($enrolled)
+                    <div style="position:absolute;top:10px;right:10px;">
+                        <span style="background:#2A7FC1;color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:3px 8px;border-radius:4px;">
+                            Terdaftar
+                        </span>
+                    </div>
                     @endif
                 </div>
 
                 {{-- Konten --}}
                 <div class="p-4 flex flex-col flex-1">
                     <h3 class="font-bold text-navy text-sm leading-snug mb-1.5">{{ $seminar->title }}</h3>
-                    <p class="text-xs text-neutral-500 line-clamp-2 flex-1 mb-3">{{ $seminar->description }}</p>
+
+                    {{-- Deskripsi collapsible --}}
+                    @if($seminar->description)
+                    <div x-data="{ open: false }" class="mb-3 flex-1">
+                        {{-- Collapsed: 2 baris --}}
+                        <p x-show="!open"
+                           class="text-xs text-neutral-500 leading-relaxed line-clamp-2">
+                            {{ $seminar->description }}
+                        </p>
+                        {{-- Expanded: full --}}
+                        <p x-show="open"
+                           style="display:none;"
+                           class="text-xs text-neutral-500 leading-relaxed">
+                            {{ $seminar->description }}
+                        </p>
+                        @if($isLong)
+                        <button @click="open = !open"
+                                type="button"
+                                class="mt-1 text-2xs font-bold"
+                                style="color:#2A7FC1;background:none;border:none;cursor:pointer;padding:0;line-height:1.4;">
+                            <span x-text="open ? '↑ Tutup' : '↓ Selengkapnya'">↓ Selengkapnya</span>
+                        </button>
+                        @endif
+                    </div>
+                    @else
+                    <div class="flex-1 mb-3"></div>
+                    @endif
 
                     <div class="flex items-center gap-3 pb-3 border-b border-neutral-100 mb-3">
                         <span class="flex items-center gap-1 text-2xs text-neutral-400">
@@ -172,11 +215,10 @@
                         </a>
                     @elseif ($canEnroll)
                         <button type="button"
-onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}', '{{ addslashes($seminar->description ?? '') }}')"
+                                onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}', '{{ addslashes($seminar->description ?? '') }}')"
                                 class="w-full text-xs font-bold py-2 px-4 rounded-lg bg-primary text-white hover:bg-primary/90 transition">
                             Daftar Seminar
                         </button>
-                        {{-- Hidden form untuk submit --}}
                         <form id="enroll-form-{{ $seminar->id }}"
                               method="POST"
                               action="{{ route('member.seminar.enroll', $seminar) }}"
@@ -200,7 +242,6 @@ onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}'
                 Total {{ $seminars->total() }} seminar
             </p>
             <div class="flex items-center gap-1">
-                {{-- Prev --}}
                 @if ($seminars->onFirstPage())
                     <span class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-300 cursor-not-allowed">← Prev</span>
                 @else
@@ -208,7 +249,6 @@ onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}'
                        class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-500 hover:bg-neutral-50 transition">← Prev</a>
                 @endif
 
-                {{-- Nomor halaman --}}
                 @foreach ($seminars->getUrlRange(1, $seminars->lastPage()) as $page => $url)
                     @if ($page == $seminars->currentPage())
                         <span class="px-3 py-1.5 text-xs rounded-lg bg-primary text-white font-bold">{{ $page }}</span>
@@ -223,7 +263,6 @@ onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}'
                     @endif
                 @endforeach
 
-                {{-- Next --}}
                 @if ($seminars->hasMorePages())
                     <a href="{{ $seminars->nextPageUrl() }}&{{ http_build_query(request()->except('page')) }}"
                        class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-500 hover:bg-neutral-50 transition">Next →</a>
@@ -241,14 +280,10 @@ onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}'
      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
      onclick="if(event.target===this) closeEnrollModal()">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-
-
         <div class="p-6">
-            {{-- Judul --}}
             <h3 class="font-extrabold text-navy text-base mb-1" id="modal-title"></h3>
             <p class="text-xs text-neutral-500 line-clamp-2 mb-5" id="modal-desc"></p>
 
-            {{-- Peringatan kuota --}}
             <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-100 rounded-lg mb-5">
                 <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -292,8 +327,8 @@ onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}'
 
     function openEnrollModal(seminarId, title, desc) {
         activeFormId = 'enroll-form-' + seminarId;
-        document.getElementById('modal-title').textContent    = title;
-        document.getElementById('modal-desc').textContent     = desc;
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-desc').textContent  = desc;
         document.getElementById('modal-enroll').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
@@ -312,7 +347,6 @@ onclick="openEnrollModal({{ $seminar->id }}, '{{ addslashes($seminar->title) }}'
         document.getElementById(activeFormId).submit();
     }
 
-    // Tutup modal dengan tombol Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeEnrollModal();
     });
