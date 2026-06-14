@@ -50,6 +50,20 @@
             <option value="rejected" {{ request('biodata') === 'rejected' ? 'selected' : '' }}>Biodata Ditolak</option>
         </select>
 
+        <select name="region_id" style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;">
+            <option value="">Semua Daerah</option>
+            <option value="none" {{ request('region_id') === 'none' ? 'selected' : '' }}>— Tanpa Daerah —</option>
+            @foreach ($regions->groupBy('province') as $provinceName => $regionGroup)
+                <optgroup label="{{ $provinceName }}">
+                    @foreach ($regionGroup as $region)
+                        <option value="{{ $region->id }}" {{ request('region_id') == $region->id ? 'selected' : '' }}>
+                            {{ $region->name }}
+                        </option>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </select>
+
         <button type="submit"
                 style="padding:0.5rem 1rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
             Filter

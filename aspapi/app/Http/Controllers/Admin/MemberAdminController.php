@@ -17,16 +17,19 @@ class MemberAdminController extends Controller
                     ->orWhere('email', 'like', '%'.$request->q.'%')
                     ->orWhere('member_number', 'like', '%'.$request->q.'%');
             }))
-            ->when($request->status,  fn($q) => $q->where('status', $request->status))
-            ->when($request->type,    fn($q) => $q->where('registration_type', $request->type))
-            ->when($request->biodata, fn($q) => $q->where('biodata_status', $request->biodata))
+            ->when($request->status,    fn($q) => $q->where('status', $request->status))
+            ->when($request->type,      fn($q) => $q->where('registration_type', $request->type))
+            ->when($request->biodata,   fn($q) => $q->where('biodata_status', $request->biodata))
+            ->when($request->region_id, fn($q) => $q->where('registered_by_region_id', $request->region_id))
+            ->when($request->region_id === 'none', fn($q) => $q->whereNull('registered_by_region_id'))
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.members.index', compact('members'));
-    }
+        $regions = Region::orderBy('province')->orderBy('name')->get();
 
+        return view('admin.members.index', compact('members', 'regions'));
+    }
     public function show(Member $member)
     {
         $member->load(['user', 'provinceModel', 'cityModel', 'payments', 'registeredByRegion']);
