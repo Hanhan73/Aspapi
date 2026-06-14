@@ -26,12 +26,12 @@ class MembersExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
             ->when($this->filters['type']      ?? null, fn($q) => $q->where('registration_type', $this->filters['type']))
             ->when($this->filters['biodata']   ?? null, fn($q) => $q->where('biodata_status', $this->filters['biodata']))
             ->when(
-                isset($this->filters['region_id']) && $this->filters['region_id'] === 'none',
-                fn($q) => $q->whereNull('registered_by_region_id')
-            )
-            ->when(
                 isset($this->filters['region_id']) && $this->filters['region_id'] !== 'none' && $this->filters['region_id'],
                 fn($q) => $q->where('registered_by_region_id', $this->filters['region_id'])
+            )
+            ->when(
+                ($this->filters['region_id'] ?? null) === 'none',
+                fn($q) => $q->whereNull('registered_by_region_id')
             )
             ->latest();
     }

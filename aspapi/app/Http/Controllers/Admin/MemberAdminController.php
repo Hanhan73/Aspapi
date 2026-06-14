@@ -22,8 +22,10 @@ class MemberAdminController extends Controller
             ->when($request->status,    fn($q) => $q->where('status', $request->status))
             ->when($request->type,      fn($q) => $q->where('registration_type', $request->type))
             ->when($request->biodata,   fn($q) => $q->where('biodata_status', $request->biodata))
-            ->when($request->region_id, fn($q) => $q->where('registered_by_region_id', $request->region_id))
-            ->when($request->region_id === 'none', fn($q) => $q->whereNull('registered_by_region_id'))
+            ->when($request->region_id && $request->region_id !== 'none',
+                fn($q) => $q->where('registered_by_region_id', $request->region_id))
+            ->when($request->region_id === 'none',
+                fn($q) => $q->whereNull('registered_by_region_id'))
             ->latest()
             ->paginate(20)
             ->withQueryString();
