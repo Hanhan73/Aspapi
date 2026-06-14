@@ -126,6 +126,68 @@
 
 </div>
 
+{{-- ── GRAFIK ANGGOTA PER DAERAH ── --}}
+<div style="margin-top:1.5rem;background:#fff;border:1px solid #D6E8F7;border-radius:6px;overflow:hidden;">
+    <div style="padding:1rem 1.25rem;border-bottom:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+            <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;">Statistik</p>
+            <h3 style="font-size:0.9rem;font-weight:700;color:#1A2A3A;margin-top:0.125rem;">Anggota Aktif per ASPAPI Daerah</h3>
+        </div>
+        <a href="{{ route('admin.members.index') }}"
+           style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;text-decoration:none;border-bottom:2px solid #E8B84B;padding-bottom:1px;">
+            Lihat Semua
+        </a>
+    </div>
+
+    <div style="padding:1.25rem;">
+        @php
+            $chartData = $membersByRegion->map(fn($r) => [
+                'name'  => $r->name,
+                'count' => $r->members_count,
+            ])->toArray();
+
+            if ($membersNoRegion > 0) {
+                $chartData[] = ['name' => '— Tanpa Daerah', 'count' => $membersNoRegion];
+            }
+
+            $maxVal = collect($chartData)->max('count') ?: 1;
+        @endphp
+
+        @if (empty($chartData))
+            <p style="font-size:0.8rem;color:#B0CCDF;text-align:center;padding:1.5rem 0;">Belum ada data anggota aktif.</p>
+        @else
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                @foreach ($chartData as $row)
+                @php $pct = round(($row['count'] / $maxVal) * 100); @endphp
+                <div style="display:grid;grid-template-columns:220px 1fr 40px;align-items:center;gap:0.75rem;">
+                    {{-- Label --}}
+                    <span style="font-size:0.75rem;color:#1A2A3A;font-weight:600;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                          title="{{ $row['name'] }}">
+                        {{ $row['name'] }}
+                    </span>
+                    {{-- Bar --}}
+                    <div style="background:#EEF4FB;border-radius:3px;overflow:hidden;height:22px;">
+                        <div style="width:{{ $pct }}%;background:{{ str_starts_with($row['name'], '—') ? '#D6E0E8' : '#2A7FC1' }};height:100%;border-radius:3px;transition:width 0.4s ease;min-width:{{ $row['count'] > 0 ? '4px' : '0' }};">
+                        </div>
+                    </div>
+                    {{-- Nilai --}}
+                    <span style="font-size:0.78rem;font-weight:700;color:#1A2A3A;">{{ $row['count'] }}</span>
+                </div>
+                @endforeach
+            </div>
+
+            <div style="margin-top:1rem;padding-top:0.875rem;border-top:1px solid #EEF4FB;display:flex;gap:1.5rem;">
+                <span style="font-size:0.72rem;color:#4A6580;">
+                    Total ditampilkan: <strong style="color:#1A2A3A;">{{ collect($chartData)->sum('count') }}</strong> anggota aktif
+                </span>
+                <span style="font-size:0.72rem;color:#4A6580;">
+                    {{ count($chartData) - ($membersNoRegion > 0 ? 1 : 0) }} daerah terdaftar
+                </span>
+            </div>
+        @endif
+    </div>
+</div>
+
 {{-- ── QUICK LINKS ── --}}
 <div style="margin-top:1.5rem;background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;">
     <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Akses Cepat</p>
