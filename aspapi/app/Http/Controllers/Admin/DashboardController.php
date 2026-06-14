@@ -26,11 +26,11 @@ class DashboardController extends Controller
             'totalRegions'      => Region::where('is_active', true)->count(),
             'totalDocuments'    => Document::count(),
             'totalBoards'       => Board::where('is_active', true)->count(),
-            'membersByRegion' => Region::withCount(['members' => fn($q) => $q->where('status', 'active')])
+            'membersByRegion' => Region::withCount('members')
                 ->having('members_count', '>', 0)
                 ->orderByDesc('members_count')
                 ->get(['id', 'name', 'members_count']),
-            'membersNoRegion' => Member::whereNull('registered_by_region_id')->where('status', 'active')->count(),
+            'membersNoRegion' => Member::whereNull('registered_by_region_id')->count(),
 
         ]);
     }
