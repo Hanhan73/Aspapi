@@ -88,6 +88,11 @@
         dari
         <strong style="color:#1A2A3A;">{{ $members->total() }}</strong>
         anggota
+        @if (request()->hasAny(['q','status','type','biodata','region_id']))
+            <span style="color:#B0CCDF;font-weight:400;">
+                (total keseluruhan: <strong style="color:#1A2A3A;">{{ App\Models\Member::count() }}</strong> anggota)
+            </span>
+        @endif
     </span>
     @if (request()->hasAny(['q','status','type','biodata','region_id']))
         <span style="font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:2px;background:#FEF8EC;color:#B8860B;">
