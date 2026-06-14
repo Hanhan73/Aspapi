@@ -131,7 +131,7 @@
     <div style="padding:1rem 1.25rem;border-bottom:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;">
         <div>
             <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;">Statistik</p>
-            <h3 style="font-size:0.9rem;font-weight:700;color:#1A2A3A;margin-top:0.125rem;">Anggota Aktif per ASPAPI Daerah</h3>
+            <h3 style="font-size:0.9rem;font-weight:700;color:#1A2A3A;margin-top:0.125rem;">Jumlah Anggota per ASPAPI Daerah</h3>
         </div>
         <a href="{{ route('admin.members.index') }}"
            style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;text-decoration:none;border-bottom:2px solid #E8B84B;padding-bottom:1px;">
@@ -154,7 +154,7 @@
         @endphp
 
         @if (empty($chartData))
-            <p style="font-size:0.8rem;color:#B0CCDF;text-align:center;padding:1.5rem 0;">Belum ada data anggota aktif.</p>
+            <p style="font-size:0.8rem;color:#B0CCDF;text-align:center;padding:1.5rem 0;">Belum ada data anggota.</p>
         @else
             <div style="display:flex;flex-direction:column;gap:0.625rem;">
                 @foreach ($chartData as $row)
