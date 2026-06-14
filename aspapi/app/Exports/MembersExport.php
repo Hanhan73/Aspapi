@@ -46,6 +46,7 @@ class MembersExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
             'ASPAPI Daerah',
             'Biodata',
             'Status',
+            'Tahun Bergabung',
             'Tanggal Daftar',
         ];
     }
@@ -69,6 +70,9 @@ class MembersExport implements FromQuery, WithHeadings, WithMapping, WithStyles,
                 'inactive' => 'Tidak Aktif',
                 default    => 'Pending',
             },
+            $member->claims_old_member && $member->claimed_join_year  // tambah
+                ? $member->claimed_join_year
+                : $member->created_at->format('Y'),
             $member->created_at->format('d M Y'),
         ];
     }

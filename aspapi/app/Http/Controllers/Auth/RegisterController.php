@@ -36,7 +36,7 @@ class RegisterController extends Controller
             'password'            => Hash::make($request->password),
             'role'                => 'anggota',
             'email_verified'      => false,
-            'email_verify_token'  => $token,   // ← kolom baru
+            'email_verify_token'  => $token,
         ]);
 
         Member::create([
@@ -48,7 +48,7 @@ class RegisterController extends Controller
             'biodata_status'    => 'draft',
         ]);
 
-        // Kirim email verifikasi
+        // Kirim email verifikasi ke anggota
         $verifyUrl = route('verify.email', ['token' => $token]);
 
         Mail::send(
@@ -58,6 +58,27 @@ class RegisterController extends Controller
                 $m->to($request->email)->subject('Verifikasi Email — ASPAPI');
             }
         );
+
+        // Notif ke admin
+        $adminUrl = route('admin.members.index');
+        try {
+            Mail::send(
+                'emails.notify-admin-new-member',
+                [
+                    'name'         => $request->full_name,
+                    'email'        => $request->email,
+                    'registeredAt' => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
+                    'adminUrl'     => $adminUrl,
+                ],
+                function ($m) {
+                    $m->to(config('mail.admin_email'))
+                      ->subject('Pendaftaran Anggota Baru — ASPAPI');
+                }
+            );
+        } catch (\Exception $e) {
+            // Gagal kirim notif admin tidak boleh menghentikan proses registrasi
+            \Log::warning('Gagal kirim notif admin (new member): ' . $e->getMessage());
+        }
 
         return redirect()->route('login')
             ->with('success', 'Pendaftaran berhasil! Cek email Anda untuk verifikasi akun.');
@@ -98,15 +119,26 @@ class RegisterController extends Controller
             'biodata_status'     => 'draft',
         ]);
 
-        // Notif admin
-        Mail::send(
-            'emails.notify-admin-old-member',
-            ['name' => $request->full_name, 'year' => $request->claimed_join_year],
-            function ($m) {
-                $m->to(config('mail.admin_email', 'admin@aspapi.or.id'))
-                  ->subject('Klaim Anggota Lama Baru — ASPAPI');
-            }
-        );
+        // Notif ke admin
+        $adminUrl = route('admin.members.verify');
+        try {
+            Mail::send(
+                'emails.notify-admin-old-member',
+                [
+                    'name'         => $request->full_name,
+                    'email'        => $request->email,
+                    'year'         => $request->claimed_join_year,
+                    'registeredAt' => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
+                    'adminUrl'     => $adminUrl,
+                ],
+                function ($m) {
+                    $m->to(config('mail.admin_email'))
+                      ->subject('Klaim Anggota Lama Baru — ASPAPI');
+                }
+            );
+        } catch (\Exception $e) {
+            \Log::warning('Gagal kirim notif admin (old member): ' . $e->getMessage());
+        }
 
         return redirect()->route('login')
             ->with('success', 'Pendaftaran anggota lama berhasil! Tunggu verifikasi dari Admin ASPAPI.');
@@ -116,7 +148,6 @@ class RegisterController extends Controller
 
     public function verifyEmail(string $token)
     {
-        // Cari dari kolom email_verify_token, bukan remember_token
         $user = User::where('email_verify_token', $token)->first();
 
         if (! $user) {
@@ -127,7 +158,7 @@ class RegisterController extends Controller
         $user->update([
             'email_verified'     => true,
             'email_verified_at'  => now(),
-            'email_verify_token' => null, // hapus token setelah dipakai
+            'email_verify_token' => null,
         ]);
 
         return redirect()->route('login')

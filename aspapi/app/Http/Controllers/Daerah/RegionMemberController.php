@@ -430,6 +430,26 @@ class RegionMemberController extends Controller
             }
         });
 
+                // Notif ke bendahara
+        try {
+            Mail::send(
+                'emails.notify-bendahara-batch',
+                [
+                    'regionName'   => $region->name ?? ($region->province . ' — ASPAPI Daerah'),
+                    'memberCount'  => count($memberIds),
+                    'totalLabel'   => 'Rp ' . number_format($totalAmount, 0, ',', '.'),
+                    'paymentYear'  => now()->year,
+                    'submittedAt'  => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
+                    'bendaharaUrl' => route('bendahara.batches'),
+                ],
+                function ($m) {
+                    $m->to(config('mail.bendahara_email'))->subject('Pembayaran Kolektif Masuk — ASPAPI');
+                }
+            );
+        } catch (\Exception $e) {
+            \Log::warning('Gagal kirim notif bendahara (batch submit): ' . $e->getMessage());
+        }
+
         return back()->with(
             'success',
             'Pembayaran kolektif untuk ' . count($memberIds) . ' anggota berhasil dikirim dan menunggu verifikasi bendahara.'

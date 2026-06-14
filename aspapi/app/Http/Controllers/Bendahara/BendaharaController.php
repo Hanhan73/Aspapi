@@ -87,12 +87,22 @@ class BendaharaController extends Controller
             'note'        => 'Pembayaran ' . $payment->type_label . ' diverifikasi',
         ]);
 
+        // Notif ke anggota
         try {
-            Mail::send('emails.payment-verified', ['payment' => $payment], function ($m) use ($payment) {
-                $m->to($payment->member->email)->subject('Pembayaran Anda Telah Diverifikasi — ASPAPI');
-            });
+            Mail::send(
+                'emails.payment-verified',
+                [
+                    'member'      => $member->fresh(),
+                    'typeLabel'   => $payment->type_label,
+                    'amountLabel' => 'Rp ' . number_format($payment->amount, 0, ',', '.'),
+                    'verifiedAt'  => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
+                ],
+                function ($m) use ($member) {
+                    $m->to($member->email)->subject('Pembayaran Anda Telah Diverifikasi — ASPAPI');
+                }
+            );
         } catch (\Exception $e) {
-            \Log::error('Email payment verified gagal: ' . $e->getMessage());
+            \Log::warning('Gagal kirim notif anggota (payment verified): ' . $e->getMessage());
         }
 
         return back()->with('success', 'Pembayaran berhasil diverifikasi.');
@@ -102,13 +112,31 @@ class BendaharaController extends Controller
     {
         $request->validate(['reason' => 'required|string']);
 
-        $payment = Payment::findOrFail($id);
+        $payment = Payment::with('member')->findOrFail($id);
         $payment->update([
             'status'        => 'rejected',
             'reject_reason' => $request->reason,
             'verified_by'   => auth()->id(),
             'verified_at'   => now(),
         ]);
+
+        // Notif ke anggota
+        try {
+            Mail::send(
+                'emails.payment-rejected',
+                [
+                    'member'      => $payment->member,
+                    'typeLabel'   => $payment->type_label,
+                    'amountLabel' => 'Rp ' . number_format($payment->amount, 0, ',', '.'),
+                    'reason'      => $request->reason,
+                ],
+                function ($m) use ($payment) {
+                    $m->to($payment->member->email)->subject('Pembayaran Anda Ditolak — ASPAPI');
+                }
+            );
+        } catch (\Exception $e) {
+            \Log::warning('Gagal kirim notif anggota (payment rejected): ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Pembayaran ditolak.');
     }

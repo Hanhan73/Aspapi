@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
@@ -90,6 +91,9 @@ class PaymentController extends Controller
                 'payment_year'   => now()->year,
                 'notes'          => 'Pembayaran gabungan',
             ]);
+
+            $typeLabel   = 'Uang Pangkal + Iuran Tahunan (Gabungan)';
+            $amountLabel = 'Rp 250.000';
         } else {
             $amount = $type === 'uang_pangkal' ? 130000 : 120000;
 
@@ -102,6 +106,28 @@ class PaymentController extends Controller
                 'status'         => 'pending',
                 'payment_year'   => now()->year,
             ]);
+
+            $typeLabel   = $type === 'uang_pangkal' ? 'Uang Pangkal' : 'Iuran Tahunan';
+            $amountLabel = 'Rp ' . number_format($amount, 0, ',', '.');
+        }
+
+        // Notif ke bendahara
+        try {
+            Mail::send(
+                'emails.notify-bendahara-payment',
+                [
+                    'member'       => $member,
+                    'typeLabel'    => $typeLabel,
+                    'amountLabel'  => $amountLabel,
+                    'submittedAt'  => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
+                    'bendaharaUrl' => route('bendahara.payments'),
+                ],
+                function ($m) {
+                    $m->to(config('mail.bendahara_email'))->subject('Bukti Pembayaran Masuk — ASPAPI');
+                }
+            );
+        } catch (\Exception $e) {
+            \Log::warning('Gagal kirim notif bendahara (payment upload): ' . $e->getMessage());
         }
 
         return back()->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu verifikasi dari Bendahara.');

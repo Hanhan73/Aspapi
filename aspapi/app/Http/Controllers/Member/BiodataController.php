@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Province;
 use App\Models\City;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
  
 class BiodataController extends Controller
@@ -33,8 +34,8 @@ class BiodataController extends Controller
  
         $validated = $request->validate([
             'full_name'      => 'required|string|max:255',
-            'front_title'  => 'nullable|string|max:50',
-            'back_title'   => 'nullable|string|max:100',
+            'front_title'    => 'nullable|string|max:50',
+            'back_title'     => 'nullable|string|max:100',
             'nik'            => 'required|digits:16',
             'birth_place'    => 'required|string|max:100',
             'birth_date'     => 'required|date|before:today',
@@ -57,7 +58,10 @@ class BiodataController extends Controller
             }
             $validated['photo'] = $request->file('photo')->store('member-photos', 'public');
         }
- 
+
+        // Cek apakah ini verifikasi ulang (pernah submit sebelumnya)
+        $isResubmit = $member->registered_at !== null;
+
         if ($isImpersonating) {
             // Admin yang edit → langsung verified, tidak perlu antri ke admin lagi
             $validated['biodata_status']        = 'verified';
@@ -69,6 +73,29 @@ class BiodataController extends Controller
         }
  
         $member->update($validated);
+
+        // Kirim notif ke admin (hanya jika bukan mode impersonate)
+        if (!$isImpersonating) {
+            try {
+                Mail::send(
+                    'emails.notify-admin-biodata-submitted',
+                    [
+                        'member'      => $member->fresh(),
+                        'isResubmit'  => $isResubmit,
+                        'submittedAt' => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
+                        'adminUrl'    => route('admin.members.verify'),
+                    ],
+                    function ($m) use ($isResubmit) {
+                        $subject = $isResubmit
+                            ? 'Verifikasi Ulang Biodata Anggota — ASPAPI'
+                            : 'Pengajuan Biodata Baru — ASPAPI';
+                        $m->to(config('mail.admin_email'))->subject($subject);
+                    }
+                );
+            } catch (\Exception $e) {
+                \Log::warning('Gagal kirim notif admin (biodata submit): ' . $e->getMessage());
+            }
+        }
  
         $msg = $isImpersonating
             ? 'Biodata berhasil diperbarui dan langsung diverifikasi (mode admin).'

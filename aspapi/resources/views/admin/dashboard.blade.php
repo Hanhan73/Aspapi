@@ -142,46 +142,78 @@
     <div style="padding:1.25rem;">
         @php
             $chartData = $membersByRegion->map(fn($r) => [
-                'name'  => $r->name,
-                'count' => $r->members_count,
+                'name'   => $r->name,
+                'total'  => $r->members_count,
+                'active' => $r->active_members_count,
             ])->toArray();
 
             if ($membersNoRegion > 0) {
-                $chartData[] = ['name' => '— Tanpa Daerah', 'count' => $membersNoRegion];
+                $chartData[] = [
+                    'name'   => '— Tanpa Daerah',
+                    'total'  => $membersNoRegion,
+                    'active' => $membersNoRegionActive,
+                ];
             }
 
-            $maxVal = collect($chartData)->max('count') ?: 1;
+            $maxVal = collect($chartData)->max('total') ?: 1;
         @endphp
 
         @if (empty($chartData))
             <p style="font-size:0.8rem;color:#B0CCDF;text-align:center;padding:1.5rem 0;">Belum ada data anggota.</p>
         @else
-            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+            {{-- Legend --}}
+            <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+                <span style="display:flex;align-items:center;gap:0.375rem;font-size:0.72rem;color:#4A6580;">
+                    <span style="width:12px;height:12px;border-radius:2px;background:#2A7FC1;display:inline-block;"></span> Total Anggota
+                </span>
+                <span style="display:flex;align-items:center;gap:0.375rem;font-size:0.72rem;color:#4A6580;">
+                    <span style="width:12px;height:12px;border-radius:2px;background:#276749;display:inline-block;"></span> Anggota Aktif
+                </span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:0.875rem;">
                 @foreach ($chartData as $row)
-                @php $pct = round(($row['count'] / $maxVal) * 100); @endphp
-                <div style="display:grid;grid-template-columns:220px 1fr 40px;align-items:center;gap:0.75rem;">
+                @php
+                    $pctTotal  = round(($row['total']  / $maxVal) * 100);
+                    $pctActive = round(($row['active'] / $maxVal) * 100);
+                    $isNoRegion = str_starts_with($row['name'], '—');
+                @endphp
+                <div style="display:grid;grid-template-columns:220px 1fr;align-items:center;gap:0.75rem;">
                     {{-- Label --}}
                     <span style="font-size:0.75rem;color:#1A2A3A;font-weight:600;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
-                          title="{{ $row['name'] }}">
+                        title="{{ $row['name'] }}">
                         {{ $row['name'] }}
                     </span>
-                    {{-- Bar --}}
-                    <div style="background:#EEF4FB;border-radius:3px;overflow:hidden;height:22px;">
-                        <div style="width:{{ $pct }}%;background:{{ str_starts_with($row['name'], '—') ? '#D6E0E8' : '#2A7FC1' }};height:100%;border-radius:3px;transition:width 0.4s ease;min-width:{{ $row['count'] > 0 ? '4px' : '0' }};">
+                    {{-- Double bar --}}
+                    <div style="display:flex;flex-direction:column;gap:3px;">
+                        {{-- Bar total --}}
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <div style="flex:1;background:#EEF4FB;border-radius:3px;overflow:hidden;height:14px;">
+                                <div style="width:{{ $pctTotal }}%;background:{{ $isNoRegion ? '#B0CCDF' : '#2A7FC1' }};height:100%;border-radius:3px;min-width:{{ $row['total'] > 0 ? '4px' : '0' }};"></div>
+                            </div>
+                            <span style="font-size:0.7rem;font-weight:700;color:#1A2A3A;min-width:24px;">{{ $row['total'] }}</span>
+                        </div>
+                        {{-- Bar aktif --}}
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <div style="flex:1;background:#EEF4FB;border-radius:3px;overflow:hidden;height:14px;">
+                                <div style="width:{{ $pctActive }}%;background:{{ $isNoRegion ? '#8A9A8A' : '#276749' }};height:100%;border-radius:3px;min-width:{{ $row['active'] > 0 ? '4px' : '0' }};"></div>
+                            </div>
+                            <span style="font-size:0.7rem;font-weight:700;color:#276749;min-width:24px;">{{ $row['active'] }}</span>
                         </div>
                     </div>
-                    {{-- Nilai --}}
-                    <span style="font-size:0.78rem;font-weight:700;color:#1A2A3A;">{{ $row['count'] }}</span>
                 </div>
                 @endforeach
             </div>
 
             <div style="margin-top:1rem;padding-top:0.875rem;border-top:1px solid #EEF4FB;display:flex;gap:1.5rem;">
                 <span style="font-size:0.72rem;color:#4A6580;">
-                    Total ditampilkan: <strong style="color:#1A2A3A;">{{ collect($chartData)->sum('count') }}</strong> anggota
+                    Total: <strong style="color:#1A2A3A;">{{ collect($chartData)->sum('total') }}</strong> anggota
                 </span>
                 <span style="font-size:0.72rem;color:#4A6580;">
-                    {{ count($chartData) - ($membersNoRegion > 0 ? 1 : 0) }} daerah terdaftar
+                    Aktif: <strong style="color:#276749;">{{ collect($chartData)->sum('active') }}</strong> anggota
+                </span>
+                <span style="font-size:0.72rem;color:#4A6580;">
+                    {{ count($chartData) - ($membersNoRegion > 0 ? 1 : 0) }} daerah
                 </span>
             </div>
         @endif
