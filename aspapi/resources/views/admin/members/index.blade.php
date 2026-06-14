@@ -72,6 +72,11 @@
            style="padding:0.5rem 1rem;border:1.5px solid #D6E8F7;color:#4A6580;border-radius:4px;font-size:0.75rem;font-weight:700;text-decoration:none;">
             Reset
         </a>
+
+        <a href="{{ route('admin.members.export', request()->query()) }}"
+        style="padding:0.5rem 1rem;background:#276749;color:#fff;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;">
+            ↓ Export Excel
+        </a>
     </form>
 </div>
 

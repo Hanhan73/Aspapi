@@ -243,10 +243,13 @@ Route::prefix('admin')
         Route::get('dokumen/sort',              [DocumentAdminController::class, 'sortIndex'])->name('documents.sort');
         Route::post('dokumen/sort/documents',   [DocumentAdminController::class, 'sortDocuments'])->name('documents.sort.documents');
         Route::post('dokumen/sort/categories',  [DocumentAdminController::class, 'sortCategories'])->name('documents.sort.categories');
+        
         // Dokumen
         Route::resource('dokumen', DocumentAdminController::class)
             ->names('documents')
             ->parameters(['dokumen' => 'document']);
+
+        Route::get('anggota/export', [MemberAdminController::class, 'export'])->name('members.export');
 
         // Anggota
         Route::resource('anggota', MemberAdminController::class)

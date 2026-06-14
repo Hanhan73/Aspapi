@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Member;
 use App\Models\Region;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MembersExport;
 use Illuminate\Http\Request;
 
 class MemberAdminController extends Controller
@@ -73,4 +75,10 @@ class MemberAdminController extends Controller
 
         return back()->with('success', $message);
     }
+
+    public function export(Request $request)
+{
+    $filename = 'anggota-aspapi-' . now()->format('Ymd-His') . '.xlsx';
+    return Excel::download(new MembersExport($request->all()), $filename);
+}
 }
