@@ -75,6 +75,22 @@
     </form>
 </div>
 
+{{-- Counter hasil filter --}}
+<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+    <span style="font-size:0.8rem;color:#4A6580;">
+        Menampilkan
+        <strong style="color:#1A2A3A;">{{ $members->firstItem() ?? 0 }}–{{ $members->lastItem() ?? 0 }}</strong>
+        dari
+        <strong style="color:#1A2A3A;">{{ $members->total() }}</strong>
+        anggota
+    </span>
+    @if (request()->hasAny(['q','status','type','biodata','region_id']))
+        <span style="font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:2px;background:#FEF8EC;color:#B8860B;">
+            Filter aktif
+        </span>
+    @endif
+</div>
+
 {{-- Table --}}
 <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;overflow:hidden;">
     <table style="width:100%;border-collapse:collapse;">
