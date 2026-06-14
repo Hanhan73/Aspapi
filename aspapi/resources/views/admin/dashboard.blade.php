@@ -178,7 +178,7 @@
 
             <div style="margin-top:1rem;padding-top:0.875rem;border-top:1px solid #EEF4FB;display:flex;gap:1.5rem;">
                 <span style="font-size:0.72rem;color:#4A6580;">
-                    Total ditampilkan: <strong style="color:#1A2A3A;">{{ collect($chartData)->sum('count') }}</strong> anggota aktif
+                    Total ditampilkan: <strong style="color:#1A2A3A;">{{ collect($chartData)->sum('count') }}</strong> anggota
                 </span>
                 <span style="font-size:0.72rem;color:#4A6580;">
                     {{ count($chartData) - ($membersNoRegion > 0 ? 1 : 0) }} daerah terdaftar
