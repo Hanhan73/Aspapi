@@ -6,7 +6,7 @@
 
 @font-face {
     font-family: 'Ethnocentric';
-    src: url('storage_path(fonts/ethnocentric-rg.otf)') format('opentype');
+    src: url('/fonts/ethnocentric-rg.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
