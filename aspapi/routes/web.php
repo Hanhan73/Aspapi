@@ -138,6 +138,8 @@ Route::prefix('daerah')->name('daerah.')->middleware(['auth', 'role:aspapi_daera
         ->name('batch.template');
     Route::post('/check-duplicates', [RegionMemberController::class, 'checkDuplicates'])
         ->name('batch.check-duplicates');
+    Route::get('/anggota/export', [RegionMemberController::class, 'exportMembers'])->name('members.export');
+
 });
 
 // ── AUTH ADMIN ──
