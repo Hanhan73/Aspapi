@@ -29,6 +29,16 @@
         <a href="{{ route('daerah.members') }}" class="btn btn-ghost btn-sm">Reset</a>
 
         <div class="ml-auto flex gap-2">
+            {{-- Export Excel --}}
+            <a href="{{ route('daerah.members.export', request()->query()) }}"
+               class="btn btn-sm"
+               style="background:#276749;color:#fff;border:none;display:inline-flex;align-items:center;gap:0.3rem;">
+                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Export Excel
+            </a>
             <a href="{{ route('daerah.batch.form') }}" class="btn btn-sm"
                style="background:#E8B84B;color:#1A2A3A;border:none;">
                 + Daftar Batch
@@ -171,7 +181,6 @@ const MEMBERS_DATA = {
     @endforeach
 };
 
-// CSRF token untuk form impersonate di dalam modal
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 </script>
 
@@ -231,7 +240,6 @@ const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 
         {{-- Footer --}}
         <div style="padding:1rem 1.5rem;border-top:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#F8FAFC;">
-            {{-- Tombol impersonate — diisi via JS --}}
             <div id="md-footer-actions"></div>
             <button onclick="closeMemberModal()"
                     style="padding:0.625rem 1.5rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.75rem;font-weight:700;color:#4A6580;background:#fff;cursor:pointer;">
@@ -248,13 +256,11 @@ function openMemberModal(id) {
     const m = MEMBERS_DATA[id];
     if (!m) return;
 
-    // ── Avatar
     const avatar = document.getElementById('md-avatar');
     avatar.innerHTML = m.photo
         ? `<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;"/>`
         : `<span style="font-size:1.3rem;font-weight:700;color:#2A7FC1;">${(m.full_name || '?')[0].toUpperCase()}</span>`;
 
-    // ── Header
     document.getElementById('md-name').textContent  = m.full_name;
     document.getElementById('md-email').textContent = m.email;
     const nomerEl = document.getElementById('md-nomer');
@@ -265,7 +271,6 @@ function openMemberModal(id) {
         nomerEl.style.display = 'none';
     }
 
-    // ── Helper
     const genderLabel = m.gender === 'L' ? 'Laki-laki' : m.gender === 'P' ? 'Perempuan' : '—';
     const row = (label, value) => `
         <div style="display:flex;gap:0.5rem;justify-content:space-between;font-size:0.82rem;">
@@ -273,7 +278,6 @@ function openMemberModal(id) {
             <span style="color:#1A2A3A;font-weight:500;text-align:right;">${value || '—'}</span>
         </div>`;
 
-    // ── Identitas
     document.getElementById('md-identity').innerHTML = [
         row('NIK',           m.nik),
         row('Jenis Kelamin', genderLabel),
@@ -282,7 +286,6 @@ function openMemberModal(id) {
         row('Pendidikan',    m.last_education),
     ].join('');
 
-    // ── Kontak & Lokasi
     document.getElementById('md-contact').innerHTML = [
         row('No. Telepon',   m.phone),
         row('Institusi',     m.institution),
@@ -292,7 +295,6 @@ function openMemberModal(id) {
         row('Alamat',        m.address),
     ].join('');
 
-    // ── Keanggotaan
     document.getElementById('md-membership').innerHTML = [
         row('Jenis Anggota',   m.member_type),
         row('Tipe Registrasi', m.registration_type),
@@ -300,7 +302,6 @@ function openMemberModal(id) {
         row('Sumber',          m.is_batch ? 'Pendaftaran Batch' : 'Mandiri'),
     ].join('');
 
-    // ── Status
     const statusColor = { active: '#276749', pending: '#B8860B', inactive: '#5C6B78', rejected: '#C0392B' };
     const statusBg    = { active: '#F0FFF4', pending: '#FEF8EC', inactive: '#F0F2F4', rejected: '#FDECEA' };
     const bdColor     = { verified: '#276749', rejected: '#C0392B', pending: '#B8860B' };
@@ -322,7 +323,6 @@ function openMemberModal(id) {
             ${m.dues_paid ? badge('Lunas', '#276749', '#F0FFF4') : badge('Belum Lunas', '#C0392B', '#FDECEA')}
         </div>`;
 
-    // ── Pembayaran
     const paymentsEl = document.getElementById('md-payments');
     if (m.payments.length === 0) {
         paymentsEl.innerHTML = `<p style="font-size:0.82rem;color:#B0CCDF;text-align:center;padding:1rem 0;">Belum ada riwayat pembayaran.</p>`;
@@ -344,7 +344,6 @@ function openMemberModal(id) {
             </div>`).join('');
     }
 
-    // ── Footer: tombol impersonate
     const footerActions = document.getElementById('md-footer-actions');
     if (m.user_id) {
         footerActions.innerHTML = `

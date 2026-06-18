@@ -7,12 +7,14 @@ use App\Models\Member;
 use App\Models\Payment;
 use App\Models\PaymentBatch;
 use App\Models\User;
+use App\Exports\RegionMembersExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class RegionMemberController extends Controller
@@ -72,6 +74,17 @@ class RegionMemberController extends Controller
             ->withQueryString();
 
         return view('daerah.members', compact('region', 'members'));
+    }
+
+    // ── Export Excel ──────────────────────────────────────────────────────────
+
+    public function exportMembers(Request $request)
+    {
+        $region   = $this->region();
+        $filters  = $request->only(['search', 'status', 'dues']);
+        $filename = 'anggota-' . str($region->province ?? 'daerah')->slug() . '-' . now()->format('Ymd-His') . '.xlsx';
+
+        return Excel::download(new RegionMembersExport($region->id, $filters), $filename);
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -163,7 +176,7 @@ class RegionMemberController extends Controller
             // Anggota lama = tahun daftar sebelum tahun ini
             $isOldMember = $joinYear < now()->year;
 
-            $password = 'password123'; // Password default untuk batch, bisa diubah atau dikirim ke email anggota 
+            $password = 'password123';
 
             try {
                 DB::transaction(function () use (
@@ -430,7 +443,7 @@ class RegionMemberController extends Controller
             }
         });
 
-                // Notif ke bendahara
+        // Notif ke bendahara
         try {
             Mail::send(
                 'emails.notify-bendahara-batch',
