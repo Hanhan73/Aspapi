@@ -178,7 +178,7 @@
                             Pendaftaran Anggota
                         </a>
 
-                        <a href="{{ route ('members.direktori') }}"
+                        <a href="{{ route ('members.directory') }}"
                             class="flex items-center px-4 py-2.5 text-xs text-neutral-600 hover:bg-primary-100 hover:text-primary transition-colors duration-150">
                             Daftar Anggota
                         </a>
@@ -297,7 +297,7 @@
                 </button>
                 <div x-show="open" x-collapse class="pb-2 pl-3 flex flex-col gap-0.5" style="display:none;">
                     <a href="{{ route('members.register') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Pendaftaran Anggota</a>
-                    <a href="{{ route ('members.direktori') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Daftar Anggota</a>
+                    <a href="{{ route ('members.directory') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Daftar Anggota</a>
                 </div>
             </div>
 
