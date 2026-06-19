@@ -33,7 +33,7 @@
         <form method="GET" action="{{ route('public.agenda') }}">
             <div class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                         <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
@@ -75,7 +75,6 @@
         @if ($agendas->count())
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($agendas as $agenda)
-            {{-- Tiap card punya data-* untuk modal --}}
             <div class="card card-top-blue card-hover flex flex-col overflow-hidden cursor-pointer group"
                  onclick="openAgendaModal({{ $agenda->id }})"
                  data-id="{{ $agenda->id }}"
@@ -100,7 +99,6 @@
                         </div>
                     @endif
 
-                    {{-- Badge daerah --}}
                     @if ($agenda->region)
                     <div style="position:absolute;top:10px;left:10px;">
                         <span style="background:rgba(26,42,58,0.75);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);">
@@ -111,7 +109,6 @@
                 </div>
 
                 <div class="p-5 flex flex-col flex-1">
-                    {{-- Tanggal --}}
                     <div class="flex items-center gap-1.5 mb-2">
                         <svg class="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -135,7 +132,6 @@
             @endforeach
         </div>
 
-        {{-- Pagination --}}
         @if ($agendas->hasPages())
         <div class="mt-10 flex items-center justify-center gap-1">
             @if ($agendas->onFirstPage())
@@ -189,9 +185,8 @@
      onclick="if(event.target===this) closeAgendaModal()">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
 
-        {{-- Foto --}}
-        <div id="modal-photo-wrap" class="w-full aspect-square bg-primary-50 overflow-hidden flex-shrink-0" style="display:none!important;">
-            <img id="modal-photo" src="" alt="" class="w-full h-full object-cover">
+        <div id="modal-photo-wrap" class="w-full overflow-hidden flex-shrink-0" style="display:none;">
+            <img id="modal-photo" src="" alt="" class="w-full aspect-square object-cover">
         </div>
         <div id="modal-no-photo" class="w-full aspect-square bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center flex-shrink-0">
             <svg class="w-16 h-16 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,20 +194,16 @@
             </svg>
         </div>
 
-        {{-- Konten --}}
         <div class="p-6 overflow-y-auto flex-1">
-
-            {{-- Meta --}}
             <div class="flex items-center gap-3 mb-3 flex-wrap">
                 <span id="modal-region-badge"
                       class="inline-flex items-center gap-1.5 bg-primary-50 text-primary text-2xs font-bold px-2.5 py-1 rounded"
-                      style="display:none!important;">
+                      style="display:none;">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     </svg>
                     <span id="modal-region"></span>
                 </span>
-
                 <div class="flex items-center gap-1.5 text-2xs text-neutral-400">
                     <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -223,14 +214,13 @@
 
             <h2 id="modal-title" class="font-display text-navy text-xl leading-snug mb-4"></h2>
 
-            <div id="modal-desc-wrap" style="display:none!important;">
+            <div id="modal-desc-wrap" style="display:none;">
                 <div class="border-t border-neutral-100 pt-4">
                     <p id="modal-desc" class="text-sm text-neutral-500 leading-relaxed"></p>
                 </div>
             </div>
         </div>
 
-        {{-- Footer --}}
         <div class="px-6 py-4 border-t border-neutral-100 flex-shrink-0">
             <button onclick="closeAgendaModal()"
                     class="btn w-full justify-center border border-neutral-200 text-neutral-500 hover:bg-neutral-50">
@@ -255,36 +245,33 @@ function openAgendaModal(id) {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-date').textContent  = date;
 
-    // Region badge
     const regionBadge = document.getElementById('modal-region-badge');
     const regionEl    = document.getElementById('modal-region');
     if (region) {
-        regionEl.textContent = region;
+        regionEl.textContent      = region;
         regionBadge.style.display = '';
     } else {
-        regionBadge.style.display = 'none!important';
+        regionBadge.style.display = 'none';
     }
 
-    // Photo
     const photoWrap = document.getElementById('modal-photo-wrap');
     const noPhoto   = document.getElementById('modal-no-photo');
     const photoEl   = document.getElementById('modal-photo');
     if (photo) {
-        photoEl.src = photo;
-        photoEl.alt = title;
-        photoWrap.style.cssText = '';
+        photoEl.src             = photo;
+        photoEl.alt             = title;
+        photoWrap.style.display = '';
         noPhoto.style.display   = 'none';
     } else {
         photoWrap.style.display = 'none';
-        noPhoto.style.cssText   = '';
+        noPhoto.style.display   = '';
     }
 
-    // Deskripsi
     const descWrap = document.getElementById('modal-desc-wrap');
     const descEl   = document.getElementById('modal-desc');
     if (desc) {
         descEl.textContent      = desc;
-        descWrap.style.cssText  = '';
+        descWrap.style.display  = '';
     } else {
         descWrap.style.display  = 'none';
     }

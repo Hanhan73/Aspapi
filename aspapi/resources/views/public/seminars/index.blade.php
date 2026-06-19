@@ -20,7 +20,6 @@
             Program pengembangan kompetensi untuk anggota dan praktisi administrasi perkantoran Indonesia.
             Daftar dan ikuti seminar untuk mendapatkan sertifikat resmi ASPAPI.
         </p>
-
         <nav class="flex items-center gap-2 mt-6 text-2xs text-primary-300">
             <a href="{{ route('home') }}" class="hover:text-white transition-colors">Beranda</a>
             <span>/</span>
@@ -51,7 +50,7 @@
         <form method="GET" action="{{ route('public.seminars') }}">
             <div class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                         <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
@@ -98,10 +97,11 @@
         @if ($seminars->count())
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($seminars as $seminar)
-            <div class="card card-top-blue card-hover flex flex-col overflow-hidden">
+            @php $isLong = strlen($seminar->description ?? '') > 120; @endphp
+            <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow card-top-blue">
 
                 {{-- Thumbnail --}}
-                <div style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;background:#EEF4FB;flex-shrink:0;">
+                <div style="position:relative;width:100%;padding-top:100%;overflow:hidden;background:#EEF4FB;flex-shrink:0;">
                     @if ($seminar->thumbnail)
                         <img src="{{ Storage::url($seminar->thumbnail) }}"
                              style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;"
@@ -124,22 +124,43 @@
                     @endif
                 </div>
 
-                <div class="p-5 flex flex-col flex-1">
-                    <h3 class="text-sm font-bold text-navy leading-snug mb-2 flex-1">{{ $seminar->title }}</h3>
+                <div class="p-4 flex flex-col flex-1">
+                    <h3 class="font-bold text-navy text-sm leading-snug mb-1.5">{{ $seminar->title }}</h3>
 
+                    {{-- Deskripsi collapsible --}}
                     @if ($seminar->description)
-                    <p class="text-xs text-neutral-400 leading-relaxed mb-4 line-clamp-2">{{ $seminar->description }}</p>
+                    <div x-data="{ open: false }" class="mb-3 flex-1">
+                        <p x-show="!open"
+                           class="text-xs text-neutral-500 leading-relaxed line-clamp-2">
+                            {{ $seminar->description }}
+                        </p>
+                        <p x-show="open"
+                           style="display:none;"
+                           class="text-xs text-neutral-500 leading-relaxed">
+                            {{ $seminar->description }}
+                        </p>
+                        @if ($isLong)
+                        <button @click="open = !open"
+                                type="button"
+                                class="mt-1 text-2xs font-bold"
+                                style="color:#2A7FC1;background:none;border:none;cursor:pointer;padding:0;line-height:1.4;">
+                            <span x-text="open ? '↑ Tutup' : '↓ Selengkapnya'">↓ Selengkapnya</span>
+                        </button>
+                        @endif
+                    </div>
+                    @else
+                    <div class="flex-1 mb-3"></div>
                     @endif
 
                     {{-- Stats --}}
-                    <div class="flex items-center gap-4 text-2xs text-neutral-400 mb-4 pb-4 border-b border-neutral-100">
-                        <span class="flex items-center gap-1">
+                    <div class="flex items-center gap-3 pb-3 border-b border-neutral-100 mb-3">
+                        <span class="flex items-center gap-1 text-2xs text-neutral-400">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
                             <span class="font-semibold text-navy">{{ $seminar->questions_count }}</span> soal
                         </span>
-                        <span class="flex items-center gap-1">
+                        <span class="flex items-center gap-1 text-2xs text-neutral-400">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -148,12 +169,10 @@
                     </div>
 
                     {{-- CTA --}}
-                    <div class="mt-auto">
-                        <a href="{{ route('login') }}"
-                           class="btn btn-primary w-full justify-center text-xs">
-                            Login untuk Mendaftar →
-                        </a>
-                    </div>
+                    <a href="{{ route('login') }}"
+                       class="block text-center text-xs font-bold py-2 px-4 rounded-lg bg-primary text-white hover:bg-primary/90 transition">
+                        Login untuk Mendaftar →
+                    </a>
                 </div>
             </div>
             @endforeach
