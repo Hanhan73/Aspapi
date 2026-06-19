@@ -48,17 +48,17 @@
         <table class="w-full text-sm">
             <thead>
                 <tr class="border-b border-neutral-100 bg-neutral-50">
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[35%]">Kegiatan</th>
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell w-[15%]">Tanggal</th>
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden sm:table-cell w-[20%]">Daerah</th>
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[12%]">Status</th>
-                    <th class="text-right px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[18%]">Aksi</th>
+                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Kegiatan</th>
+                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell">Tanggal</th>
+                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden sm:table-cell">Daerah</th>
+                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Status</th>
+                    <th class="text-right px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-neutral-50">
                 @foreach ($agendas as $agenda)
                 <tr class="hover:bg-neutral-50/70 transition-colors">
-                    <td class="px-5 py-4 w-[35%] max-w-0">
+                    <td class="px-5 py-4">
                         <div class="flex items-center gap-3">
                             <button type="button" onclick="openDetailModal({{ $agenda->id }})"
                                     class="flex-shrink-0 focus:outline-none group">
