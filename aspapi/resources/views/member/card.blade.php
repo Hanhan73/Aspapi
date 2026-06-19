@@ -28,19 +28,19 @@
          alt=""/>
  
     {{-- Foto anggota — pojok kanan, sejajar area bawah --}}
-    <div style="position:absolute;right:48px;top:107px;width:54px;height:69px;overflow:hidden;border-radius:5px;border:1px solid #b0bac5;">
-        @if ($member->photo)
-            <img src="{{ Storage::url($member->photo) }}"
-                 style="width:62px;height:auto;display:block;margin-left:-4px;"
-                 alt="foto"/>
-        @else
-            <div style="width:100%;height:100%;background:#b0bac5;display:flex;align-items:center;justify-content:center;">
-                <svg style="width:22px;height:22px;" fill="none" stroke="#fff" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-            </div>
-        @endif
-    </div>
+<div style="position:absolute;right:48px;top:107px;width:54px;height:69px;overflow:hidden;border-radius:5px;border:1px solid #b0bac5;">
+    @if ($member->photo)
+        <img src="{{ Storage::url($member->photo) }}"
+             style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"
+             alt="foto"/>
+    @else
+        <div style="width:100%;height:100%;background:#b0bac5;display:flex;align-items:center;justify-content:center;">
+            <svg style="width:22px;height:22px;" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+        </div>
+    @endif
+</div>
 
  
     {{-- Nama --}}
