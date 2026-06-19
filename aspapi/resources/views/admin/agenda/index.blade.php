@@ -101,8 +101,8 @@
                             {{ $statusConfig[1] }}
                         </span>
                     </td>
-                    <td class="px-5 py-4 text-right whitespace-nowrap">
-                        <div class="flex items-center justify-end gap-2">
+                    <td class="px-5 py-4 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-2">
                             <button type="button" onclick="openDetailModal({{ $agenda->id }})"
                                     class="text-2xs font-bold text-neutral-400 hover:text-primary transition-colors">Detail</button>
 
