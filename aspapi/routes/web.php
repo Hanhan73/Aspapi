@@ -179,7 +179,7 @@ Route::prefix('anggota')->name('members.')->group(function () {
     Route::get('/jenis-syarat', [MemberController::class, 'types'])->name('types');
     Route::get('/daftar',       [MemberController::class, 'registerForm'])->name('register');
     Route::post('/daftar',      [MemberController::class, 'registerStore'])->name('register.store');
-    Route::get('/direktori',    [MemberController::class, 'directory'])->name('directory');
+    Route::get('/direktori',    [MemberController::class, 'directory'])->name('directori');
 });
 
 // ── ASPAPI DAERAH (PUBLIC) ──
