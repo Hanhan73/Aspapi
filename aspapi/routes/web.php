@@ -13,6 +13,8 @@ use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\BlogController;
 use App\Http\Controllers\Public\DocumentController;
 use App\Http\Controllers\Public\PartnerController;
+use App\Http\Controllers\Public\AgendaPublicController;
+use App\Http\Controllers\Public\SeminarPublicController;
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -142,6 +144,15 @@ Route::prefix('daerah')->name('daerah.')->middleware(['auth', 'role:aspapi_daera
     Route::post('/verifikasi/{id}/approve',     [RegionMemberController::class, 'verifyApprove'])->name('verify.approve');
     Route::post('/verifikasi/{id}/reject',      [RegionMemberController::class, 'verifyReject'])->name('verify.reject');
     Route::post('/verifikasi/{id}/approve-old', [RegionMemberController::class, 'verifyApproveOld'])->name('verify.approve-old');
+
+    Route::prefix('agenda')->name('agenda.')->group(function () {
+        Route::get('/',            [\App\Http\Controllers\Daerah\AgendaController::class, 'index'])->name('index');
+        Route::get('/tambah',      [\App\Http\Controllers\Daerah\AgendaController::class, 'create'])->name('create');
+        Route::post('/',           [\App\Http\Controllers\Daerah\AgendaController::class, 'store'])->name('store');
+        Route::get('/{agenda}/edit', [\App\Http\Controllers\Daerah\AgendaController::class, 'edit'])->name('edit');
+        Route::put('/{agenda}',    [\App\Http\Controllers\Daerah\AgendaController::class, 'update'])->name('update');
+        Route::delete('/{agenda}', [\App\Http\Controllers\Daerah\AgendaController::class, 'destroy'])->name('destroy');
+    });
 });
 
 // ── AUTH ADMIN ──
@@ -168,6 +179,7 @@ Route::prefix('anggota')->name('members.')->group(function () {
     Route::get('/jenis-syarat', [MemberController::class, 'types'])->name('types');
     Route::get('/daftar',       [MemberController::class, 'registerForm'])->name('register');
     Route::post('/daftar',      [MemberController::class, 'registerStore'])->name('register.store');
+    Route::get('/direktori',    [MemberController::class, 'directory'])->name('directory');
 });
 
 // ── ASPAPI DAERAH (PUBLIC) ──
@@ -192,6 +204,9 @@ Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/',       [BlogController::class, 'index'])->name('index');
     Route::get('/{slug}', [BlogController::class, 'show'])->name('show');
 });
+
+Route::get('/seminar-pelatihan', [SeminarPublicController::class, 'index'])->name('public.seminars');
+Route::get('/agenda',            [AgendaPublicController::class,  'index'])->name('public.agenda');
 
 // ── DOKUMEN (PUBLIC) ──
 Route::prefix('download')->name('documents.')->group(function () {
@@ -316,6 +331,13 @@ Route::prefix('admin')
 
             // Laporan peserta
             Route::get('/{seminar}/peserta',                   [SeminarAdminController::class, 'enrollments'])->name('enrollments');
+        });
+
+        Route::prefix('agenda')->name('agenda.')->group(function () {
+            Route::get('/',                          [\App\Http\Controllers\Admin\AgendaAdminController::class, 'index'])->name('index');
+            Route::post('/{agenda}/approve',         [\App\Http\Controllers\Admin\AgendaAdminController::class, 'approve'])->name('approve');
+            Route::post('/{agenda}/reject',          [\App\Http\Controllers\Admin\AgendaAdminController::class, 'reject'])->name('reject');
+            Route::delete('/{agenda}',               [\App\Http\Controllers\Admin\AgendaAdminController::class, 'destroy'])->name('destroy');
         });
     });
 
