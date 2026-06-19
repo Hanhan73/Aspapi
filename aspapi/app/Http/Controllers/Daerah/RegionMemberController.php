@@ -30,36 +30,39 @@ class RegionMemberController extends Controller
 
     // ── Dashboard ─────────────────────────────────────────────────────────────
 
-public function index()
-{
-    $region = $this->region();
+    public function index()
+    {
+        $region = $this->region();
 
-    $stats = [
-        'total_members'  => Member::where('registered_by_region_id', $region->id)->count(),
-        'active_members' => Member::where('registered_by_region_id', $region->id)->where('status', 'active')->count(),
-        'pending'        => Member::where('registered_by_region_id', $region->id)->where('status', 'pending')->count(),
-    ];
+        $stats = [
+            'total_members'  => Member::where('registered_by_region_id', $region->id)->count(),
+            'active_members' => Member::where('registered_by_region_id', $region->id)->where('status', 'active')->count(),
+            'pending'        => Member::where('registered_by_region_id', $region->id)->where('status', 'pending')->count(),
+        ];
 
-    $recentMembers = Member::where('registered_by_region_id', $region->id)
-        ->latest()->take(5)->get();
+        $recentMembers = Member::where('registered_by_region_id', $region->id)
+            ->latest()->take(5)->get();
 
-    $statusBreakdown = [
-        'active'   => Member::where('registered_by_region_id', $region->id)->where('status', 'active')->count(),
-        'pending'  => Member::where('registered_by_region_id', $region->id)->where('status', 'pending')->count(),
-        'inactive' => Member::where('registered_by_region_id', $region->id)->where('status', 'inactive')->count(),
-        'rejected' => Member::where('registered_by_region_id', $region->id)->where('status', 'rejected')->count(),
-    ];
+        $statusBreakdown = [
+            'active'   => Member::where('registered_by_region_id', $region->id)->where('status', 'active')->count(),
+            'pending'  => Member::where('registered_by_region_id', $region->id)->where('status', 'pending')->count(),
+            'inactive' => Member::where('registered_by_region_id', $region->id)->where('status', 'inactive')->count(),
+            'rejected' => Member::where('registered_by_region_id', $region->id)->where('status', 'rejected')->count(),
+        ];
 
-    $duesBreakdown = [
-        'lunas' => Member::where('registered_by_region_id', $region->id)->where('dues_paid', true)->count(),
-        'belum' => Member::where('registered_by_region_id', $region->id)->where('dues_paid', false)->count(),
-    ];
+        $duesBreakdown = [
+            'lunas' => Member::where('registered_by_region_id', $region->id)->where('dues_paid', true)->count(),
+            'belum' => Member::where('registered_by_region_id', $region->id)->where('dues_paid', false)->count(),
+        ];
 
-    return view('daerah.dashboard', compact(
-        'region', 'stats', 'recentMembers',
-        'statusBreakdown', 'duesBreakdown',
-    ));
-}
+        return view('daerah.dashboard', compact(
+            'region',
+            'stats',
+            'recentMembers',
+            'statusBreakdown',
+            'duesBreakdown',
+        ));
+    }
 
     // ── Daftar Anggota ────────────────────────────────────────────────────────
 
@@ -551,109 +554,112 @@ public function index()
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-//  VERIFIKASI BIODATA ANGGOTA
-// ══════════════════════════════════════════════════════════════════════════
+    //  VERIFIKASI BIODATA ANGGOTA
+    // ══════════════════════════════════════════════════════════════════════════
 
-public function verifyIndex(Request $request)
-{
-    $region = $this->region();
+    public function verifyIndex(Request $request)
+    {
+        $region = $this->region();
 
-    $query = Member::where('registered_by_region_id', $region->id)
-        ->when($request->filled('status'), fn($q) => $q->where('biodata_status', $request->status))
-        ->when($request->filled('search'), fn($q) =>
-            $q->where('full_name', 'like', '%' . $request->search . '%')
-              ->orWhere('email', 'like', '%' . $request->search . '%')
-        )
-        ->latest();
+        $members = Member::where('registered_by_region_id', $region->id)
+            ->where('biodata_status', 'pending')           // ← hanya pending
+            ->with(['provinceModel', 'cityModel'])
+            ->when(
+                $request->filled('search'),
+                fn($q) =>
+                $q->where('full_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+            )
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
 
-    $members      = $query->paginate(20)->withQueryString();
-    $pendingCount = Member::where('registered_by_region_id', $region->id)
-                        ->where('biodata_status', 'pending')->count();
-    $oldClaimCount = Member::where('registered_by_region_id', $region->id)
-                        ->where('biodata_status', 'pending')
-                        ->where('claims_old_member', true)->count();
+        $pendingCount = Member::where('registered_by_region_id', $region->id)
+            ->where('biodata_status', 'pending')->count();
+        $oldClaimCount = Member::where('registered_by_region_id', $region->id)
+            ->where('biodata_status', 'pending')
+            ->where('claims_old_member', true)->count();
 
-    return view('daerah.verify', compact('region', 'members', 'pendingCount', 'oldClaimCount'));
-}
+        return view('daerah.verify', compact('region', 'members', 'pendingCount', 'oldClaimCount'));
+    }
+    public function verifyApprove(Request $request, int $id)
+    {
+        $region = $this->region();
+        $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
 
-public function verifyApprove(Request $request, int $id)
-{
-    $region = $this->region();
-    $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
+        $member->update([
+            'biodata_status' => 'verified',
+            'status'         => $member->status === 'active' ? 'active' : 'pending',
+            'registered_at'  => $member->registered_at ?? now(),
+        ]);
 
-    $member->update([
-        'biodata_status' => 'verified',
-        'status'         => $member->status === 'active' ? 'active' : 'pending',
-        'registered_at'  => $member->registered_at ?? now(),
-    ]);
+        \App\Models\MemberVerificationLog::create([
+            'member_id'   => $member->id,
+            'verified_by' => auth()->id(),
+            'action'      => 'approve_biodata',
+            'note'        => $request->note,
+        ]);
 
-    \App\Models\MemberVerificationLog::create([
-        'member_id'   => $member->id,
-        'verified_by' => auth()->id(),
-        'action'      => 'approve_biodata',
-        'note'        => $request->note,
-    ]);
+        try {
+            Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
+                $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
+            });
+        } catch (\Exception $e) {
+            Log::warning('Mail gagal: ' . $e->getMessage());
+        }
 
-    try {
-        Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
-            $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
-        });
-    } catch (\Exception $e) {
-        Log::warning('Mail gagal: ' . $e->getMessage());
+        return back()->with('success', 'Biodata anggota berhasil diverifikasi.');
     }
 
-    return back()->with('success', 'Biodata anggota berhasil diverifikasi.');
-}
+    public function verifyReject(Request $request, int $id)
+    {
+        $request->validate(['reason' => 'required|string']);
 
-public function verifyReject(Request $request, int $id)
-{
-    $request->validate(['reason' => 'required|string']);
+        $region = $this->region();
+        $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
 
-    $region = $this->region();
-    $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
+        $member->update([
+            'biodata_status'        => 'rejected',
+            'biodata_reject_reason' => $request->reason,
+        ]);
 
-    $member->update([
-        'biodata_status'        => 'rejected',
-        'biodata_reject_reason' => $request->reason,
-    ]);
+        \App\Models\MemberVerificationLog::create([
+            'member_id'   => $member->id,
+            'verified_by' => auth()->id(),
+            'action'      => 'reject_biodata',
+            'note'        => $request->reason,
+        ]);
 
-    \App\Models\MemberVerificationLog::create([
-        'member_id'   => $member->id,
-        'verified_by' => auth()->id(),
-        'action'      => 'reject_biodata',
-        'note'        => $request->reason,
-    ]);
+        try {
+            Mail::send('emails.biodata-rejected', ['member' => $member, 'reason' => $request->reason], function ($m) use ($member) {
+                $m->to($member->email)->subject('Biodata Anda Perlu Diperbaiki — ASPAPI');
+            });
+        } catch (\Exception $e) {
+            Log::warning('Mail gagal: ' . $e->getMessage());
+        }
 
-    try {
-        Mail::send('emails.biodata-rejected', ['member' => $member, 'reason' => $request->reason], function ($m) use ($member) {
-            $m->to($member->email)->subject('Biodata Anda Perlu Diperbaiki — ASPAPI');
-        });
-    } catch (\Exception $e) {
-        Log::warning('Mail gagal: ' . $e->getMessage());
+        return back()->with('success', 'Biodata ditolak dan notifikasi dikirim.');
     }
 
-    return back()->with('success', 'Biodata ditolak dan notifikasi dikirim.');
-}
+    public function verifyApproveOld(Request $request, int $id)
+    {
+        $region = $this->region();
+        $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
 
-public function verifyApproveOld(Request $request, int $id)
-{
-    $region = $this->region();
-    $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
+        $member->update([
+            'biodata_status'    => 'verified',
+            'status'            => $member->status === 'active' ? 'active' : 'pending',
+            'registration_type' => 'lama',
+            'registered_at'     => now()->setYear((int) $member->claimed_join_year),
+        ]);
 
-    $member->update([
-        'biodata_status'    => 'verified',
-        'status'            => $member->status === 'active' ? 'active' : 'pending',
-        'registration_type' => 'lama',
-        'registered_at'     => now()->setYear((int) $member->claimed_join_year),
-    ]);
+        \App\Models\MemberVerificationLog::create([
+            'member_id'   => $member->id,
+            'verified_by' => auth()->id(),
+            'action'      => 'approve_old_member',
+            'note'        => 'Dikonfirmasi sebagai anggota lama sejak ' . $member->claimed_join_year,
+        ]);
 
-    \App\Models\MemberVerificationLog::create([
-        'member_id'   => $member->id,
-        'verified_by' => auth()->id(),
-        'action'      => 'approve_old_member',
-        'note'        => 'Dikonfirmasi sebagai anggota lama sejak ' . $member->claimed_join_year,
-    ]);
-
-    return back()->with('success', 'Klaim anggota lama berhasil dikonfirmasi.');
-}
+        return back()->with('success', 'Klaim anggota lama berhasil dikonfirmasi.');
+    }
 }
