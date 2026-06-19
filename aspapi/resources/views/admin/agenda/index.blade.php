@@ -79,9 +79,6 @@
                                         class="font-semibold text-navy text-sm hover:text-primary transition-colors text-left w-full truncate block">
                                     {{ $agenda->title }}
                                 </button>
-                                @if ($agenda->description)
-                                <p class="text-xs text-neutral-400 mt-0.5 truncate">{{ $agenda->description }}</p>
-                                @endif
                             </div>
                         </div>
                     </td>
