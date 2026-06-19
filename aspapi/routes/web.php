@@ -67,7 +67,7 @@ Route::get('/api/cities/{provinceId}', function ($provinceId) {
     );
 });
 
-    // ── MEMBER PORTAL ──
+// ── MEMBER PORTAL ──
 Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->group(function () {
     Route::get('/',                [MemberDashboard::class, 'index'])->name('dashboard');
     Route::get('/biodata',         [BiodataController::class, 'edit'])->name('biodata');
@@ -82,30 +82,29 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
     Route::prefix('seminar')->name('seminar.')->group(function () {
         // Daftar seminar tersedia
         Route::get('/',                                   [SeminarController::class, 'index'])->name('index');
-    
+
         // Seminar saya
         Route::get('/saya',                               [SeminarController::class, 'mySeminars'])->name('my-seminars');
 
         Route::get('/seminar/certificate/{certificate}', [SeminarCertificateController::class, 'download'])
             ->name('certificate');
-    
+
         // Daftar ke seminar
         Route::post('/{seminar}/daftar',                  [SeminarController::class, 'enroll'])->name('enroll');
-    
+
         // Detail seminar (progress page)
         Route::get('/enrollment/{enrollment}',            [SeminarController::class, 'show'])->name('show');
-    
+
         // Pre-test
         Route::get('/enrollment/{enrollment}/pre-test',   [SeminarController::class, 'startPreTest'])->name('pretest.start');
         Route::post('/attempt/{attempt}/pre-test/submit', [SeminarController::class, 'submitPreTest'])->name('pretest.submit');
-    
+
         // Tandai materi selesai
         Route::post('/enrollment/{enrollment}/materi-selesai', [SeminarController::class, 'markMaterialRead'])->name('material.done');
-    
+
         // Post-test
         Route::get('/enrollment/{enrollment}/post-test',  [SeminarController::class, 'startPostTest'])->name('posttest.start');
-        Route::post('/attempt/{attempt}/post-test/submit',[SeminarController::class, 'submitPostTest'])->name('posttest.submit');
-    
+        Route::post('/attempt/{attempt}/post-test/submit', [SeminarController::class, 'submitPostTest'])->name('posttest.submit');
     });
 });
 
@@ -139,7 +138,10 @@ Route::prefix('daerah')->name('daerah.')->middleware(['auth', 'role:aspapi_daera
     Route::post('/check-duplicates', [RegionMemberController::class, 'checkDuplicates'])
         ->name('batch.check-duplicates');
     Route::get('/anggota/export', [RegionMemberController::class, 'exportMembers'])->name('members.export');
-
+    Route::get('/verifikasi',             [RegionMemberController::class, 'verifyIndex'])->name('verify.index');
+    Route::post('/verifikasi/{id}/approve',     [RegionMemberController::class, 'verifyApprove'])->name('verify.approve');
+    Route::post('/verifikasi/{id}/reject',      [RegionMemberController::class, 'verifyReject'])->name('verify.reject');
+    Route::post('/verifikasi/{id}/approve-old', [RegionMemberController::class, 'verifyApproveOld'])->name('verify.approve-old');
 });
 
 // ── AUTH ADMIN ──
@@ -245,7 +247,7 @@ Route::prefix('admin')
         Route::get('dokumen/sort',              [DocumentAdminController::class, 'sortIndex'])->name('documents.sort');
         Route::post('dokumen/sort/documents',   [DocumentAdminController::class, 'sortDocuments'])->name('documents.sort.documents');
         Route::post('dokumen/sort/categories',  [DocumentAdminController::class, 'sortCategories'])->name('documents.sort.categories');
-        
+
         // Dokumen
         Route::resource('dokumen', DocumentAdminController::class)
             ->names('documents')
@@ -301,14 +303,14 @@ Route::prefix('admin')
             Route::get('/{seminar}/edit',                      [SeminarAdminController::class, 'edit'])->name('edit');
             Route::put('/{seminar}',                           [SeminarAdminController::class, 'update'])->name('update');
             Route::delete('/{seminar}',                        [SeminarAdminController::class, 'destroy'])->name('destroy');
-        
+
             // Manajemen soal
             Route::get('/{seminar}/soal',                      [SeminarAdminController::class, 'questions'])->name('questions');
             Route::post('/{seminar}/soal',                     [SeminarAdminController::class, 'storeQuestion'])->name('questions.store');
             Route::put('/soal/{question}',                     [SeminarAdminController::class, 'updateQuestion'])->name('questions.update');
             Route::delete('/soal/{question}',                  [SeminarAdminController::class, 'destroyQuestion'])->name('questions.destroy');
-        
-                // Import soal dari Excel
+
+            // Import soal dari Excel
             Route::get('/soal/template',                 [SeminarAdminController::class, 'downloadTemplate'])->name('template');
             Route::post('/{seminar}/soal/import',        [SeminarAdminController::class, 'importQuestions'])->name('import');
 
@@ -318,10 +320,9 @@ Route::prefix('admin')
     });
 
 
-    Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::post('/impersonate/{userId}', [ImpersonateController::class, 'impersonate'])
         ->name('impersonate');
     Route::post('/impersonate-leave', [ImpersonateController::class, 'leave'])
         ->name('impersonate.leave');
 });
- 

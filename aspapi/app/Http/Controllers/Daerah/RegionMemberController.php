@@ -549,4 +549,111 @@ public function index()
 
         return view('daerah.pay-batch-detail', compact('batch', 'region'));
     }
+
+    // ══════════════════════════════════════════════════════════════════════════
+//  VERIFIKASI BIODATA ANGGOTA
+// ══════════════════════════════════════════════════════════════════════════
+
+public function verifyIndex(Request $request)
+{
+    $region = $this->region();
+
+    $query = Member::where('registered_by_region_id', $region->id)
+        ->when($request->filled('status'), fn($q) => $q->where('biodata_status', $request->status))
+        ->when($request->filled('search'), fn($q) =>
+            $q->where('full_name', 'like', '%' . $request->search . '%')
+              ->orWhere('email', 'like', '%' . $request->search . '%')
+        )
+        ->latest();
+
+    $members      = $query->paginate(20)->withQueryString();
+    $pendingCount = Member::where('registered_by_region_id', $region->id)
+                        ->where('biodata_status', 'pending')->count();
+    $oldClaimCount = Member::where('registered_by_region_id', $region->id)
+                        ->where('biodata_status', 'pending')
+                        ->where('claims_old_member', true)->count();
+
+    return view('daerah.verify', compact('region', 'members', 'pendingCount', 'oldClaimCount'));
+}
+
+public function verifyApprove(Request $request, int $id)
+{
+    $region = $this->region();
+    $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
+
+    $member->update([
+        'biodata_status' => 'verified',
+        'status'         => $member->status === 'active' ? 'active' : 'pending',
+        'registered_at'  => $member->registered_at ?? now(),
+    ]);
+
+    \App\Models\MemberVerificationLog::create([
+        'member_id'   => $member->id,
+        'verified_by' => auth()->id(),
+        'action'      => 'approve_biodata',
+        'note'        => $request->note,
+    ]);
+
+    try {
+        Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
+            $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
+        });
+    } catch (\Exception $e) {
+        Log::warning('Mail gagal: ' . $e->getMessage());
+    }
+
+    return back()->with('success', 'Biodata anggota berhasil diverifikasi.');
+}
+
+public function verifyReject(Request $request, int $id)
+{
+    $request->validate(['reason' => 'required|string']);
+
+    $region = $this->region();
+    $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
+
+    $member->update([
+        'biodata_status'        => 'rejected',
+        'biodata_reject_reason' => $request->reason,
+    ]);
+
+    \App\Models\MemberVerificationLog::create([
+        'member_id'   => $member->id,
+        'verified_by' => auth()->id(),
+        'action'      => 'reject_biodata',
+        'note'        => $request->reason,
+    ]);
+
+    try {
+        Mail::send('emails.biodata-rejected', ['member' => $member, 'reason' => $request->reason], function ($m) use ($member) {
+            $m->to($member->email)->subject('Biodata Anda Perlu Diperbaiki — ASPAPI');
+        });
+    } catch (\Exception $e) {
+        Log::warning('Mail gagal: ' . $e->getMessage());
+    }
+
+    return back()->with('success', 'Biodata ditolak dan notifikasi dikirim.');
+}
+
+public function verifyApproveOld(Request $request, int $id)
+{
+    $region = $this->region();
+    $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
+
+    $member->update([
+        'biodata_status'    => 'verified',
+        'status'            => $member->status === 'active' ? 'active' : 'pending',
+        'registration_type' => 'lama',
+        'registered_at'     => now()->setYear((int) $member->claimed_join_year),
+    ]);
+
+    \App\Models\MemberVerificationLog::create([
+        'member_id'   => $member->id,
+        'verified_by' => auth()->id(),
+        'action'      => 'approve_old_member',
+        'note'        => 'Dikonfirmasi sebagai anggota lama sejak ' . $member->claimed_join_year,
+    ]);
+
+    return back()->with('success', 'Klaim anggota lama berhasil dikonfirmasi.');
+}
 }
