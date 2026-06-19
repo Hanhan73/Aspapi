@@ -12,16 +12,41 @@ class Member extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'member_number', 'full_name', 'front_title', 'back_title', 'email', 'phone', 'nik',
-        'birth_place', 'birth_date', 'gender', 'last_education',
-        'member_type', 'registration_type', 'claims_old_member', 'claimed_join_year',
-        'biodata_status', 'biodata_reject_reason',
-        'institution', 'occupation', 'position',
-        'province_id', 'city_id', 'province', 'city', 'address',
+        'user_id',
+        'member_number',
+        'full_name',
+        'front_title',
+        'back_title',
+        'email',
+        'phone',
+        'nik',
+        'birth_place',
+        'birth_date',
+        'gender',
+        'last_education',
+        'member_type',
+        'registration_type',
+        'claims_old_member',
+        'claimed_join_year',
+        'biodata_status',
+        'biodata_reject_reason',
+        'institution',
+        'occupation',
+        'position',
+        'province_id',
+        'city_id',
+        'province',
+        'city',
+        'address',
         'photo',
-        'status', 'registered_at', 'active_until',
-        'dues_paid', 'dues_paid_at', 'dues_receipt',
-        'is_batch', 'registered_by_region_id',
+        'status',
+        'registered_at',
+        'active_until',
+        'dues_paid',
+        'dues_paid_at',
+        'dues_receipt',
+        'is_batch',
+        'registered_by_region_id',
     ];
 
     protected $casts = [
@@ -241,10 +266,24 @@ class Member extends Model
     }
 
     public function getFullNameWithTitleAttribute(): string
-{
-    $name = ucwords(strtolower($this->full_name));
-    $front = $this->front_title ? $this->front_title . ' ' : '';
-    $back  = $this->back_title  ? ', ' . $this->back_title : '';
-    return $front . $name . $back;
-}
+    {
+        $name      = $this->full_name ?? '';
+        $frontTitle = trim($this->front_title ?? '');
+        $backTitle  = trim($this->back_title ?? '');
+
+        // Nama di-uppercase, gelar tetap as-is sesuai input
+        $parts = [];
+
+        if ($frontTitle !== '') {
+            $parts[] = $frontTitle;
+        }
+
+        $parts[] = strtoupper($name);
+
+        if ($backTitle !== '') {
+            $parts[] = $backTitle;
+        }
+
+        return implode(' ', $parts);
+    }
 }
