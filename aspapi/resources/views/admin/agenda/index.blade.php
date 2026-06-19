@@ -52,7 +52,7 @@
                     <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell">Tanggal</th>
                     <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden sm:table-cell">Daerah</th>
                     <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Status</th>
-                    <th class="text-right px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Aksi</th>
+                    <th class="text-center px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-neutral-50">
