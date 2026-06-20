@@ -9,6 +9,13 @@
     $isPending  = $member?->biodata_status === 'pending';
     $isRejected = $member?->biodata_status === 'rejected';
     $isDraft    = $member?->biodata_status === 'draft' || $member?->biodata_status === null;
+
+    $occupationOptions = ['Dosen', 'Guru', 'Praktisi', 'Lainnya'];
+    $currentOccupation = old('occupation', $member?->occupation);
+    $occupationInList  = in_array($currentOccupation, $occupationOptions);
+    // Kalau nilai lama bukan salah satu opsi (misal data lama free text), masuk ke "Lainnya"
+    $selectedOccupation = $occupationInList ? $currentOccupation : ($currentOccupation ? 'Lainnya' : '');
+    $customOccupation   = (!$occupationInList && $currentOccupation) ? $currentOccupation : '';
 @endphp
 
 @section('content')
@@ -168,7 +175,6 @@
                     </div>
                 </div>
 
-                {{-- sisa field lainnya tetap sama persis --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">NIK (16 digit) *</label>
@@ -274,12 +280,32 @@
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
                 <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Data Profesi / Akademik</p>
 
+                {{-- Pekerjaan: dropdown 4 opsi + field "Lainnya" --}}
                 <div style="margin-bottom:1rem;">
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Pekerjaan / Profesi</label>
-                    <input type="text" name="occupation" value="{{ old('occupation', $member?->occupation) }}"
-                           placeholder="Contoh: Dosen, PNS, Dokter, Wiraswasta..."
-                           style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                           onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                    <select name="occupation_select" id="occupation-select"
+                            onchange="toggleOccupationOther(this.value)"
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
+                        <option value="">Pilih</option>
+                        <option value="Dosen"     {{ $selectedOccupation === 'Dosen'     ? 'selected' : '' }}>Dosen</option>
+                        <option value="Guru"      {{ $selectedOccupation === 'Guru'      ? 'selected' : '' }}>Guru</option>
+                        <option value="Praktisi"  {{ $selectedOccupation === 'Praktisi'  ? 'selected' : '' }}>Praktisi</option>
+                        <option value="Lainnya"   {{ $selectedOccupation === 'Lainnya'   ? 'selected' : '' }}>Lainnya</option>
+                    </select>
+
+                    {{-- Field teks muncul kalau pilih "Lainnya" --}}
+                    <div id="occupation-other-wrap"
+                         style="margin-top:0.625rem;{{ $selectedOccupation === 'Lainnya' ? '' : 'display:none;' }}">
+                        <input type="text" id="occupation-other"
+                               placeholder="Tuliskan pekerjaan Anda..."
+                               value="{{ $customOccupation }}"
+                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                    </div>
+
+                    {{-- Hidden field yang dikirim ke server --}}
+                    <input type="hidden" name="occupation" id="occupation-hidden"
+                           value="{{ $currentOccupation }}">
                 </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
@@ -391,7 +417,6 @@ function closeUnlockModal() {
     const modal = document.getElementById('unlock-modal');
     modal.style.display = 'none';
 }
-// Tutup modal kalau klik di luar
 document.getElementById('unlock-modal')?.addEventListener('click', function(e) {
     if (e.target === this) closeUnlockModal();
 });
@@ -419,6 +444,41 @@ function loadCities(provinceId) {
             });
         });
 }
+
+// ── Pekerjaan dropdown logic ──────────────────────────────────────────────
+function toggleOccupationOther(val) {
+    const wrap   = document.getElementById('occupation-other-wrap');
+    const other  = document.getElementById('occupation-other');
+    const hidden = document.getElementById('occupation-hidden');
+
+    if (val === 'Lainnya') {
+        wrap.style.display = 'block';
+        other.focus();
+        // Nilai hidden diupdate dari field teks
+        hidden.value = other.value;
+    } else {
+        wrap.style.display = 'none';
+        hidden.value = val;
+    }
+}
+
+// Sync field "Lainnya" ke hidden input saat diketik
+document.getElementById('occupation-other')?.addEventListener('input', function() {
+    document.getElementById('occupation-hidden').value = this.value;
+});
+
+// Sync sebelum submit: pastikan hidden punya nilai terkini
+document.getElementById('biodata-form')?.addEventListener('submit', function() {
+    const select = document.getElementById('occupation-select');
+    const other  = document.getElementById('occupation-other');
+    const hidden = document.getElementById('occupation-hidden');
+
+    if (select && select.value === 'Lainnya') {
+        hidden.value = other?.value || '';
+    } else if (select) {
+        hidden.value = select.value;
+    }
+});
 </script>
 @endpush
 
