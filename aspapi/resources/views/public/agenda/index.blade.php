@@ -121,8 +121,22 @@
                         {{ $agenda->title }}
                     </h3>
 
-                    @if ($agenda->description)
-                    <p class="text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3">{{ $agenda->description }}</p>
+                    @php
+                        $rawDesc = $agenda->description ?? '';
+                        // Convert <br>, </p>, </div>, </li>, </h*> to newline first
+                        $plainDesc = preg_replace('/<br\s*\/?>/i', "\n", $rawDesc);
+                        $plainDesc = preg_replace('/<\/(p|div|section|article|li|ul|ol|h[1-6]|tr)>/i', "\n", $plainDesc);
+                        // Strip all remaining HTML tags
+                        $plainDesc = strip_tags($plainDesc);
+                        // Decode HTML entities (from Quill output)
+                        $plainDesc = html_entity_decode($plainDesc, ENT_QUOTES, 'UTF-8');
+                        // Collapse multiple newlines / whitespace
+                        $plainDesc = preg_replace("/[ \t]+/", " ", $plainDesc);
+                        $plainDesc = preg_replace("/\n\s*\n+/", "\n", $plainDesc);
+                        $plainDesc = trim($plainDesc);
+                    @endphp
+                    @if ($plainDesc)
+                    <p class="text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3">{!! nl2br(e($plainDesc)) !!}</p>
                     @endif
 
                     <span class="text-2xs font-bold tracking-widest uppercase text-primary border-b-2 border-accent-yellow pb-0.5 w-fit mt-auto">
@@ -131,9 +145,9 @@
                 </div>
             </div>
 
-<div id="agenda-desc-{{ $agenda->id }}" class="hidden">
-    {!! $agenda->description !!}
-</div>
+            <div id="agenda-desc-{{ $agenda->id }}" class="hidden">
+                {!! $agenda->description !!}
+            </div>
             @endforeach
         </div>
 
