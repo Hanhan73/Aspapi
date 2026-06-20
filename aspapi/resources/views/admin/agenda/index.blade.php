@@ -45,30 +45,32 @@
 
     @if ($agendas->count())
     <div class="card overflow-hidden">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm table-fixed">
             <thead>
                 <tr class="border-b border-neutral-100 bg-neutral-50">
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Kegiatan</th>
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell">Tanggal</th>
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden sm:table-cell">Daerah</th>
-                    <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Status</th>
-                    <th class="text-center px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Aksi</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[42%]">Kegiatan</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden lg:table-cell w-[14%]">Tanggal</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell w-[18%]">Daerah</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[13%]">Status</th>
+                    <th class="text-right px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[13%]">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-neutral-50">
                 @foreach ($agendas as $agenda)
                 <tr class="hover:bg-neutral-50/70 transition-colors">
-                    <td class="px-5 py-4">
-                        <div class="flex items-center gap-3">
+
+                    {{-- Kegiatan --}}
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3 min-w-0">
                             <button type="button" onclick="openDetailModal({{ $agenda->id }})"
                                     class="flex-shrink-0 focus:outline-none group">
                                 @if ($agenda->photo)
-                                <div class="w-10 h-10 rounded overflow-hidden border border-neutral-100 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
+                                <div class="w-9 h-9 rounded overflow-hidden border border-neutral-100 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
                                     <img src="{{ Storage::url($agenda->photo) }}" class="w-full h-full object-cover" alt="">
                                 </div>
                                 @else
-                                <div class="w-10 h-10 rounded bg-primary-50 flex items-center justify-center border border-neutral-100 group-hover:ring-2 group-hover:ring-primary/30 transition-all flex-shrink-0">
-                                    <svg class="w-5 h-5 text-primary-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-9 h-9 rounded bg-primary-50 flex items-center justify-center border border-neutral-100 group-hover:ring-2 group-hover:ring-primary/30 transition-all flex-shrink-0">
+                                    <svg class="w-4 h-4 text-primary-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>
@@ -76,19 +78,30 @@
                             </button>
                             <div class="min-w-0 flex-1">
                                 <button type="button" onclick="openDetailModal({{ $agenda->id }})"
-                                        class="font-semibold text-navy text-sm hover:text-primary transition-colors text-left w-full truncate block">
+                                        class="font-semibold text-navy text-sm hover:text-primary transition-colors text-left w-full block truncate">
                                     {{ $agenda->title }}
                                 </button>
+                                {{-- Info tambahan di mobile (tanggal + daerah) --}}
+                                <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+                                    <span class="text-2xs text-neutral-400 lg:hidden">{{ $agenda->event_date->translatedFormat('d M Y') }}</span>
+                                    <span class="text-2xs text-neutral-400 md:hidden">{{ $agenda->region->name ?? '' }}</span>
+                                </div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-5 py-4 hidden md:table-cell whitespace-nowrap">
+
+                    {{-- Tanggal --}}
+                    <td class="px-4 py-3 hidden lg:table-cell whitespace-nowrap">
                         <span class="text-sm text-neutral-500">{{ $agenda->event_date->translatedFormat('d M Y') }}</span>
                     </td>
-                    <td class="px-5 py-4 hidden sm:table-cell">
-                        <span class="text-sm text-neutral-500">{{ $agenda->region->name ?? '—' }}</span>
+
+                    {{-- Daerah --}}
+                    <td class="px-4 py-3 hidden md:table-cell">
+                        <span class="text-sm text-neutral-500 truncate block">{{ $agenda->region->name ?? '—' }}</span>
                     </td>
-                    <td class="px-5 py-4 whitespace-nowrap">
+
+                    {{-- Status --}}
+                    <td class="px-4 py-3 whitespace-nowrap">
                         @php
                             $statusConfig = match($agenda->status) {
                                 'pending'  => ['background:#FEF3C7;color:#92400E;', 'Menunggu'],
@@ -97,12 +110,14 @@
                                 default    => ['background:#F3F4F6;color:#6B7280;', $agenda->status],
                             };
                         @endphp
-                        <span class="inline-flex items-center px-2.5 py-1 rounded text-2xs font-bold" style="{{ $statusConfig[0] }}">
+                        <span class="inline-flex items-center px-2 py-1 rounded text-2xs font-bold" style="{{ $statusConfig[0] }}">
                             {{ $statusConfig[1] }}
                         </span>
                     </td>
-                    <td class="px-5 py-4">
-                        <div class="flex justify-center items-center gap-3 whitespace-nowrap">
+
+                    {{-- Aksi --}}
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-1.5 whitespace-nowrap flex-wrap">
                             <button type="button" onclick="openDetailModal({{ $agenda->id }})"
                                     class="text-2xs font-bold text-neutral-400 hover:text-primary transition-colors">Detail</button>
 
@@ -117,14 +132,14 @@
 
                             @if ($agenda->status === 'approved')
                             <form method="POST" action="{{ route('admin.agenda.reject', $agenda) }}"
-                                  onsubmit="return confirm('Batalkan persetujuan agenda ini?')">
+                                  onsubmit="return confirm('Batalkan persetujuan?')">
                                 @csrf
-                                <button type="submit" class="text-2xs font-bold text-neutral-400 hover:text-accent-red transition-colors">Batalkan</button>
+                                <button type="submit" class="text-2xs font-bold text-neutral-400 hover:text-accent-red transition-colors">Batal</button>
                             </form>
                             @endif
 
                             <form method="POST" action="{{ route('admin.agenda.destroy', $agenda) }}"
-                                  onsubmit="return confirm('Hapus agenda ini permanen?')">
+                                  onsubmit="return confirm('Hapus agenda ini?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-2xs font-bold text-neutral-300 hover:text-accent-red transition-colors">Hapus</button>
                             </form>
@@ -181,7 +196,6 @@
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 min-h-0">
-
             <div class="flex items-center gap-2 mb-3 flex-wrap">
                 <span id="modal-status-badge" class="inline-flex items-center gap-1.5 text-2xs font-bold px-2.5 py-1 rounded"></span>
                 <span id="modal-region-badge"
@@ -214,16 +228,11 @@
                     <p id="modal-desc"
                        class="text-sm text-neutral-500 leading-relaxed break-words"
                        style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;"></p>
-                    <button id="modal-desc-more"
-                            type="button"
-                            onclick="toggleDesc()"
+                    <button id="modal-desc-more" type="button" onclick="toggleDesc()"
                             class="mt-1.5 text-2xs font-bold text-primary hover:opacity-70 transition-opacity"
-                            style="display:none;">
-                        ↓ Selengkapnya
-                    </button>
+                            style="display:none;">↓ Selengkapnya</button>
                 </div>
             </div>
-
         </div>
 
         <div class="px-6 py-4 border-t border-neutral-100 flex gap-3 flex-shrink-0">
@@ -234,16 +243,11 @@
             <form id="modal-approve-form" method="POST" action="" class="flex-1" style="display:none;">
                 @csrf
                 <button type="submit" class="w-full btn justify-center font-bold"
-                        style="background:#D1FAE5;color:#065F46;">
-                    ✓ Setujui
-                </button>
+                        style="background:#D1FAE5;color:#065F46;">✓ Setujui</button>
             </form>
-            <button id="modal-reject-btn" type="button"
-                    onclick="openRejectFromModal()"
+            <button id="modal-reject-btn" type="button" onclick="openRejectFromModal()"
                     class="flex-1 btn justify-center font-bold"
-                    style="display:none;background:#FEE2E2;color:#991B1B;">
-                ✕ Tolak
-            </button>
+                    style="display:none;background:#FEE2E2;color:#991B1B;">✕ Tolak</button>
         </div>
     </div>
 </div>
@@ -306,13 +310,12 @@ function openDetailModal(id) {
     if (!el) return;
     currentAgendaId = id;
 
-    // Reset desc
     descExpanded = false;
     const descP = document.getElementById('modal-desc');
     descP.style.webkitLineClamp = '4';
     descP.style.overflow        = 'hidden';
     const descBtn = document.getElementById('modal-desc-more');
-    descBtn.textContent  = '↓ Selengkapnya';
+    descBtn.textContent   = '↓ Selengkapnya';
     descBtn.style.display = 'none';
 
     const title      = el.dataset.title;
