@@ -171,7 +171,7 @@
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-neutral-100 bg-neutral-50">
-                                <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-10">#</th>
+                                <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-10">No.</th>
                                 <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Nama</th>
                                 <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell">Institusi</th>
                                 <th class="text-left px-5 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">ASPAPI Daerah</th>
@@ -193,10 +193,10 @@
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-bold"
                                              style="background:#2A7FC1;">
-                                            {{ strtoupper(substr($member->full_name, 0, 1)) }}
+                                            {{ strtoupper(substr($member->full_name_with_title, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-navy text-sm leading-snug">{{ $member->full_name }}</p>
+                                            <p class="font-semibold text-navy text-sm leading-snug">{{ $member->full_name_with_title }}</p>
                                             @if ($member->member_number)
                                             <p class="text-2xs text-neutral-400 font-mono mt-0.5">{{ $member->member_number }}</p>
                                             @endif
@@ -357,6 +357,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script>
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.font.size   = 11;
@@ -409,6 +410,14 @@ function initCharts() {
                     labels: { boxWidth: 12, padding: 16, font: { size: 12 } }
                 },
                 tooltip: { mode: 'index', intersect: false },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'end',
+                    color: '#4A6580',
+                    font: { size: 10, weight: '700' },
+                    formatter: val => val > 0 ? val.toLocaleString('id-ID') : '',
+                    padding: { left: 4 },
+                },
             },
             scales: {
                 x: {
@@ -421,7 +430,9 @@ function initCharts() {
                     ticks: { font: { size: 11 } },
                 },
             },
+            layout: { padding: { right: 40 } },
         },
+        plugins: [ChartDataLabels],
     });
 
     // ── 2. Doughnut Gender ────────────────────────────────────────────────
@@ -491,13 +502,23 @@ function initCharts() {
                 legend: { display: false },
                 tooltip: {
                     callbacks: { label: ctx => '  ' + ctx.raw.toLocaleString('id-ID') + ' anggota' }
-                }
+                },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'end',
+                    color: '#4A6580',
+                    font: { size: 10, weight: '700' },
+                    formatter: val => val > 0 ? val.toLocaleString('id-ID') : '',
+                    padding: { left: 4 },
+                },
             },
             scales: {
                 x: { grid: { color: '#F0F4F8' }, ticks: { precision: 0 } },
                 y: { grid: { display: false }, ticks: { font: { size: 11 } } },
             },
+            layout: { padding: { right: 40 } },
         },
+        plugins: [ChartDataLabels],
     });
 }
 
