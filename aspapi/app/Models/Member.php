@@ -278,10 +278,10 @@ class Member extends Model
             $parts[] = $frontTitle;
         }
 
-        $parts[] = strtoupper($name);
-
         if ($backTitle !== '') {
-            $parts[] = ',' . $backTitle;
+            $parts[] = strtoupper($name) . ', ' . $backTitle;
+        } else {
+            $parts[] = strtoupper($name);
         }
 
         return implode(' ', $parts);
