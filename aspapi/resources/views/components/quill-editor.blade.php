@@ -15,11 +15,9 @@
 @endphp
 
 <div>
-    {{-- Toolbar + editor container --}}
     <div id="{{ $editorId }}-container"
          style="border:1.5px solid #D6E8F7;border-radius:6px;overflow:hidden;background:#fff;">
 
-        {{-- Toolbar --}}
         <div id="{{ $editorId }}-toolbar" style="border:none;border-bottom:1.5px solid #EEF4FB;padding:6px 8px;">
             <span class="ql-formats">
                 <button class="ql-bold" title="Tebal"></button>
@@ -39,11 +37,9 @@
             </span>
         </div>
 
-        {{-- Editor area --}}
         <div id="{{ $editorId }}" style="height:{{ $editorHeight }};font-size:0.875rem;color:#1A2A3A;"></div>
     </div>
 
-    {{-- Hidden textarea untuk submit form --}}
     <textarea name="{{ $name }}" id="{{ $editorId }}-hidden" class="hidden">{{ $value ?? '' }}</textarea>
 </div>
 
@@ -51,7 +47,6 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <style>
-/* Override Quill styles agar match design system */
 .ql-toolbar.ql-snow {
     border: none !important;
     border-bottom: 1.5px solid #EEF4FB !important;
@@ -84,7 +79,6 @@
 
 @once
 @push('scripts')
-{{-- Load Quill JS only once, even if component is included multiple times --}}
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 @endpush
 @endonce
@@ -100,11 +94,30 @@
         theme: 'snow',
         modules: {
             toolbar: '#{{ $editorId }}-toolbar',
+            keyboard: {
+                bindings: {
+                    // OVERRIDE ENTER KEY: Make it insert a <br> instead of a <p>
+                    enter: {
+                        key: 13,
+                        shiftKey: false, // Only normal Enter (Shift+Enter will still be <br>)
+                        handler: function(range, context) {
+                            // If user is in a list, let Quill do its default behavior
+                            if (context.format.list) {
+                                return true; 
+                            }
+                            // Otherwise, insert a single line break
+                            this.quill.insertEmbed(range.index, 'break', true, Quill.sources.USER);
+                            this.quill.setSelection(range.index + 1, Quill.sources.USER);
+                            return false; // Prevent default <p> creation
+                        }
+                    }
+                }
+            }
         },
         placeholder: @json($placeholder ?? 'Tulis deskripsi...'),
     });
 
-    // Set nilai awal dari textarea hidden (Aman dari XSS & cursor jump)
+    // Set nilai awal dari textarea hidden
     const initialValue = hiddenEl.value.trim();
     if (initialValue) {
         quill.root.innerHTML = initialValue;
@@ -116,7 +129,7 @@
         hiddenEl.value = html === '<p><br></p>' || html === '<p></p>' ? '' : html;
     });
 
-    // Sync sebelum form submit (jaga-jaga)
+    // Sync sebelum form submit
     const form = hiddenEl.closest('form');
     if (form) {
         form.addEventListener('submit', function() {
