@@ -2,13 +2,18 @@
 
 @php $title = 'Agenda'; @endphp
 
-
 @push('styles')
 <style>
 .desc-content br {
     display: block;
     content: '';
     margin-top: 0.75em;
+}
+/* Untuk preview kartu di grid juga */
+.agenda-preview br {
+    display: block;
+    content: '';
+    margin-top: 0.5em;
 }
 </style>
 @endpush
@@ -133,7 +138,7 @@
                     </h3>
 
                     @if ($agenda->description)
-                    <div class="text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3 [&_p]:mb-0 [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_ul]:my-0 [&_ol]:my-0 [&_li]:my-0">
+                    <div class="agenda-preview text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3 [&_p]:mb-0 [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_ul]:my-0 [&_ol]:my-0 [&_li]:my-0">
                         {!! $agenda->description !!}
                     </div>
                     @endif
@@ -234,7 +239,7 @@
 
             <div id="modal-desc-wrap" style="display:none;">
                 <div class="border-t border-neutral-100 pt-4">
-                    <div id="modal-desc" class="prose prose-sm max-w-none text-neutral-600"></div>
+                    <div id="modal-desc" class="desc-content prose prose-sm max-w-none text-neutral-600"></div>
                 </div>
             </div>
         </div>
