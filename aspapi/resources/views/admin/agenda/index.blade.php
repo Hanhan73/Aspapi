@@ -87,7 +87,7 @@
                                 {{-- Info tambahan di mobile --}}
                                 <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                                     <span class="text-2xs text-neutral-400 lg:hidden">{{ $agenda->event_date->translatedFormat('d M Y') }}</span>
-                                    <span class="text-2xs text-neutral-400 md:hidden">{{ $agenda->region->name ?? '' }}</span>
+                                    <span class="text-2xs text-neutral-400 md:hidden">{{ $agenda->region->name ?? 'ASPAPI Pusat' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -100,7 +100,7 @@
 
                     {{-- Daerah --}}
                     <td class="px-4 py-3 hidden md:table-cell align-top">
-                        <span class="text-sm text-neutral-500 leading-snug block">{{ $agenda->region->name ?? '—' }}</span>
+                        <span class="text-sm text-neutral-500 leading-snug block">{{ $agenda->region->name ?? 'ASPAPI Pusat' }}</span>
                     </td>
 
                     {{-- Status --}}
@@ -160,7 +160,7 @@
                          data-desc="{{ e($agenda->description ?? '') }}"
                          data-photo="{{ $agenda->photo ? Storage::url($agenda->photo) : '' }}"
                          data-status="{{ $agenda->status }}"
-                         data-region="{{ e($agenda->region->name ?? '') }}"
+                         data-region="{{ e($agenda->region->name ?? 'ASPAPI Pusat') }}"
                          data-reject="{{ e($agenda->reject_reason ?? '') }}"
                          data-approve-url="{{ $agenda->status === 'pending' ? route('admin.agenda.approve', $agenda) : '' }}"
                          data-agenda-id="{{ $agenda->id }}">

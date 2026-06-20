@@ -46,8 +46,9 @@ class AgendaAdminController extends Controller
             $data['photo'] = $request->file('photo')->store('agendas', 'public');
         }
 
-        // Admin langsung approved
-        $data['status'] = 'approved';
+        // Pastikan region_id null (bukan string kosong)
+        $data['region_id'] = $request->filled('region_id') ? $request->region_id : null;
+        $data['status']    = 'approved';
 
         Agenda::create($data);
 

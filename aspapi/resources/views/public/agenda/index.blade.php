@@ -45,7 +45,7 @@
 
                 <div class="sm:w-56">
                     <select name="region" class="form-input w-full text-sm" onchange="this.form.submit()">
-                        <option value="">Semua Daerah</option>
+                        <option value="">Semua</option>
                         @foreach ($regions as $region)
                             <option value="{{ $region->id }}" {{ request('region') == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
                         @endforeach
@@ -81,7 +81,7 @@
                  data-title="{{ e($agenda->title) }}"
                  data-date="{{ $agenda->event_date->translatedFormat('d F Y') }}"
                  data-desc="{{ e($agenda->description ?? '') }}"
-                 data-region="{{ e($agenda->region->name ?? '') }}"
+                 data-region="{{ e($agenda->region->name ?? 'ASPAPI Pusat') }}"
                  data-photo="{{ $agenda->photo ? Storage::url($agenda->photo) : '' }}">
 
                 {{-- Foto 1:1 --}}
@@ -102,7 +102,7 @@
                     @if ($agenda->region)
                     <div style="position:absolute;top:10px;left:10px;">
                         <span style="background:rgba(26,42,58,0.75);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);">
-                            {{ $agenda->region->name }}
+                            {{ $agenda->region->name ?? 'ASPAPI Pusat' }}
                         </span>
                     </div>
                     @endif
