@@ -1,7 +1,7 @@
 {{--
     Rich Text Editor Component (contenteditable)
     Usage:
-        @include('components.rich-editor', [
+        @include('components.quill-editor', [
             'name'        => 'description',
             'value'       => old('description', $model->description ?? ''),
             'placeholder' => 'Tulis deskripsi...',
@@ -10,7 +10,8 @@
 --}}
 
 @php
-    $editorId     = 'editor-' . $name . '-' . uniqid();
+    // Ganti - dengan _ agar aman dipakai sebagai nama function JS
+    $editorId     = 'editor_' . preg_replace('/[^a-zA-Z0-9]/', '_', $name) . '_' . str_replace('.', '_', uniqid());
     $editorHeight = $height ?? '180px';
 @endphp
 
@@ -62,7 +63,6 @@
         color: #B0CCDF;
         pointer-events: none;
     }
-    /* Spacing antar paragraf di editor */
     [contenteditable] p { margin-bottom: 0.75em; }
     [contenteditable] p:last-child { margin-bottom: 0; }
     </style>
@@ -79,14 +79,12 @@
     const hiddenEl = document.getElementById('{{ $editorId }}-hidden');
     if (!editorEl || !hiddenEl) return;
 
-    // Sync ke hidden textarea
     function syncContent() {
         hiddenEl.value = editorEl.innerHTML === '<br>' ? '' : editorEl.innerHTML;
     }
 
     editorEl.addEventListener('input', syncContent);
 
-    // Enter = <p> baru, bukan <br> atau <div>
     editorEl.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -94,7 +92,6 @@
         }
     });
 
-    // Sync sebelum form submit
     const form = hiddenEl.closest('form');
     if (form) {
         form.addEventListener('submit', syncContent);
