@@ -9,6 +9,9 @@
             <h1 class="text-xl font-extrabold text-navy">Agenda Kegiatan Daerah</h1>
             <p class="text-sm text-neutral-500 mt-1">Agenda yang disetujui akan tampil di halaman publik.</p>
         </div>
+        <a href="{{ route('admin.agenda.create') }}" class="btn btn-primary btn-sm flex-shrink-0">
+            + Tambah Agenda
+        </a>
     </div>
 
     @if (session('success'))
@@ -120,6 +123,9 @@
                         <div class="flex items-center justify-end gap-2 flex-wrap">
                             <button type="button" onclick="openDetailModal({{ $agenda->id }})"
                                     class="text-2xs font-bold text-neutral-400 hover:text-primary transition-colors">Detail</button>
+
+                            <a href="{{ route('admin.agenda.edit', $agenda) }}"
+                               class="text-2xs font-bold text-primary hover:text-primary-600 transition-colors">Edit</a>
 
                             @if ($agenda->status === 'pending')
                             <form method="POST" action="{{ route('admin.agenda.approve', $agenda) }}">
