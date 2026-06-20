@@ -98,8 +98,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($seminars as $seminar)
             @php
-                $plainDesc = html_entity_decode(strip_tags($seminar->description ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                $isLong    = strlen($plainDesc) > 120;
+                $hasDesc = !empty(trim(strip_tags($seminar->description ?? '')));
+                $isLong  = strlen(strip_tags($seminar->description ?? '')) > 300;
             @endphp
             <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow card-top-blue">
 
@@ -130,18 +130,21 @@
                 <div class="p-4 flex flex-col flex-1">
                     <h3 class="font-bold text-navy text-sm leading-snug mb-1.5">{{ $seminar->title }}</h3>
 
-                    {{-- Deskripsi collapsible — strip_tags agar bersih di kartu publik --}}
-                    @if ($plainDesc)
+                    {{-- Deskripsi: render HTML dari rich editor --}}
+                    @if ($hasDesc)
                     <div x-data="{ open: false }" class="mb-3 flex-1">
-                        <p x-show="!open"
-                           class="text-xs text-neutral-500 leading-relaxed line-clamp-2">
-                            {{ $plainDesc }}
-                        </p>
-                        <p x-show="open"
-                           style="display:none;"
-                           class="text-xs text-neutral-500 leading-relaxed">
-                            {{ $plainDesc }}
-                        </p>
+                        {{-- Collapsed: max 3 baris --}}
+                        <div x-show="!open"
+                             class="text-xs text-neutral-500 leading-relaxed rich-output"
+                             style="overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;">
+                            {!! $seminar->description !!}
+                        </div>
+                        {{-- Expanded: full --}}
+                        <div x-show="open"
+                             style="display:none;"
+                             class="text-xs text-neutral-500 leading-relaxed rich-output">
+                            {!! $seminar->description !!}
+                        </div>
                         @if ($isLong)
                         <button @click="open = !open"
                                 type="button"

@@ -121,8 +121,8 @@
                 $enrollmentId = $enrolledMap[$seminar->id] ?? null;
                 $enrolled     = $enrollmentId !== null;
                 $canEnroll    = $isActive && ! $enrolled && $remainingQuota > 0;
-                $plainDesc    = strip_tags($seminar->description ?? '');
-                $isLong       = strlen($plainDesc) > 120;
+                $hasDesc   = !empty(trim(strip_tags($seminar->description ?? '')));
+                $isLong    = strlen(strip_tags($seminar->description ?? '')) > 300;
             @endphp
 
             {{-- Hidden div untuk deskripsi HTML (dipakai modal enroll) --}}
@@ -166,11 +166,19 @@
                 <div class="p-4 flex flex-col flex-1">
                     <h3 class="font-bold text-navy text-sm leading-snug mb-1.5">{{ $seminar->title }}</h3>
 
-                    {{-- Deskripsi: tampilkan plain text di kartu (strip_tags) --}}
-                    @if($plainDesc)
+                    {{-- Deskripsi: render HTML dari rich editor --}}
+                    @if($hasDesc)
                     <div x-data="{ open: false }" class="mb-3 flex-1">
-                        <p x-show="!open" class="text-xs text-neutral-500 leading-relaxed line-clamp-2">{{ $plainDesc }}</p>
-                        <p x-show="open" style="display:none;" class="text-xs text-neutral-500 leading-relaxed">{{ $plainDesc }}</p>
+                        <div x-show="!open"
+                             class="text-xs text-neutral-500 leading-relaxed rich-output"
+                             style="overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;">
+                            {!! $seminar->description !!}
+                        </div>
+                        <div x-show="open"
+                             style="display:none;"
+                             class="text-xs text-neutral-500 leading-relaxed rich-output">
+                            {!! $seminar->description !!}
+                        </div>
                         @if($isLong)
                         <button @click="open = !open" type="button"
                                 class="mt-1 text-2xs font-bold"
