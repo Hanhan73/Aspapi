@@ -1,16 +1,6 @@
 @extends('layouts.admin')
 @section('title', 'Agenda Kegiatan')
 
-@push('styles')
-<style>
-.desc-content br {
-    display: block;
-    content: '';
-    margin-top: 0.75em;
-}
-</style>
-@endpush
-
 @section('content')
 <div class="p-6">
 
@@ -94,7 +84,6 @@
                                         class="font-semibold text-navy text-sm hover:text-primary transition-colors text-left leading-snug">
                                     {{ $agenda->title }}
                                 </button>
-                                {{-- Info tambahan di mobile --}}
                                 <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                                     <span class="text-2xs text-neutral-400 lg:hidden">{{ $agenda->event_date->translatedFormat('d M Y') }}</span>
                                     <span class="text-2xs text-neutral-400 md:hidden">{{ $agenda->region->name ?? 'ASPAPI Pusat' }}</span>
@@ -163,11 +152,11 @@
                     </td>
                 </tr>
 
+                {{-- Hidden data row — desc TIDAK di data attribute, tapi di div tersendiri --}}
                 <tr style="display:none;"><td colspan="5">
                     <div id="agenda-data-{{ $agenda->id }}"
                          data-title="{{ e($agenda->title) }}"
                          data-date="{{ $agenda->event_date->translatedFormat('d F Y') }}"
-                         data-desc="{{ e($agenda->description ?? '') }}"
                          data-photo="{{ $agenda->photo ? Storage::url($agenda->photo) : '' }}"
                          data-status="{{ $agenda->status }}"
                          data-region="{{ e($agenda->region->name ?? 'ASPAPI Pusat') }}"
@@ -175,6 +164,8 @@
                          data-approve-url="{{ $agenda->status === 'pending' ? route('admin.agenda.approve', $agenda) : '' }}"
                          data-agenda-id="{{ $agenda->id }}">
                     </div>
+                    {{-- HTML dari rich editor disimpan di sini, bukan di data attribute --}}
+                    <div id="agenda-desc-{{ $agenda->id }}" style="display:none;">{!! $agenda->description ?? '' !!}</div>
                 </td></tr>
                 @endforeach
             </tbody>
@@ -241,9 +232,10 @@
             <div id="modal-desc-wrap" style="display:none;">
                 <div class="border-t border-neutral-100 pt-4">
                     <p class="text-2xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Deskripsi</p>
-                    <p id="modal-desc"
-                       class="text-sm text-neutral-500 leading-relaxed break-words"
-                       style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;"></p>
+                    {{-- Pakai div + style prose agar <p>, <strong>, <ul> dari editor tampil benar --}}
+                    <div id="modal-desc"
+                         class="text-sm text-neutral-500 leading-relaxed"
+                         style="overflow:hidden;max-height:9rem;"></div>
                     <button id="modal-desc-more" type="button" onclick="toggleDesc()"
                             class="mt-1.5 text-2xs font-bold text-primary hover:opacity-70 transition-opacity"
                             style="display:none;">↓ Selengkapnya</button>
@@ -291,6 +283,17 @@
 </div>
 
 @push('scripts')
+<style>
+/* Styling HTML output dari rich editor di dalam modal */
+#modal-desc p          { margin-bottom: 0.6em; }
+#modal-desc p:last-child { margin-bottom: 0; }
+#modal-desc strong     { font-weight: 700; color: #1A2A3A; }
+#modal-desc em         { font-style: italic; }
+#modal-desc ul         { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.6em; }
+#modal-desc ol         { list-style: decimal; padding-left: 1.25rem; margin-bottom: 0.6em; }
+#modal-desc li         { margin-bottom: 0.25em; }
+#modal-desc a          { color: #2A7FC1; text-decoration: underline; }
+</style>
 <script>
 const statusMap = {
     pending:  { style: 'background:#FEF3C7;color:#92400E;', label: '⏳ Menunggu Persetujuan' },
@@ -301,28 +304,36 @@ let currentAgendaId = null, descExpanded = false;
 
 function toggleDesc() {
     descExpanded = !descExpanded;
-    const p = document.getElementById('modal-desc'), btn = document.getElementById('modal-desc-more');
-    p.style.webkitLineClamp = descExpanded ? 'unset' : '4';
-    p.style.overflow        = descExpanded ? 'visible' : 'hidden';
-    btn.textContent         = descExpanded ? '↑ Tutup' : '↓ Selengkapnya';
+    const el  = document.getElementById('modal-desc');
+    const btn = document.getElementById('modal-desc-more');
+    el.style.maxHeight = descExpanded ? 'none' : '9rem';
+    el.style.overflow  = descExpanded ? 'visible' : 'hidden';
+    btn.textContent    = descExpanded ? '↑ Tutup' : '↓ Selengkapnya';
 }
 
 function openDetailModal(id) {
     const el = document.getElementById('agenda-data-' + id);
     if (!el) return;
     currentAgendaId = id;
+
+    // Reset desc
     descExpanded = false;
-    const descP = document.getElementById('modal-desc');
-    descP.style.webkitLineClamp = '4'; descP.style.overflow = 'hidden';
+    const descEl  = document.getElementById('modal-desc');
     const descBtn = document.getElementById('modal-desc-more');
-    descBtn.textContent = '↓ Selengkapnya'; descBtn.style.display = 'none';
+    descEl.style.maxHeight = '9rem';
+    descEl.style.overflow  = 'hidden';
+    descBtn.textContent    = '↓ Selengkapnya';
+    descBtn.style.display  = 'none';
 
-    const { title, date, desc, photo, status, region, reject, approveUrl } = el.dataset;
+    const { title, date, photo, status, region, reject, approveUrl } = el.dataset;
 
-    const s = statusMap[status] || { style: 'background:#F3F4F6;color:#6B7280;', label: status };
+    // Status badge
+    const s     = statusMap[status] || { style: 'background:#F3F4F6;color:#6B7280;', label: status };
     const badge = document.getElementById('modal-status-badge');
-    badge.style.cssText = s.style; badge.textContent = s.label;
+    badge.style.cssText = s.style;
+    badge.textContent   = s.label;
 
+    // Region badge
     const regionBadge = document.getElementById('modal-region-badge');
     const regionEl    = document.getElementById('modal-region');
     if (region) { regionEl.textContent = region; regionBadge.style.display = ''; }
@@ -331,22 +342,39 @@ function openDetailModal(id) {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-date').textContent  = date;
 
+    // Photo
     const photoWrap = document.getElementById('modal-photo-wrap');
     const noPhoto   = document.getElementById('modal-no-photo');
     const photoEl   = document.getElementById('modal-photo');
     if (photo) { photoEl.src = photo; photoEl.alt = title; photoWrap.style.display = ''; noPhoto.style.display = 'none'; }
     else { photoWrap.style.display = 'none'; noPhoto.style.display = ''; }
 
+    // Reject reason
     const rejectWrap = document.getElementById('modal-reject-wrap');
-    if (reject && status === 'rejected') { document.getElementById('modal-reject').textContent = reject; rejectWrap.style.display = ''; }
-    else { rejectWrap.style.display = 'none'; }
+    if (reject && status === 'rejected') {
+        document.getElementById('modal-reject').textContent = reject;
+        rejectWrap.style.display = '';
+    } else { rejectWrap.style.display = 'none'; }
 
-    const descWrap = document.getElementById('modal-desc-wrap');
-    if (desc) {
-        descP.innerHTML = desc; descWrap.style.display = '';
-        requestAnimationFrame(() => { if (descP.scrollHeight > descP.clientHeight + 4) descBtn.style.display = ''; });
-    } else { descWrap.style.display = 'none'; }
+    // Description — ambil innerHTML dari hidden div, bukan data attribute
+    const descWrap      = document.getElementById('modal-desc-wrap');
+    const descContainer = document.getElementById('agenda-desc-' + id);
+    const descHtml      = descContainer ? descContainer.innerHTML.trim() : '';
 
+    if (descHtml) {
+        descEl.innerHTML = descHtml;
+        descWrap.style.display = '';
+        requestAnimationFrame(function () {
+            if (descEl.scrollHeight > descEl.clientHeight + 4) {
+                descBtn.style.display = '';
+            }
+        });
+    } else {
+        descEl.innerHTML = '';
+        descWrap.style.display = 'none';
+    }
+
+    // Approve/reject buttons
     const approveForm = document.getElementById('modal-approve-form');
     const rejectBtn   = document.getElementById('modal-reject-btn');
     if (status === 'pending' && approveUrl) {
@@ -356,7 +384,12 @@ function openDetailModal(id) {
     document.getElementById('modal-detail').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
-function closeDetailModal() { document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow = ''; }
+
+function closeDetailModal() {
+    document.getElementById('modal-detail').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
 function openRejectModal(id, title) {
     currentAgendaId = id;
     document.getElementById('reject-modal-title').textContent = title || '';
@@ -364,13 +397,21 @@ function openRejectModal(id, title) {
     document.getElementById('modal-reject-form').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
+
 function openRejectFromModal() {
     const el = document.getElementById('agenda-data-' + currentAgendaId);
     closeDetailModal();
     setTimeout(() => openRejectModal(currentAgendaId, el ? el.dataset.title : ''), 100);
 }
-function closeRejectModal() { document.getElementById('modal-reject-form').classList.add('hidden'); document.body.style.overflow = ''; }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetailModal(); closeRejectModal(); } });
+
+function closeRejectModal() {
+    document.getElementById('modal-reject-form').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeDetailModal(); closeRejectModal(); }
+});
 </script>
 @endpush
 

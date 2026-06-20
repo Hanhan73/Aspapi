@@ -1,16 +1,6 @@
 @extends('layouts.daerah')
 @section('title', 'Agenda Kegiatan')
 
-@push('styles')
-<style>
-.desc-content br {
-    display: block;
-    content: '';
-    margin-top: 0.75em;
-}
-</style>
-@endpush
-
 @section('content')
 <div class="p-6">
 
@@ -114,16 +104,18 @@
                     </td>
                 </tr>
 
+                {{-- Hidden data row — desc TIDAK di data attribute, tapi di div tersendiri --}}
                 <tr style="display:none;"><td colspan="4">
                     <div id="agenda-data-{{ $agenda->id }}"
                          data-title="{{ e($agenda->title) }}"
                          data-date="{{ $agenda->event_date->translatedFormat('d F Y') }}"
-                         data-desc="{{ e($agenda->description ?? '') }}"
                          data-photo="{{ $agenda->photo ? Storage::url($agenda->photo) : '' }}"
                          data-status="{{ $agenda->status }}"
                          data-reject="{{ e($agenda->reject_reason ?? '') }}"
                          data-edit-url="{{ $agenda->status !== 'approved' ? route('daerah.agenda.edit', $agenda) : '' }}">
                     </div>
+                    {{-- HTML dari rich editor disimpan di sini, bukan di data attribute --}}
+                    <div id="agenda-desc-{{ $agenda->id }}" style="display:none;">{!! $agenda->description ?? '' !!}</div>
                 </td></tr>
                 @endforeach
             </tbody>
@@ -184,8 +176,9 @@
             <div id="modal-desc-wrap" style="display:none;">
                 <div class="border-t border-neutral-100 pt-4">
                     <p class="text-2xs font-bold text-neutral-400 uppercase tracking-widest mb-2">Deskripsi</p>
-                    <p id="modal-desc" class="text-sm text-neutral-500 leading-relaxed break-words"
-                       style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;"></p>
+                    <div id="modal-desc"
+                         class="text-sm text-neutral-500 leading-relaxed"
+                         style="overflow:hidden;max-height:9rem;"></div>
                     <button id="modal-desc-more" type="button" onclick="toggleDesc()"
                             class="mt-1.5 text-2xs font-bold text-primary hover:opacity-70 transition-opacity"
                             style="display:none;">↓ Selengkapnya</button>
@@ -204,6 +197,16 @@
 </div>
 
 @push('scripts')
+<style>
+#modal-desc p            { margin-bottom: 0.6em; }
+#modal-desc p:last-child { margin-bottom: 0; }
+#modal-desc strong       { font-weight: 700; color: #1A2A3A; }
+#modal-desc em           { font-style: italic; }
+#modal-desc ul           { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.6em; }
+#modal-desc ol           { list-style: decimal; padding-left: 1.25rem; margin-bottom: 0.6em; }
+#modal-desc li           { margin-bottom: 0.25em; }
+#modal-desc a            { color: #2A7FC1; text-decoration: underline; }
+</style>
 <script>
 const statusMap = {
     pending:  { style: 'background:#FEF3C7;color:#92400E;', label: '⏳ Menunggu Persetujuan' },
@@ -214,26 +217,32 @@ let descExpanded = false;
 
 function toggleDesc() {
     descExpanded = !descExpanded;
-    const p = document.getElementById('modal-desc'), btn = document.getElementById('modal-desc-more');
-    p.style.webkitLineClamp = descExpanded ? 'unset' : '4';
-    p.style.overflow        = descExpanded ? 'visible' : 'hidden';
-    btn.textContent         = descExpanded ? '↑ Tutup' : '↓ Selengkapnya';
+    const el  = document.getElementById('modal-desc');
+    const btn = document.getElementById('modal-desc-more');
+    el.style.maxHeight = descExpanded ? 'none' : '9rem';
+    el.style.overflow  = descExpanded ? 'visible' : 'hidden';
+    btn.textContent    = descExpanded ? '↑ Tutup' : '↓ Selengkapnya';
 }
 
 function openDetailModal(id) {
     const el = document.getElementById('agenda-data-' + id);
     if (!el) return;
+
+    // Reset desc
     descExpanded = false;
-    const descP = document.getElementById('modal-desc');
-    descP.style.webkitLineClamp = '4'; descP.style.overflow = 'hidden';
+    const descEl  = document.getElementById('modal-desc');
     const descBtn = document.getElementById('modal-desc-more');
-    descBtn.textContent = '↓ Selengkapnya'; descBtn.style.display = 'none';
+    descEl.style.maxHeight = '9rem';
+    descEl.style.overflow  = 'hidden';
+    descBtn.textContent    = '↓ Selengkapnya';
+    descBtn.style.display  = 'none';
 
-    const { title, date, desc, photo, status, reject, editUrl } = el.dataset;
+    const { title, date, photo, status, reject, editUrl } = el.dataset;
 
-    const s = statusMap[status] || { style: 'background:#F3F4F6;color:#6B7280;', label: status };
+    const s     = statusMap[status] || { style: 'background:#F3F4F6;color:#6B7280;', label: status };
     const badge = document.getElementById('modal-status-badge');
-    badge.style.cssText = s.style; badge.textContent = s.label;
+    badge.style.cssText = s.style;
+    badge.textContent   = s.label;
 
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-date').textContent  = date;
@@ -245,14 +254,28 @@ function openDetailModal(id) {
     else { photoWrap.style.display = 'none'; noPhoto.style.display = ''; }
 
     const rejectWrap = document.getElementById('modal-reject-wrap');
-    if (reject && status === 'rejected') { document.getElementById('modal-reject').textContent = reject; rejectWrap.style.display = ''; }
-    else { rejectWrap.style.display = 'none'; }
+    if (reject && status === 'rejected') {
+        document.getElementById('modal-reject').textContent = reject;
+        rejectWrap.style.display = '';
+    } else { rejectWrap.style.display = 'none'; }
 
-    const descWrap = document.getElementById('modal-desc-wrap');
-    if (desc) {
-        descP.innerHTML = desc; descWrap.style.display = '';
-        requestAnimationFrame(() => { if (descP.scrollHeight > descP.clientHeight + 4) descBtn.style.display = ''; });
-    } else { descWrap.style.display = 'none'; }
+    // Description — ambil innerHTML dari hidden div
+    const descWrap      = document.getElementById('modal-desc-wrap');
+    const descContainer = document.getElementById('agenda-desc-' + id);
+    const descHtml      = descContainer ? descContainer.innerHTML.trim() : '';
+
+    if (descHtml) {
+        descEl.innerHTML = descHtml;
+        descWrap.style.display = '';
+        requestAnimationFrame(function () {
+            if (descEl.scrollHeight > descEl.clientHeight + 4) {
+                descBtn.style.display = '';
+            }
+        });
+    } else {
+        descEl.innerHTML = '';
+        descWrap.style.display = 'none';
+    }
 
     const editBtn = document.getElementById('modal-edit-btn');
     if (editUrl) { editBtn.href = editUrl; editBtn.style.display = ''; }
@@ -261,7 +284,12 @@ function openDetailModal(id) {
     document.getElementById('modal-detail').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
-function closeDetailModal() { document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow = ''; }
+
+function closeDetailModal() {
+    document.getElementById('modal-detail').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetailModal(); });
 </script>
 @endpush
