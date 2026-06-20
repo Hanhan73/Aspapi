@@ -2,18 +2,15 @@
     Quill Rich Text Editor Component
     Usage:
         @include('components.quill-editor', [
-            'name'        => 'description',       // nama field form
+            'name'        => 'description',
             'value'       => old('description', $model->description ?? ''),
             'placeholder' => 'Tulis deskripsi...',
-            'height'      => '200px',             // opsional, default 180px
+            'height'      => '200px',
         ])
-
-    Pastikan @stack('quill-scripts') ada di layouts sebelum </body>
-    atau letakkan @push('scripts') di bawah component ini.
 --}}
 
 @php
-    $editorId    = 'quill-' . $name . '-' . uniqid();
+    $editorId     = 'quill-' . $name . '-' . uniqid();
     $editorHeight = $height ?? '180px';
 @endphp
 
@@ -85,8 +82,14 @@
 @endpush
 @endonce
 
+@once
 @push('scripts')
+{{-- Load Quill JS only once, even if component is included multiple times --}}
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+@endpush
+@endonce
+
+@push('scripts')
 <script>
 (function() {
     const editorEl  = document.getElementById('{{ $editorId }}');
@@ -98,24 +101,18 @@
         modules: {
             toolbar: '#{{ $editorId }}-toolbar',
         },
-        placeholder: '{{ $placeholder ?? 'Tulis deskripsi...' }}',
+        placeholder: @json($placeholder ?? 'Tulis deskripsi...'),
     });
 
-    // Set nilai awal dari textarea hidden
+    // Set nilai awal dari textarea hidden (Aman dari XSS & cursor jump)
     const initialValue = hiddenEl.value.trim();
     if (initialValue) {
-        // Kalau sudah HTML (dari edit), pakai pasteHTML; kalau plain text, set teks
-        if (initialValue.startsWith('<')) {
-            quill.clipboard.dangerouslyPasteHTML(initialValue);
-        } else {
-            quill.setText(initialValue);
-        }
+        quill.root.innerHTML = initialValue;
     }
 
     // Sync ke hidden textarea saat konten berubah
     quill.on('text-change', function() {
         const html = quill.getSemanticHTML();
-        // Kalau hanya paragraph kosong, kosongkan
         hiddenEl.value = html === '<p><br></p>' || html === '<p></p>' ? '' : html;
     });
 
