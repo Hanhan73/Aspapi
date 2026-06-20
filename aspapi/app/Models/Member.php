@@ -281,7 +281,7 @@ class Member extends Model
         $parts[] = strtoupper($name);
 
         if ($backTitle !== '') {
-            $parts[] = $backTitle;
+            $parts[] = ',' . $backTitle;
         }
 
         return implode(' ', $parts);

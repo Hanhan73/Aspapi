@@ -196,9 +196,9 @@
                                             <img src="{{ Storage::url($sidebarPhoto) }}"
                                                 class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-white/20"/>
                                         @else
-                                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-content-center flex-shrink-0">
+                                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-content-center ">
                                                 <span class="text-white text-xs font-bold">
-                                                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                                                    {{ strtoupper(substr($member->full_name_with_title, 0, 1)) }}
                                                 </span>
                                             </div>
                                         @endif
