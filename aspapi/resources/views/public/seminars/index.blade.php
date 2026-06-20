@@ -97,7 +97,10 @@
         @if ($seminars->count())
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($seminars as $seminar)
-            @php $isLong = strlen($seminar->description ?? '') > 120; @endphp
+            @php
+                $plainDesc = strip_tags($seminar->description ?? '');
+                $isLong    = strlen($plainDesc) > 120;
+            @endphp
             <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow card-top-blue">
 
                 {{-- Thumbnail --}}
@@ -127,17 +130,17 @@
                 <div class="p-4 flex flex-col flex-1">
                     <h3 class="font-bold text-navy text-sm leading-snug mb-1.5">{{ $seminar->title }}</h3>
 
-                    {{-- Deskripsi collapsible --}}
-                    @if ($seminar->description)
+                    {{-- Deskripsi collapsible — strip_tags agar bersih di kartu publik --}}
+                    @if ($plainDesc)
                     <div x-data="{ open: false }" class="mb-3 flex-1">
                         <p x-show="!open"
                            class="text-xs text-neutral-500 leading-relaxed line-clamp-2">
-                            {{ $seminar->description }}
+                            {{ $plainDesc }}
                         </p>
                         <p x-show="open"
                            style="display:none;"
                            class="text-xs text-neutral-500 leading-relaxed">
-                            {{ $seminar->description }}
+                            {{ $plainDesc }}
                         </p>
                         @if ($isLong)
                         <button @click="open = !open"

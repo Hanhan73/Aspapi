@@ -1,20 +1,10 @@
 @extends('layouts.member')
 @section('title', 'Daftar Seminar')
 
-@push('styles')
-<style>
-.desc-content br {
-    display: block;
-    content: '';
-    margin-top: 0.75em;
-}
-</style>
-@endpush
-
 @section('content')
 <div class="p-6">
 
-    {{-- ── Header ── }}
+    {{-- ── Header ── --}}
     <div class="flex items-start justify-between mb-6">
         <div>
             <h1 class="text-xl font-extrabold text-navy">Seminar ASPAPI</h1>
@@ -131,8 +121,15 @@
                 $enrollmentId = $enrolledMap[$seminar->id] ?? null;
                 $enrolled     = $enrollmentId !== null;
                 $canEnroll    = $isActive && ! $enrolled && $remainingQuota > 0;
-                $isLong       = strlen($seminar->description ?? '') > 120;
+                $plainDesc    = strip_tags($seminar->description ?? '');
+                $isLong       = strlen($plainDesc) > 120;
             @endphp
+
+            {{-- Hidden div untuk deskripsi HTML (dipakai modal enroll) --}}
+            @if ($seminar->description)
+            <div id="seminar-desc-{{ $seminar->id }}" style="display:none;">{!! $seminar->description !!}</div>
+            @endif
+
             <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
 
                 {{-- Thumbnail --}}
@@ -149,8 +146,6 @@
                             </svg>
                         </div>
                     @endif
-
-                    {{-- Badge kategori --}}
                     @if($seminar->category)
                     <div style="position:absolute;top:10px;left:10px;">
                         <span style="background:rgba(26,42,58,0.75);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);">
@@ -158,8 +153,6 @@
                         </span>
                     </div>
                     @endif
-
-                    {{-- Badge terdaftar --}}
                     @if($enrolled)
                     <div style="position:absolute;top:10px;right:10px;">
                         <span style="background:#2A7FC1;color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:3px 8px;border-radius:4px;">
@@ -173,21 +166,13 @@
                 <div class="p-4 flex flex-col flex-1">
                     <h3 class="font-bold text-navy text-sm leading-snug mb-1.5">{{ $seminar->title }}</h3>
 
-                    {{-- Deskripsi collapsible --}}
-                    @if($seminar->description)
+                    {{-- Deskripsi: tampilkan plain text di kartu (strip_tags) --}}
+                    @if($plainDesc)
                     <div x-data="{ open: false }" class="mb-3 flex-1">
-                        <p x-show="!open"
-                           class="text-xs text-neutral-500 leading-relaxed line-clamp-2">
-                            {{ $seminar->description }}
-                        </p>
-                        <p x-show="open"
-                           style="display:none;"
-                           class="text-xs text-neutral-500 leading-relaxed">
-                            {{ $seminar->description }}
-                        </p>
+                        <p x-show="!open" class="text-xs text-neutral-500 leading-relaxed line-clamp-2">{{ $plainDesc }}</p>
+                        <p x-show="open" style="display:none;" class="text-xs text-neutral-500 leading-relaxed">{{ $plainDesc }}</p>
                         @if($isLong)
-                        <button @click="open = !open"
-                                type="button"
+                        <button @click="open = !open" type="button"
                                 class="mt-1 text-2xs font-bold"
                                 style="color:#2A7FC1;background:none;border:none;cursor:pointer;padding:0;line-height:1.4;">
                             <span x-text="open ? '↑ Tutup' : '↓ Selengkapnya'">↓ Selengkapnya</span>
@@ -225,7 +210,6 @@
                         <button type="button"
                                 data-seminar-id="{{ $seminar->id }}"
                                 data-seminar-title="{{ $seminar->title }}"
-                                data-seminar-desc="{{ $seminar->description ?? '' }}"
                                 onclick="openEnrollModal(this)"
                                 class="w-full text-xs font-bold py-2 px-4 rounded-lg bg-primary text-white hover:bg-primary/90 transition">
                             Daftar Seminar
@@ -249,9 +233,7 @@
         {{-- ── Pagination ── --}}
         @if ($seminars->hasPages())
         <div class="mt-6 flex items-center justify-between">
-            <p class="text-xs text-neutral-400">
-                Total {{ $seminars->total() }} seminar
-            </p>
+            <p class="text-xs text-neutral-400">Total {{ $seminars->total() }} seminar</p>
             <div class="flex items-center gap-1">
                 @if ($seminars->onFirstPage())
                     <span class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-300 cursor-not-allowed">← Prev</span>
@@ -259,7 +241,6 @@
                     <a href="{{ $seminars->previousPageUrl() }}&{{ http_build_query(request()->except('page')) }}"
                        class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-500 hover:bg-neutral-50 transition">← Prev</a>
                 @endif
-
                 @foreach ($seminars->getUrlRange(1, $seminars->lastPage()) as $page => $url)
                     @if ($page == $seminars->currentPage())
                         <span class="px-3 py-1.5 text-xs rounded-lg bg-primary text-white font-bold">{{ $page }}</span>
@@ -273,7 +254,6 @@
                         <span class="px-2 text-xs text-neutral-300">...</span>
                     @endif
                 @endforeach
-
                 @if ($seminars->hasMorePages())
                     <a href="{{ $seminars->nextPageUrl() }}&{{ http_build_query(request()->except('page')) }}"
                        class="px-3 py-1.5 text-xs rounded-lg border border-neutral-200 text-neutral-500 hover:bg-neutral-50 transition">Next →</a>
@@ -293,23 +273,19 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         <div class="p-6">
 
-            {{-- Judul --}}
             <h3 class="font-extrabold text-navy text-base mb-1" id="modal-title"></h3>
 
-            {{-- Deskripsi collapsible --}}
+            {{-- Deskripsi sebagai HTML dari rich editor --}}
             <div class="mb-5">
-                <p id="modal-desc"
-                   class="text-xs text-neutral-500 leading-relaxed"
-                   style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"></p>
-                <button type="button"
-                        id="modal-desc-toggle"
-                        onclick="toggleModalDesc()"
+                <div id="modal-desc"
+                     class="text-xs text-neutral-500 leading-relaxed seminar-modal-desc"
+                     style="overflow:hidden;max-height:4rem;"></div>
+                <button type="button" id="modal-desc-toggle" onclick="toggleModalDesc()"
                         style="display:none;color:#2A7FC1;background:none;border:none;cursor:pointer;padding:0;font-size:0.65rem;font-weight:700;line-height:1.4;margin-top:4px;">
                     ↓ Selengkapnya
                 </button>
             </div>
 
-            {{-- Peringatan kuota --}}
             <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-100 rounded-lg mb-5">
                 <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -326,19 +302,14 @@
                 </div>
             </div>
 
-            <p class="text-sm text-neutral-600 mb-5">
-                Apakah Anda yakin ingin mendaftar seminar ini?
-            </p>
+            <p class="text-sm text-neutral-600 mb-5">Apakah Anda yakin ingin mendaftar seminar ini?</p>
 
             <div class="flex gap-3">
-                <button type="button"
-                        onclick="closeEnrollModal()"
+                <button type="button" onclick="closeEnrollModal()"
                         class="flex-1 py-2.5 text-xs font-bold border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 transition">
                     Batal
                 </button>
-                <button type="button"
-                        id="modal-confirm-btn"
-                        onclick="submitEnroll()"
+                <button type="button" id="modal-confirm-btn" onclick="submitEnroll()"
                         class="flex-1 py-2.5 text-xs font-bold bg-primary text-white rounded-lg hover:bg-primary/90 transition">
                     Ya, Daftar Sekarang
                 </button>
@@ -346,6 +317,19 @@
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+/* Styling HTML dari rich editor di modal daftar seminar */
+.seminar-modal-desc p            { margin-bottom: 0.4em; }
+.seminar-modal-desc p:last-child { margin-bottom: 0; }
+.seminar-modal-desc strong       { font-weight: 700; color: #1A2A3A; }
+.seminar-modal-desc em           { font-style: italic; }
+.seminar-modal-desc ul           { list-style: disc; padding-left: 1.1rem; margin-bottom: 0.4em; }
+.seminar-modal-desc ol           { list-style: decimal; padding-left: 1.1rem; margin-bottom: 0.4em; }
+.seminar-modal-desc li           { margin-bottom: 0.15em; }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -356,25 +340,29 @@
         const seminarId = btn.dataset.seminarId;
         activeFormId = 'enroll-form-' + seminarId;
 
-        const descEl = document.getElementById('modal-desc');
-        const toggle = document.getElementById('modal-desc-toggle');
+        const descEl   = document.getElementById('modal-desc');
+        const toggle   = document.getElementById('modal-desc-toggle');
 
-        // Isi konten
+        // Isi judul
         document.getElementById('modal-title').textContent = btn.dataset.seminarTitle;
-        descEl.textContent = btn.dataset.seminarDesc;
+
+        // Isi deskripsi dari hidden div (HTML asli dari rich editor)
+        const descContainer = document.getElementById('seminar-desc-' + seminarId);
+        const descHtml      = descContainer ? descContainer.innerHTML.trim() : '';
+        descEl.innerHTML    = descHtml;
 
         // Reset state collapse
-        modalDescOpen                = false;
-        descEl.style.webkitLineClamp = '2';
-        descEl.style.overflow        = 'hidden';
-        toggle.textContent           = '↓ Selengkapnya';
-        toggle.style.display         = 'none';
+        modalDescOpen          = false;
+        descEl.style.maxHeight = '4rem';
+        descEl.style.overflow  = 'hidden';
+        toggle.textContent     = '↓ Selengkapnya';
+        toggle.style.display   = 'none';
 
         // Tampilkan modal
         document.getElementById('modal-enroll').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
 
-        // Cek apakah teks terpotong setelah render
+        // Cek apakah konten melebihi max-height
         requestAnimationFrame(function() {
             if (descEl.scrollHeight > descEl.clientHeight + 4) {
                 toggle.style.display = 'block';
@@ -386,15 +374,14 @@
         const descEl = document.getElementById('modal-desc');
         const toggle = document.getElementById('modal-desc-toggle');
         modalDescOpen = !modalDescOpen;
-
         if (modalDescOpen) {
-            descEl.style.webkitLineClamp = 'unset';
-            descEl.style.overflow        = 'visible';
-            toggle.textContent           = '↑ Tutup';
+            descEl.style.maxHeight = 'none';
+            descEl.style.overflow  = 'visible';
+            toggle.textContent     = '↑ Tutup';
         } else {
-            descEl.style.webkitLineClamp = '2';
-            descEl.style.overflow        = 'hidden';
-            toggle.textContent           = '↓ Selengkapnya';
+            descEl.style.maxHeight = '4rem';
+            descEl.style.overflow  = 'hidden';
+            toggle.textContent     = '↓ Selengkapnya';
         }
     }
 
@@ -406,7 +393,7 @@
 
     function submitEnroll() {
         if (!activeFormId) return;
-        const btn    = document.getElementById('modal-confirm-btn');
+        const btn       = document.getElementById('modal-confirm-btn');
         btn.disabled    = true;
         btn.textContent = 'Mendaftar...';
         document.getElementById(activeFormId).submit();

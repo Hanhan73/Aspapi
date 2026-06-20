@@ -1,16 +1,6 @@
 @extends('layouts.member')
 @section('title', $enrollment->seminar->title)
 
-@push('styles')
-<style>
-.desc-content br {
-    display: block;
-    content: '';
-    margin-top: 0.75em;
-}
-</style>
-@endpush
-
 @section('content')
 <div class="p-6">
 
@@ -33,7 +23,7 @@
     @endif
 
     @php
-        $materials = $enrollment->seminar->materials; // Collection, sudah ordered
+        $materials = $enrollment->seminar->materials;
     @endphp
 
     {{-- ── Header Seminar ── --}}
@@ -56,7 +46,13 @@
                     </span>
                     @endif
                     <h1 class="text-lg font-extrabold text-navy mt-1">{{ $enrollment->seminar->title }}</h1>
-                    <p class="text-sm text-neutral-500 mt-2 leading-relaxed line-clamp-2">{{ $enrollment->seminar->description }}</p>
+
+                    {{-- Deskripsi: render sebagai HTML dari rich editor --}}
+                    @if ($enrollment->seminar->description)
+                    <div class="seminar-desc text-sm text-neutral-500 mt-2 leading-relaxed line-clamp-3">
+                        {!! $enrollment->seminar->description !!}
+                    </div>
+                    @endif
                 </div>
 
                 {{-- Stats row --}}
@@ -175,13 +171,12 @@
     {{-- STEP 2: Materi --}}
     @elseif (! $enrollment->isMaterialRead())
         <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden">
-            {{-- Top bar --}}
             <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
                 <div>
                     <h2 class="font-bold text-navy text-sm">Materi Seminar</h2>
                     <p class="text-xs text-neutral-400 mt-0.5">
                         Baca semua materi berikut sebelum mengerjakan post-test.
-                        ({{ $materials->count() }} {{ $materials->count() === 1 ? 'materi' : 'materi' }})
+                        ({{ $materials->count() }} materi)
                     </p>
                 </div>
                 @if ($preTest)
@@ -191,23 +186,19 @@
                 @endif
             </div>
 
-            {{-- Daftar materi --}}
             <div class="divide-y divide-neutral-100" x-data="{ active: 0 }">
                 @foreach ($materials as $i => $material)
                 @php $embedUrl = $material->embed_url; @endphp
                 <div>
-                    {{-- Tab header --}}
                     <button type="button"
                             @click="active = {{ $i }}"
                             class="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-neutral-50 transition"
                             :class="active === {{ $i }} ? 'bg-primary/5' : ''">
-                        <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                                    bg-primary/10 text-primary">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-primary/10 text-primary">
                             {{ $i + 1 }}
                         </div>
                         <span class="text-sm font-semibold text-navy flex-1 text-left">{{ $material->label }}</span>
                         <div class="flex items-center gap-2 flex-shrink-0">
-                            {{-- Tombol fullscreen per materi --}}
                             <button type="button"
                                     @click.stop="openMaterialModal('{{ addslashes($embedUrl) }}', '{{ addslashes($material->label) }}')"
                                     class="text-2xs font-bold px-2 py-1 border border-neutral-200 rounded text-neutral-500 hover:bg-white transition">
@@ -220,8 +211,6 @@
                             </svg>
                         </div>
                     </button>
-
-                    {{-- Iframe --}}
                     <div x-show="active === {{ $i }}" style="height: 520px;">
                         <iframe src="{{ $embedUrl }}" width="100%" height="100%"
                                 allow="autoplay" style="border:none; display:block;"></iframe>
@@ -230,7 +219,6 @@
                 @endforeach
             </div>
 
-            {{-- Bottom bar --}}
             <div class="px-5 py-4 border-t border-neutral-100 flex items-center justify-between">
                 <p class="text-xs text-neutral-400 flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,7 +271,6 @@
                 </div>
                 @endif
 
-                {{-- Accordion baca ulang materi --}}
                 @if ($materials->isNotEmpty())
                 <div class="mb-5 border border-neutral-200 rounded-xl overflow-hidden"
                      x-data="{ open: false, activeTab: 0 }">
@@ -303,9 +290,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-
                     <div x-show="open" x-transition>
-                        {{-- Tab selector --}}
                         @if ($materials->count() > 1)
                         <div class="flex gap-1 px-4 py-2 bg-neutral-50 border-t border-neutral-100 flex-wrap">
                             @foreach ($materials as $i => $material)
@@ -320,11 +305,8 @@
                             @endforeach
                         </div>
                         @endif
-
-                        {{-- Iframe per tab --}}
                         @foreach ($materials as $i => $material)
-                        <div x-show="activeTab === {{ $i }}"
-                             class="relative" style="height: 460px;">
+                        <div x-show="activeTab === {{ $i }}" class="relative" style="height: 460px;">
                             <button type="button"
                                     @click.stop="openMaterialModal('{{ addslashes($material->embed_url) }}', '{{ addslashes($material->label) }}')"
                                     class="absolute top-2 right-2 z-10 text-2xs font-bold px-2 py-1 bg-white border border-neutral-200 rounded shadow text-neutral-600 hover:bg-neutral-50 transition">
@@ -376,7 +358,6 @@
                         </svg>
                         Unduh Sertifikat
                     </a>
-                    {{-- Baca ulang materi --}}
                     @if ($materials->isNotEmpty())
                     <button onclick="openMaterialModal('{{ addslashes($materials->first()->embed_url) }}', '{{ addslashes($materials->first()->label) }}')"
                             class="inline-flex items-center gap-2 px-6 py-2.5 border border-neutral-200 text-neutral-600 text-sm font-bold rounded-lg hover:bg-neutral-50 transition">
@@ -400,25 +381,15 @@
      style="background: rgba(0,0,0,0.92);">
 
     <div class="flex-1 overflow-hidden">
-        <iframe id="material-iframe"
-                src=""
-                width="100%"
-                height="100%"
-                allow="autoplay"
-                style="border:none; display:block;">
-        </iframe>
+        <iframe id="material-iframe" src="" width="100%" height="100%"
+                allow="autoplay" style="border:none; display:block;"></iframe>
     </div>
 
-    {{-- Toolbar bawah --}}
     <div class="flex-shrink-0 flex flex-col gap-0" style="background: #1B3A6B;">
-
-        {{-- List materi (hanya muncul kalau > 1 materi) --}}
         @if ($materials->count() > 1)
         <div class="flex items-center gap-2 px-5 py-2 border-b border-white/10 overflow-x-auto flex-shrink-0">
             @foreach ($materials as $i => $material)
-            <button type="button"
-                    id="modal-tab-{{ $i }}"
-                    onclick="modalGoTo({{ $i }})"
+            <button type="button" id="modal-tab-{{ $i }}" onclick="modalGoTo({{ $i }})"
                     class="flex-shrink-0 text-2xs font-bold px-3 py-1.5 rounded-full border transition whitespace-nowrap"
                     style="border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6);">
                 {{ $i + 1 }}. {{ Str::limit($material->label, 35) }}
@@ -427,7 +398,6 @@
         </div>
         @endif
 
-        {{-- Nav bar --}}
         <div class="flex items-center justify-between px-5 py-3">
             <div class="flex items-center gap-3">
                 <svg class="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -439,25 +409,16 @@
                     <p class="text-xs font-bold text-white" id="modal-material-label"></p>
                 </div>
             </div>
-
             <div class="flex items-center gap-2 flex-shrink-0">
-                {{-- Prev / Next (hanya muncul kalau > 1 materi) --}}
                 @if ($materials->count() > 1)
-                <button type="button" onclick="modalPrev()"
-                        id="modal-btn-prev"
+                <button type="button" onclick="modalPrev()" id="modal-btn-prev"
                         class="flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-lg transition"
-                        style="background: rgba(255,255,255,0.12); color: white;">
-                    ← Sebelumnya
-                </button>
+                        style="background: rgba(255,255,255,0.12); color: white;">← Sebelumnya</button>
                 <span class="text-xs text-white/40" id="modal-counter"></span>
-                <button type="button" onclick="modalNext()"
-                        id="modal-btn-next"
+                <button type="button" onclick="modalNext()" id="modal-btn-next"
                         class="flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-lg transition"
-                        style="background: rgba(255,255,255,0.12); color: white;">
-                    Berikutnya →
-                </button>
+                        style="background: rgba(255,255,255,0.12); color: white;">Berikutnya →</button>
                 @endif
-
                 <button onclick="closeMaterialModal()"
                         class="flex items-center gap-2 text-sm font-bold px-5 py-2 rounded-lg transition ml-2"
                         style="background: rgba(255,255,255,0.15); color: white;"
@@ -472,6 +433,19 @@
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+/* Styling HTML dari rich editor di header seminar */
+.seminar-desc p          { margin-bottom: 0.5em; }
+.seminar-desc p:last-child { margin-bottom: 0; }
+.seminar-desc strong     { font-weight: 700; }
+.seminar-desc em         { font-style: italic; }
+.seminar-desc ul         { list-style: disc; padding-left: 1.25rem; margin-bottom: 0.5em; }
+.seminar-desc ol         { list-style: decimal; padding-left: 1.25rem; margin-bottom: 0.5em; }
+.seminar-desc li         { margin-bottom: 0.2em; }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -498,37 +472,20 @@ function closeMaterialModal() {
 function modalGoTo(idx) {
     if (idx < 0 || idx >= MODAL_MATERIALS.length) return;
     modalCurrentIdx = idx;
-
     const mat = MODAL_MATERIALS[idx];
     document.getElementById('material-iframe').src = mat.embedUrl;
     document.getElementById('modal-material-label').textContent = mat.label;
-
     const counter = document.getElementById('modal-counter');
     if (counter) counter.textContent = (idx + 1) + ' / ' + MODAL_MATERIALS.length;
-
     const btnPrev = document.getElementById('modal-btn-prev');
     const btnNext = document.getElementById('modal-btn-next');
-    if (btnPrev) {
-        btnPrev.style.opacity      = idx === 0 ? '0.3' : '1';
-        btnPrev.style.pointerEvents = idx === 0 ? 'none' : 'auto';
-    }
-    if (btnNext) {
-        btnNext.style.opacity      = idx === MODAL_MATERIALS.length - 1 ? '0.3' : '1';
-        btnNext.style.pointerEvents = idx === MODAL_MATERIALS.length - 1 ? 'none' : 'auto';
-    }
-
+    if (btnPrev) { btnPrev.style.opacity = idx === 0 ? '0.3' : '1'; btnPrev.style.pointerEvents = idx === 0 ? 'none' : 'auto'; }
+    if (btnNext) { btnNext.style.opacity = idx === MODAL_MATERIALS.length - 1 ? '0.3' : '1'; btnNext.style.pointerEvents = idx === MODAL_MATERIALS.length - 1 ? 'none' : 'auto'; }
     MODAL_MATERIALS.forEach(function (_, i) {
         const tab = document.getElementById('modal-tab-' + i);
         if (!tab) return;
-        if (i === idx) {
-            tab.style.background  = 'rgba(255,255,255,0.2)';
-            tab.style.color       = 'white';
-            tab.style.borderColor = 'rgba(255,255,255,0.5)';
-        } else {
-            tab.style.background  = 'transparent';
-            tab.style.color       = 'rgba(255,255,255,0.6)';
-            tab.style.borderColor = 'rgba(255,255,255,0.2)';
-        }
+        if (i === idx) { tab.style.background = 'rgba(255,255,255,0.2)'; tab.style.color = 'white'; tab.style.borderColor = 'rgba(255,255,255,0.5)'; }
+        else { tab.style.background = 'transparent'; tab.style.color = 'rgba(255,255,255,0.6)'; tab.style.borderColor = 'rgba(255,255,255,0.2)'; }
     });
 }
 
