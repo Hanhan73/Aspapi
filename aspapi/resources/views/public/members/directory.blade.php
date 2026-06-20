@@ -72,16 +72,6 @@
 <div class="bg-white border-b border-neutral-200 sticky top-16 z-40" x-data="{ tab: '{{ request('tab', 'direktori') }}' }">
     <div class="max-w-7xl mx-auto px-6">
         <nav class="flex gap-0 overflow-x-auto">
-            <a href="{{ route('members.types') }}"
-               class="inline-flex items-center gap-2 px-5 py-4 text-xs font-bold tracking-widest uppercase border-b-2 border-transparent text-neutral-400 hover:text-primary hover:border-primary-300 whitespace-nowrap transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Jenis & Syarat
-            </a>
-            <a href="{{ route('members.register') }}"
-               class="inline-flex items-center gap-2 px-5 py-4 text-xs font-bold tracking-widest uppercase border-b-2 border-transparent text-neutral-400 hover:text-primary hover:border-primary-300 whitespace-nowrap transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                Registrasi & Iuran
-            </a>
 
             {{-- Divider --}}
             <div class="w-px bg-neutral-100 mx-1 self-stretch my-2"></div>
@@ -322,8 +312,8 @@
                     <p class="text-2xs font-bold tracking-widest uppercase text-neutral-400 mb-1">Jenis Kelamin</p>
                     <h3 class="text-sm font-bold text-navy mb-1">Distribusi Gender</h3>
                     <p class="text-xs text-neutral-400 mb-5">Perbandingan jumlah anggota laki-laki dan perempuan</p>
-                    <div class="flex items-center justify-center gap-10">
-                        <div style="width:180px;height:180px;flex-shrink:0;">
+                    <div class="flex items-center justify-center gap-8">
+                        <div style="width:140px;height:140px;flex-shrink:0;">
                             <canvas id="chartGender"></canvas>
                         </div>
                         <div class="flex flex-col gap-3" id="legend-gender"></div>
@@ -335,7 +325,9 @@
                     <p class="text-2xs font-bold tracking-widest uppercase text-neutral-400 mb-1">Profesi / Pekerjaan</p>
                     <h3 class="text-sm font-bold text-navy mb-1">Sebaran Pekerjaan</h3>
                     <p class="text-xs text-neutral-400 mb-5">Top 6 pekerjaan yang paling banyak dimiliki anggota</p>
-                    <canvas id="chartOccupation"></canvas>
+                    <div style="position:relative;height:200px;">
+                        <canvas id="chartOccupation"></canvas>
+                    </div>
                 </div>
 
             </div>
@@ -383,7 +375,7 @@ function initCharts() {
 
     // ── 1. Bar Per Daerah ─────────────────────────────────────────────────
     const daerahLabels = daerahData.map(d => d.name);
-    const barH         = Math.max(daerahLabels.length * 38, 160);
+    const barH         = Math.min(Math.max(daerahLabels.length * 38, 160), 480);
     document.getElementById('chartDaerah').style.height = barH + 'px';
 
     new Chart(document.getElementById('chartDaerah'), {
@@ -479,8 +471,6 @@ function initCharts() {
 
     // ── 3. Bar Pekerjaan ─────────────────────────────────────────────────
     const occColors = ['#2A7FC1','#6AAFE6','#A8D4F5','#E8B84B','#F5D58C','#1A2A3A'];
-    const occH      = Math.max(occupationData.length * 36, 120);
-    document.getElementById('chartOccupation').style.height = occH + 'px';
 
     new Chart(document.getElementById('chartOccupation'), {
         type: 'bar',
