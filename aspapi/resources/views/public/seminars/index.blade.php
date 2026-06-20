@@ -98,7 +98,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($seminars as $seminar)
             @php
-                $plainDesc = strip_tags($seminar->description ?? '');
+                $plainDesc = html_entity_decode(strip_tags($seminar->description ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $isLong    = strlen($plainDesc) > 120;
             @endphp
             <div class="bg-white border border-neutral-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow card-top-blue">
