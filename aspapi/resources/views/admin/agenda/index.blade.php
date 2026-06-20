@@ -333,7 +333,7 @@ function openDetailModal(id) {
 
     const descWrap = document.getElementById('modal-desc-wrap');
     if (desc) {
-        descP.textContent = desc; descWrap.style.display = '';
+        descP.innerHTML = desc; descWrap.style.display = '';
         requestAnimationFrame(() => { if (descP.scrollHeight > descP.clientHeight + 4) descBtn.style.display = ''; });
     } else { descWrap.style.display = 'none'; }
 

@@ -271,7 +271,7 @@ function openAgendaModal(id) {
     const descWrap = document.getElementById('modal-desc-wrap');
     const descEl   = document.getElementById('modal-desc');
     if (desc) {
-        descEl.textContent      = desc;
+        descEl.innerHTML       = desc;
         descWrap.style.display  = '';
     } else {
         descWrap.style.display  = 'none';
