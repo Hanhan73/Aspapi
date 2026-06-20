@@ -4,17 +4,9 @@
 
 @push('styles')
 <style>
-.desc-content br {
-    display: block;
-    content: '';
-    margin-top: 0.75em;
-}
-/* Untuk preview kartu di grid juga */
-.agenda-preview br {
-    display: block;
-    content: '';
-    margin-top: 0.5em;
-}
+
+.desc-content p { margin-bottom: 0.75em; }
+.desc-content p:last-child { margin-bottom: 0; }
 </style>
 @endpush
 
@@ -138,7 +130,7 @@
                     </h3>
 
                     @if ($agenda->description)
-                    <div class="agenda-preview text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3 [&_p]:mb-0 [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_ul]:my-0 [&_ol]:my-0 [&_li]:my-0">
+                    <div class="desc-content text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3 [&_p]:mb-0 [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_ul]:my-0 [&_ol]:my-0 [&_li]:my-0">
                         {!! $agenda->description !!}
                     </div>
                     @endif
@@ -149,7 +141,7 @@
                 </div>
             </div>
 
-<div id="agenda-desc-{{ $agenda->id }}" class="hidden">
+<div class="desc-content"">
     {!! $agenda->description !!}
 </div>
             @endforeach
