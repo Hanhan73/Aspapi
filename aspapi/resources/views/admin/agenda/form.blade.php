@@ -67,9 +67,11 @@
         {{-- Deskripsi --}}
         <div>
             <label class="block text-2xs font-bold text-navy uppercase tracking-widest mb-1.5">Deskripsi</label>
-            <textarea name="description" rows="4"
-                      placeholder="Deskripsikan kegiatan ini..."
-                      class="form-input w-full text-sm resize-none">{{ old('description', $agenda->description ?? '') }}</textarea>
+            @include('components.quill-editor', [
+                'name'        => 'description',
+                'value'       => old('description', $agenda->description ?? ''),
+                'placeholder' => 'Deskripsikan kegiatan ini...',
+            ])
         </div>
 
         {{-- Foto --}}

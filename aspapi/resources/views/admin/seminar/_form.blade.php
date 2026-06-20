@@ -56,9 +56,11 @@
             <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
                 Deskripsi
             </label>
-            <textarea name="description" rows="5"
-                      class="w-full border border-neutral-200 rounded-lg px-3 py-2.5 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                      placeholder="Deskripsi singkat tentang seminar ini...">{{ old('description', $seminar?->description) }}</textarea>
+            @include('components.quill-editor', [
+                'name'        => 'description',
+                'value'       => old('description', $seminar?->description ?? ''),
+                'placeholder' => 'Deskripsikan kegiatan ini...',
+            ])
         </div>
 
         {{-- ── Materi (repeater) ── --}}
