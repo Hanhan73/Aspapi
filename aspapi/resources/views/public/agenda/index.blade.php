@@ -141,7 +141,7 @@
                 </div>
             </div>
 
-<div class="desc-content"">
+<div class="desc-content text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3 [&_p]:mb-0 [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_ul]:my-0 [&_ol]:my-0 [&_li]:my-0 ">
     {!! $agenda->description !!}
 </div>
             @endforeach
