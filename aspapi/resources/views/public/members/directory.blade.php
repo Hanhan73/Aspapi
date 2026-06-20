@@ -186,7 +186,7 @@
                                             && $member->active_until->isFuture();
                             @endphp
                             <tr class="hover:bg-neutral-50/70 transition-colors">
-                                <td class="px-5 py-4 text-xs text-neutral-300 font-mono">
+                                <td class="px-5 py-4 text-xs text-neutral-700 font-mono">
                                     {{ ($members->currentPage() - 1) * $members->perPage() + $i + 1 }}
                                 </td>
                                 <td class="px-5 py-4">
@@ -223,7 +223,7 @@
                                             {{ $member->registeredByRegion->name }}
                                         </span>
                                     @else
-                                        <span class="text-xs text-neutral-300">—</span>
+                                        <span class="text-xs text-neutral-500">—</span>
                                     @endif
                                 </td>
                                 <td class="px-5 py-4">

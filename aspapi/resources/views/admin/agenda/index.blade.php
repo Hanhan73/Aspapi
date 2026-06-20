@@ -45,14 +45,14 @@
 
     @if ($agendas->count())
     <div class="card overflow-hidden">
-        <table class="w-full text-sm table-fixed">
+        <table class="w-full text-sm">
             <thead>
                 <tr class="border-b border-neutral-100 bg-neutral-50">
-                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[42%]">Kegiatan</th>
-                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden lg:table-cell w-[14%]">Tanggal</th>
-                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell w-[18%]">Daerah</th>
-                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[13%]">Status</th>
-                    <th class="text-right px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-[13%]">Aksi</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400">Kegiatan</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden lg:table-cell w-32">Tanggal</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 hidden md:table-cell w-40">Daerah</th>
+                    <th class="text-left px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-28">Status</th>
+                    <th class="text-right px-4 py-3 text-2xs font-bold tracking-widest uppercase text-neutral-400 w-36">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-neutral-50">
@@ -61,28 +61,28 @@
 
                     {{-- Kegiatan --}}
                     <td class="px-4 py-3">
-                        <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex items-start gap-3">
                             <button type="button" onclick="openDetailModal({{ $agenda->id }})"
-                                    class="flex-shrink-0 focus:outline-none group">
+                                    class="flex-shrink-0 focus:outline-none group mt-0.5">
                                 @if ($agenda->photo)
                                 <div class="w-9 h-9 rounded overflow-hidden border border-neutral-100 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
                                     <img src="{{ Storage::url($agenda->photo) }}" class="w-full h-full object-cover" alt="">
                                 </div>
                                 @else
-                                <div class="w-9 h-9 rounded bg-primary-50 flex items-center justify-center border border-neutral-100 group-hover:ring-2 group-hover:ring-primary/30 transition-all flex-shrink-0">
+                                <div class="w-9 h-9 rounded bg-primary-50 flex items-center justify-center border border-neutral-100 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
                                     <svg class="w-4 h-4 text-primary-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>
                                 @endif
                             </button>
-                            <div class="min-w-0 flex-1">
+                            <div>
                                 <button type="button" onclick="openDetailModal({{ $agenda->id }})"
-                                        class="font-semibold text-navy text-sm hover:text-primary transition-colors text-left w-full block truncate">
+                                        class="font-semibold text-navy text-sm hover:text-primary transition-colors text-left leading-snug">
                                     {{ $agenda->title }}
                                 </button>
-                                {{-- Info tambahan di mobile (tanggal + daerah) --}}
-                                <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+                                {{-- Info tambahan di mobile --}}
+                                <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                                     <span class="text-2xs text-neutral-400 lg:hidden">{{ $agenda->event_date->translatedFormat('d M Y') }}</span>
                                     <span class="text-2xs text-neutral-400 md:hidden">{{ $agenda->region->name ?? '' }}</span>
                                 </div>
@@ -91,17 +91,17 @@
                     </td>
 
                     {{-- Tanggal --}}
-                    <td class="px-4 py-3 hidden lg:table-cell whitespace-nowrap">
+                    <td class="px-4 py-3 hidden lg:table-cell whitespace-nowrap align-top">
                         <span class="text-sm text-neutral-500">{{ $agenda->event_date->translatedFormat('d M Y') }}</span>
                     </td>
 
                     {{-- Daerah --}}
-                    <td class="px-4 py-3 hidden md:table-cell">
-                        <span class="text-sm text-neutral-500 truncate block">{{ $agenda->region->name ?? '—' }}</span>
+                    <td class="px-4 py-3 hidden md:table-cell align-top">
+                        <span class="text-sm text-neutral-500 leading-snug block">{{ $agenda->region->name ?? '—' }}</span>
                     </td>
 
                     {{-- Status --}}
-                    <td class="px-4 py-3 whitespace-nowrap">
+                    <td class="px-4 py-3 whitespace-nowrap align-top">
                         @php
                             $statusConfig = match($agenda->status) {
                                 'pending'  => ['background:#FEF3C7;color:#92400E;', 'Menunggu'],
@@ -116,8 +116,8 @@
                     </td>
 
                     {{-- Aksi --}}
-                    <td class="px-4 py-3 text-right">
-                        <div class="flex items-center justify-end gap-1.5 whitespace-nowrap flex-wrap">
+                    <td class="px-4 py-3 text-right align-top">
+                        <div class="flex items-center justify-end gap-2 flex-wrap">
                             <button type="button" onclick="openDetailModal({{ $agenda->id }})"
                                     class="text-2xs font-bold text-neutral-400 hover:text-primary transition-colors">Detail</button>
 
@@ -237,9 +237,7 @@
 
         <div class="px-6 py-4 border-t border-neutral-100 flex gap-3 flex-shrink-0">
             <button onclick="closeDetailModal()"
-                    class="flex-1 btn border border-neutral-200 text-neutral-500 hover:bg-neutral-50">
-                Tutup
-            </button>
+                    class="flex-1 btn border border-neutral-200 text-neutral-500 hover:bg-neutral-50">Tutup</button>
             <form id="modal-approve-form" method="POST" action="" class="flex-1" style="display:none;">
                 @csrf
                 <button type="submit" class="w-full btn justify-center font-bold"
@@ -252,7 +250,6 @@
     </div>
 </div>
 
-
 {{-- ── MODAL TOLAK ── --}}
 <div id="modal-reject-form"
      class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4"
@@ -264,8 +261,7 @@
             @csrf
             <div class="mb-4">
                 <label class="block text-2xs font-bold text-navy uppercase tracking-widest mb-1.5">Alasan Penolakan</label>
-                <textarea name="reject_reason" rows="3"
-                          placeholder="Jelaskan alasan penolakan..."
+                <textarea name="reject_reason" rows="3" placeholder="Jelaskan alasan penolakan..."
                           class="form-input w-full text-sm resize-none" required></textarea>
             </div>
             <div class="flex gap-3">
@@ -278,7 +274,6 @@
     </div>
 </div>
 
-
 @push('scripts')
 <script>
 const statusMap = {
@@ -286,60 +281,36 @@ const statusMap = {
     approved: { style: 'background:#D1FAE5;color:#065F46;', label: '✓ Disetujui' },
     rejected: { style: 'background:#FEE2E2;color:#991B1B;', label: '✕ Ditolak' },
 };
-
-let currentAgendaId = null;
-let descExpanded    = false;
+let currentAgendaId = null, descExpanded = false;
 
 function toggleDesc() {
     descExpanded = !descExpanded;
-    const p   = document.getElementById('modal-desc');
-    const btn = document.getElementById('modal-desc-more');
-    if (descExpanded) {
-        p.style.webkitLineClamp = 'unset';
-        p.style.overflow        = 'visible';
-        btn.textContent         = '↑ Tutup';
-    } else {
-        p.style.webkitLineClamp = '4';
-        p.style.overflow        = 'hidden';
-        btn.textContent         = '↓ Selengkapnya';
-    }
+    const p = document.getElementById('modal-desc'), btn = document.getElementById('modal-desc-more');
+    p.style.webkitLineClamp = descExpanded ? 'unset' : '4';
+    p.style.overflow        = descExpanded ? 'visible' : 'hidden';
+    btn.textContent         = descExpanded ? '↑ Tutup' : '↓ Selengkapnya';
 }
 
 function openDetailModal(id) {
     const el = document.getElementById('agenda-data-' + id);
     if (!el) return;
     currentAgendaId = id;
-
     descExpanded = false;
     const descP = document.getElementById('modal-desc');
-    descP.style.webkitLineClamp = '4';
-    descP.style.overflow        = 'hidden';
+    descP.style.webkitLineClamp = '4'; descP.style.overflow = 'hidden';
     const descBtn = document.getElementById('modal-desc-more');
-    descBtn.textContent   = '↓ Selengkapnya';
-    descBtn.style.display = 'none';
+    descBtn.textContent = '↓ Selengkapnya'; descBtn.style.display = 'none';
 
-    const title      = el.dataset.title;
-    const date       = el.dataset.date;
-    const desc       = el.dataset.desc;
-    const photo      = el.dataset.photo;
-    const status     = el.dataset.status;
-    const region     = el.dataset.region;
-    const reject     = el.dataset.reject;
-    const approveUrl = el.dataset.approveUrl;
+    const { title, date, desc, photo, status, region, reject, approveUrl } = el.dataset;
 
-    const s     = statusMap[status] || { style: 'background:#F3F4F6;color:#6B7280;', label: status };
+    const s = statusMap[status] || { style: 'background:#F3F4F6;color:#6B7280;', label: status };
     const badge = document.getElementById('modal-status-badge');
-    badge.style.cssText = s.style;
-    badge.textContent   = s.label;
+    badge.style.cssText = s.style; badge.textContent = s.label;
 
     const regionBadge = document.getElementById('modal-region-badge');
     const regionEl    = document.getElementById('modal-region');
-    if (region) {
-        regionEl.textContent      = region;
-        regionBadge.style.display = '';
-    } else {
-        regionBadge.style.display = 'none';
-    }
+    if (region) { regionEl.textContent = region; regionBadge.style.display = ''; }
+    else { regionBadge.style.display = 'none'; }
 
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-date').textContent  = date;
@@ -347,54 +318,29 @@ function openDetailModal(id) {
     const photoWrap = document.getElementById('modal-photo-wrap');
     const noPhoto   = document.getElementById('modal-no-photo');
     const photoEl   = document.getElementById('modal-photo');
-    if (photo) {
-        photoEl.src = photo; photoEl.alt = title;
-        photoWrap.style.display = ''; noPhoto.style.display = 'none';
-    } else {
-        photoWrap.style.display = 'none'; noPhoto.style.display = '';
-    }
+    if (photo) { photoEl.src = photo; photoEl.alt = title; photoWrap.style.display = ''; noPhoto.style.display = 'none'; }
+    else { photoWrap.style.display = 'none'; noPhoto.style.display = ''; }
 
     const rejectWrap = document.getElementById('modal-reject-wrap');
-    if (reject && status === 'rejected') {
-        document.getElementById('modal-reject').textContent = reject;
-        rejectWrap.style.display = '';
-    } else {
-        rejectWrap.style.display = 'none';
-    }
+    if (reject && status === 'rejected') { document.getElementById('modal-reject').textContent = reject; rejectWrap.style.display = ''; }
+    else { rejectWrap.style.display = 'none'; }
 
     const descWrap = document.getElementById('modal-desc-wrap');
     if (desc) {
-        descP.textContent      = desc;
-        descWrap.style.display = '';
-        requestAnimationFrame(() => {
-            if (descP.scrollHeight > descP.clientHeight + 4) {
-                descBtn.style.display = '';
-            }
-        });
-    } else {
-        descWrap.style.display = 'none';
-    }
+        descP.textContent = desc; descWrap.style.display = '';
+        requestAnimationFrame(() => { if (descP.scrollHeight > descP.clientHeight + 4) descBtn.style.display = ''; });
+    } else { descWrap.style.display = 'none'; }
 
     const approveForm = document.getElementById('modal-approve-form');
     const rejectBtn   = document.getElementById('modal-reject-btn');
     if (status === 'pending' && approveUrl) {
-        approveForm.action        = approveUrl;
-        approveForm.style.display = '';
-        rejectBtn.style.display   = '';
-    } else {
-        approveForm.style.display = 'none';
-        rejectBtn.style.display   = 'none';
-    }
+        approveForm.action = approveUrl; approveForm.style.display = ''; rejectBtn.style.display = '';
+    } else { approveForm.style.display = 'none'; rejectBtn.style.display = 'none'; }
 
     document.getElementById('modal-detail').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
-
-function closeDetailModal() {
-    document.getElementById('modal-detail').classList.add('hidden');
-    document.body.style.overflow = '';
-}
-
+function closeDetailModal() { document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow = ''; }
 function openRejectModal(id, title) {
     currentAgendaId = id;
     document.getElementById('reject-modal-title').textContent = title || '';
@@ -402,22 +348,13 @@ function openRejectModal(id, title) {
     document.getElementById('modal-reject-form').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
-
 function openRejectFromModal() {
-    const el    = document.getElementById('agenda-data-' + currentAgendaId);
-    const title = el ? el.dataset.title : '';
+    const el = document.getElementById('agenda-data-' + currentAgendaId);
     closeDetailModal();
-    setTimeout(() => openRejectModal(currentAgendaId, title), 100);
+    setTimeout(() => openRejectModal(currentAgendaId, el ? el.dataset.title : ''), 100);
 }
-
-function closeRejectModal() {
-    document.getElementById('modal-reject-form').classList.add('hidden');
-    document.body.style.overflow = '';
-}
-
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeDetailModal(); closeRejectModal(); }
-});
+function closeRejectModal() { document.getElementById('modal-reject-form').classList.add('hidden'); document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetailModal(); closeRejectModal(); } });
 </script>
 @endpush
 
