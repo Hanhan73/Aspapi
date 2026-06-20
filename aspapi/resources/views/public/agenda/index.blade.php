@@ -4,7 +4,6 @@
 
 @push('styles')
 <style>
-
 .desc-content p { margin-bottom: 0.75em; }
 .desc-content p:last-child { margin-bottom: 0; }
 </style>
@@ -84,12 +83,15 @@
         @if ($agendas->count())
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($agendas as $agenda)
+
+            {{-- Hidden div untuk isi modal — HARUS di luar kartu, HARUS punya id --}}
+            <div id="agenda-desc-{{ $agenda->id }}" style="display:none;">{!! $agenda->description !!}</div>
+
             <div class="card card-top-blue card-hover flex flex-col overflow-hidden cursor-pointer group"
                  onclick="openAgendaModal({{ $agenda->id }})"
                  data-id="{{ $agenda->id }}"
                  data-title="{{ e($agenda->title) }}"
                  data-date="{{ $agenda->event_date->translatedFormat('d F Y') }}"
-                 
                  data-region="{{ e($agenda->region->name ?? 'ASPAPI Pusat') }}"
                  data-photo="{{ $agenda->photo ? Storage::url($agenda->photo) : '' }}">
 
@@ -129,10 +131,11 @@
                         {{ $agenda->title }}
                     </h3>
 
+                    {{-- Preview deskripsi di kartu — cukup strip tag, tampilkan plain text --}}
                     @if ($agenda->description)
-                    <div class="desc-content text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3 [&_p]:mb-0 [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_ul]:my-0 [&_ol]:my-0 [&_li]:my-0">
-                        {!! $agenda->description !!}
-                    </div>
+                    <p class="text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3">
+                        {{ strip_tags($agenda->description) }}
+                    </p>
                     @endif
 
                     <span class="text-2xs font-bold tracking-widest uppercase text-primary border-b-2 border-accent-yellow pb-0.5 w-fit mt-auto">
@@ -141,9 +144,6 @@
                 </div>
             </div>
 
-<div class="desc-content text-xs text-neutral-400 leading-relaxed line-clamp-2 mb-3 [&_p]:mb-0 [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_ul]:my-0 [&_ol]:my-0 [&_li]:my-0 ">
-    {!! $agenda->description !!}
-</div>
             @endforeach
         </div>
 
@@ -231,7 +231,7 @@
 
             <div id="modal-desc-wrap" style="display:none;">
                 <div class="border-t border-neutral-100 pt-4">
-                    <div id="modal-desc" class="desc-content prose prose-sm max-w-none text-neutral-600"></div>
+                    <div id="modal-desc" class="desc-content text-sm text-neutral-600 leading-relaxed"></div>
                 </div>
             </div>
         </div>
@@ -253,10 +253,12 @@ function openAgendaModal(id) {
 
     const title  = card.dataset.title;
     const date   = card.dataset.date;
-    const descContainer = document.getElementById(`agenda-desc-${id}`);
-    const desc = descContainer ? descContainer.innerHTML : '';
     const region = card.dataset.region;
     const photo  = card.dataset.photo;
+
+    // Ambil deskripsi dari hidden div
+    const descContainer = document.getElementById('agenda-desc-' + id);
+    const desc = descContainer ? descContainer.innerHTML.trim() : '';
 
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-date').textContent  = date;
@@ -287,9 +289,9 @@ function openAgendaModal(id) {
     const descEl   = document.getElementById('modal-desc');
     if (desc) {
         descEl.innerHTML       = desc;
-        descWrap.style.display  = '';
+        descWrap.style.display = '';
     } else {
-        descWrap.style.display  = 'none';
+        descWrap.style.display = 'none';
     }
 
     document.getElementById('modal-agenda').classList.remove('hidden');
