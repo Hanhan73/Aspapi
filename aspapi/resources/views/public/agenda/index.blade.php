@@ -81,7 +81,7 @@
                  data-id="{{ $agenda->id }}"
                  data-title="{{ e($agenda->title) }}"
                  data-date="{{ $agenda->event_date->translatedFormat('d F Y') }}"
-                 data-desc="{{ e($agenda->description ?? '') }}"
+                 
                  data-region="{{ e($agenda->region->name ?? 'ASPAPI Pusat') }}"
                  data-photo="{{ $agenda->photo ? Storage::url($agenda->photo) : '' }}">
 
@@ -130,6 +130,10 @@
                     </span>
                 </div>
             </div>
+
+<div id="agenda-desc-{{ $agenda->id }}" class="hidden">
+    {!! $agenda->description !!}
+</div>
             @endforeach
         </div>
 
@@ -217,7 +221,7 @@
 
             <div id="modal-desc-wrap" style="display:none;">
                 <div class="border-t border-neutral-100 pt-4">
-                    <p id="modal-desc" class="text-sm text-neutral-500 leading-relaxed"></p>
+                    <div id="modal-desc" class="prose prose-sm max-w-none text-neutral-600"></div>
                 </div>
             </div>
         </div>
@@ -239,7 +243,8 @@ function openAgendaModal(id) {
 
     const title  = card.dataset.title;
     const date   = card.dataset.date;
-    const desc   = card.dataset.desc;
+    const descContainer = document.getElementById(`agenda-desc-${id}`);
+    const desc = descContainer ? descContainer.innerHTML : '';
     const region = card.dataset.region;
     const photo  = card.dataset.photo;
 
