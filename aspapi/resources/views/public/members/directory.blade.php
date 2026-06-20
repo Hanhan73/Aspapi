@@ -191,17 +191,17 @@
                                 </td>
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
-                @php $sidebarPhoto = auth()->user()->member?->photo; @endphp
-                @if ($sidebarPhoto)
-                    <img src="{{ Storage::url($sidebarPhoto) }}"
-                        class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-white/20"/>
-                @else
-                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-content-center flex-shrink-0">
-                        <span class="text-white text-xs font-bold">
-                            {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                        </span>
-                    </div>
-                @endif
+                                        @php $sidebarPhoto = auth()->user()->member?->photo; @endphp
+                                        @if ($sidebarPhoto)
+                                            <img src="{{ Storage::url($sidebarPhoto) }}"
+                                                class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-white/20"/>
+                                        @else
+                                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-content-center flex-shrink-0">
+                                                <span class="text-white text-xs font-bold">
+                                                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                                                </span>
+                                            </div>
+                                        @endif
                                         <div>
                                             <p class="font-semibold text-navy text-sm leading-snug">{{ $member->full_name_with_title }}</p>
                                             @if ($member->member_number)
