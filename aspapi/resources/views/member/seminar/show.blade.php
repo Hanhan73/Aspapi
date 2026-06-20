@@ -1,6 +1,16 @@
 @extends('layouts.member')
 @section('title', $enrollment->seminar->title)
 
+@push('styles')
+<style>
+.desc-content br {
+    display: block;
+    content: '';
+    margin-top: 0.75em;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="p-6">
 

@@ -1,10 +1,20 @@
 @extends('layouts.member')
 @section('title', 'Daftar Seminar')
 
+@push('styles')
+<style>
+.desc-content br {
+    display: block;
+    content: '';
+    margin-top: 0.75em;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="p-6">
 
-    {{-- ── Header ── --}}
+    {{-- ── Header ── }}
     <div class="flex items-start justify-between mb-6">
         <div>
             <h1 class="text-xl font-extrabold text-navy">Seminar ASPAPI</h1>
