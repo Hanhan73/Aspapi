@@ -334,10 +334,14 @@ Route::prefix('admin')
         });
 
         Route::prefix('agenda')->name('agenda.')->group(function () {
-            Route::get('/',                          [\App\Http\Controllers\Admin\AgendaAdminController::class, 'index'])->name('index');
-            Route::post('/{agenda}/approve',         [\App\Http\Controllers\Admin\AgendaAdminController::class, 'approve'])->name('approve');
-            Route::post('/{agenda}/reject',          [\App\Http\Controllers\Admin\AgendaAdminController::class, 'reject'])->name('reject');
-            Route::delete('/{agenda}',               [\App\Http\Controllers\Admin\AgendaAdminController::class, 'destroy'])->name('destroy');
+            Route::get('/',                  [\App\Http\Controllers\Admin\AgendaAdminController::class, 'index'])->name('index');
+            Route::get('/tambah',            [\App\Http\Controllers\Admin\AgendaAdminController::class, 'create'])->name('create');
+            Route::post('/',                 [\App\Http\Controllers\Admin\AgendaAdminController::class, 'store'])->name('store');
+            Route::get('/{agenda}/edit',     [\App\Http\Controllers\Admin\AgendaAdminController::class, 'edit'])->name('edit');
+            Route::put('/{agenda}',          [\App\Http\Controllers\Admin\AgendaAdminController::class, 'update'])->name('update');
+            Route::post('/{agenda}/approve', [\App\Http\Controllers\Admin\AgendaAdminController::class, 'approve'])->name('approve');
+            Route::post('/{agenda}/reject',  [\App\Http\Controllers\Admin\AgendaAdminController::class, 'reject'])->name('reject');
+            Route::delete('/{agenda}',       [\App\Http\Controllers\Admin\AgendaAdminController::class, 'destroy'])->name('destroy');
         });
     });
 
