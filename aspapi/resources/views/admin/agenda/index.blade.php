@@ -181,13 +181,13 @@
 <div id="modal-detail"
      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6"
      onclick="if(event.target===this) closeDetailModal()">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
 
-        <div id="modal-photo-wrap" class="w-full overflow-hidden flex-shrink-0" style="display:none;">
+        <div id="modal-photo-wrap" class="w-full overflow-hidden" style="display:none;">
             <img id="modal-photo" src="" alt="" class="w-full aspect-square object-cover">
         </div>
         <div id="modal-no-photo"
-             style="width:100%;padding-top:40%;position:relative;background:linear-gradient(135deg,#EEF4FB,#D6E8F7);flex-shrink:0;">
+             style="width:100%;padding-top:40%;position:relative;background:linear-gradient(135deg,#EEF4FB,#D6E8F7);">
             <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
                 <svg style="width:36px;height:36px;color:#B0CCDF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -195,7 +195,7 @@
             </div>
         </div>
 
-        <div class="p-6 overflow-y-auto flex-1 min-h-0">
+        <div class="p-6">
             <div class="flex items-center gap-2 mb-3 flex-wrap">
                 <span id="modal-status-badge" class="inline-flex items-center gap-1.5 text-2xs font-bold px-2.5 py-1 rounded"></span>
                 <span id="modal-region-badge"
@@ -235,7 +235,7 @@
             </div>
         </div>
 
-        <div class="px-6 py-4 border-t border-neutral-100 flex gap-3 flex-shrink-0">
+        <div class="px-6 py-4 border-t border-neutral-100 flex gap-3">
             <button onclick="closeDetailModal()"
                     class="flex-1 btn border border-neutral-200 text-neutral-500 hover:bg-neutral-50">Tutup</button>
             <form id="modal-approve-form" method="POST" action="" class="flex-1" style="display:none;">

@@ -183,18 +183,18 @@
 <div id="modal-agenda"
      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6"
      onclick="if(event.target===this) closeAgendaModal()">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
 
-        <div id="modal-photo-wrap" class="w-full overflow-hidden flex-shrink-0" style="display:none;">
+        <div id="modal-photo-wrap" class="w-full overflow-hidden" style="display:none;">
             <img id="modal-photo" src="" alt="" class="w-full aspect-square object-cover">
         </div>
-        <div id="modal-no-photo" class="w-full aspect-square bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center flex-shrink-0">
+        <div id="modal-no-photo" class="w-full aspect-square bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
             <svg class="w-16 h-16 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
         </div>
 
-        <div class="p-6 overflow-y-auto flex-1">
+        <div class="p-6">
             <div class="flex items-center gap-3 mb-3 flex-wrap">
                 <span id="modal-region-badge"
                       class="inline-flex items-center gap-1.5 bg-primary-50 text-primary text-2xs font-bold px-2.5 py-1 rounded"
@@ -221,7 +221,7 @@
             </div>
         </div>
 
-        <div class="px-6 py-4 border-t border-neutral-100 flex-shrink-0">
+        <div class="px-6 py-4 border-t border-neutral-100">
             <button onclick="closeAgendaModal()"
                     class="btn w-full justify-center border border-neutral-200 text-neutral-500 hover:bg-neutral-50">
                 Tutup
