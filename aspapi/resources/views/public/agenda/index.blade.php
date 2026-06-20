@@ -110,13 +110,11 @@
                         </div>
                     @endif
 
-                    @if ($agenda->region)
                     <div style="position:absolute;top:10px;left:10px;">
                         <span style="background:rgba(26,42,58,0.75);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:3px 8px;border-radius:4px;backdrop-filter:blur(4px);">
                             {{ $agenda->region->name ?? 'ASPAPI Pusat' }}
                         </span>
                     </div>
-                    @endif
                 </div>
 
                 <div class="p-5 flex flex-col flex-1">
