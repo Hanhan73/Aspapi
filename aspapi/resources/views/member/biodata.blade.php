@@ -13,12 +13,26 @@
     $occupationOptions = ['Dosen', 'Guru', 'Praktisi', 'Lainnya'];
     $currentOccupation = old('occupation', $member?->occupation);
     $occupationInList  = in_array($currentOccupation, $occupationOptions);
-    // Kalau nilai lama bukan salah satu opsi (misal data lama free text), masuk ke "Lainnya"
     $selectedOccupation = $occupationInList ? $currentOccupation : ($currentOccupation ? 'Lainnya' : '');
     $customOccupation   = (!$occupationInList && $currentOccupation) ? $currentOccupation : '';
+
+    // Helper: border color per field
+    $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
 @endphp
 
 @section('content')
+
+{{-- ── Error Summary ── --}}
+@if ($errors->any())
+<div style="background:#FDECEA;border-left:4px solid #C0392B;border-radius:4px;padding:1rem 1.25rem;margin-bottom:1.5rem;">
+    <p style="font-size:0.875rem;font-weight:700;color:#C0392B;margin-bottom:0.5rem;">✗ Terdapat kesalahan pada form:</p>
+    <ul style="list-style:disc;padding-left:1.25rem;display:flex;flex-direction:column;gap:0.25rem;">
+        @foreach ($errors->all() as $error)
+        <li style="font-size:0.8rem;color:#922B21;">{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 
 {{-- ── Banner Status ── --}}
 @if ($isVerified)
@@ -96,8 +110,8 @@
         {{-- ── Kolom Kiri ── --}}
         <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
-            {{-- Overlay kunci visual kalau locked --}}
             @if ($isLocked)
+            {{-- Overlay kunci visual --}}
             <div style="background:#F8FAFC;border:2px dashed #D6E8F7;border-radius:8px;padding:2rem;text-align:center;color:#4A6580;">
                 <svg style="width:36px;height:36px;margin:0 auto 0.75rem;color:#B0CCDF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -110,8 +124,6 @@
                     @endif
                     Klik "Buka Kunci" di sebelah kanan untuk mengubah.
                 </p>
-
-                {{-- Preview data (read-only) --}}
                 <div style="text-align:left;background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 1.5rem;">
                     @foreach ([
                         'Nama Lengkap'   => $member?->full_name,
@@ -142,7 +154,7 @@
             </div>
 
             @else
-            {{-- ── Form editable (draft / rejected) ── --}}
+            {{-- ── Form editable ── --}}
 
             {{-- Data Pribadi --}}
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
@@ -152,9 +164,14 @@
                 <div style="margin-bottom:1rem;">
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Nama Lengkap (tanpa gelar) *</label>
                     <input type="text" name="full_name" value="{{ old('full_name', $member?->full_name) }}" required
-                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('full_name') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('full_name') }}'"/>
+                    @error('full_name')
+                    <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                    @enderror
+                    @if (!$errors->has('full_name'))
                     <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.3rem;">Isi nama tanpa gelar. Gelar diisi di field di bawah.</p>
+                    @endif
                 </div>
 
                 {{-- Gelar --}}
@@ -163,76 +180,107 @@
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Gelar Depan</label>
                         <input type="text" name="front_title" value="{{ old('front_title', $member?->front_title) }}"
                             placeholder="Contoh: Dr., Prof., Ir."
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('front_title') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('front_title') }}'"/>
+                        @error('front_title')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Gelar Belakang</label>
                         <input type="text" name="back_title" value="{{ old('back_title', $member?->back_title) }}"
                             placeholder="Contoh: M.Pd., S.E., Ph.D."
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('back_title') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('back_title') }}'"/>
+                        @error('back_title')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
+                {{-- NIK & Gender --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">NIK (16 digit) *</label>
                         <input type="text" name="nik" value="{{ old('nik', $member?->nik) }}" maxlength="16" required
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('nik') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('nik') }}'"/>
+                        @error('nik')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Jenis Kelamin *</label>
                         <select name="gender" required
-                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
+                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('gender') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
                             <option value="">Pilih</option>
                             <option value="L" {{ old('gender', $member?->gender) === 'L' ? 'selected' : '' }}>Laki-laki</option>
                             <option value="P" {{ old('gender', $member?->gender) === 'P' ? 'selected' : '' }}>Perempuan</option>
                         </select>
+                        @error('gender')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
+                {{-- Tempat & Tanggal Lahir --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tempat Lahir *</label>
                         <input type="text" name="birth_place" value="{{ old('birth_place', $member?->birth_place) }}" required
                             placeholder="Kota tempat lahir..."
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('birth_place') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('birth_place') }}'"/>
+                        @error('birth_place')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tanggal Lahir *</label>
                         <input type="date" name="birth_date" value="{{ old('birth_date', $member?->birth_date?->format('Y-m-d')) }}" required
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('birth_date') }}'"/>
+                        @error('birth_date')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
+                {{-- Telepon & Pendidikan --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">No. Telepon *</label>
                         <input type="text" name="phone" value="{{ old('phone', $member?->phone) }}" required
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('phone') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('phone') }}'"/>
+                        @error('phone')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Pendidikan Terakhir *</label>
                         <select name="last_education" required
-                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
+                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('last_education') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
                             <option value="">Pilih</option>
                             @foreach(['sd'=>'SD','smp'=>'SMP','sma'=>'SMA/SMK','d3'=>'D3','s1'=>'S1','s2'=>'S2','s3'=>'S3','profesi'=>'Profesi','lainnya'=>'Lainnya'] as $val => $label)
                             <option value="{{ $val }}" {{ old('last_education', $member?->last_education) === $val ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
+                        @error('last_education')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
+                {{-- Email --}}
                 <div>
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Email *</label>
                     <input type="email" name="email" value="{{ old('email', $member?->email ?? $member?->user?->email) }}" required
-                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('email') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('email') }}'"/>
+                    @error('email')
+                    <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -244,7 +292,7 @@
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Provinsi *</label>
                         <select name="province_id" id="province-select" required
-                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('province_id') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
                                 onchange="loadCities(this.value)">
                             <option value="">Pilih Provinsi</option>
                             @foreach ($provinces as $prov)
@@ -253,11 +301,14 @@
                             </option>
                             @endforeach
                         </select>
+                        @error('province_id')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Kota/Kabupaten *</label>
                         <select name="city_id" id="city-select" required
-                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
+                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('city_id') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
                             <option value="">Pilih Kota</option>
                             @foreach ($cities as $city)
                             <option value="{{ $city->id }}" {{ old('city_id', $member?->city_id) == $city->id ? 'selected' : '' }}>
@@ -265,14 +316,20 @@
                             </option>
                             @endforeach
                         </select>
+                        @error('city_id')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
                 <div>
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Alamat Lengkap *</label>
                     <textarea name="address" rows="3" required
-                              style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;resize:vertical;"
-                              onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'">{{ old('address', $member?->address) }}</textarea>
+                              style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('address') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;resize:vertical;"
+                              onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('address') }}'">{{ old('address', $member?->address) }}</textarea>
+                    @error('address')
+                    <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -280,12 +337,11 @@
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
                 <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Data Profesi / Akademik</p>
 
-                {{-- Pekerjaan: dropdown 4 opsi + field "Lainnya" --}}
                 <div style="margin-bottom:1rem;">
                     <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Pekerjaan / Profesi</label>
                     <select name="occupation_select" id="occupation-select"
                             onchange="toggleOccupationOther(this.value)"
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('occupation') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
                         <option value="">Pilih</option>
                         <option value="Dosen"     {{ $selectedOccupation === 'Dosen'     ? 'selected' : '' }}>Dosen</option>
                         <option value="Guru"      {{ $selectedOccupation === 'Guru'      ? 'selected' : '' }}>Guru</option>
@@ -293,7 +349,6 @@
                         <option value="Lainnya"   {{ $selectedOccupation === 'Lainnya'   ? 'selected' : '' }}>Lainnya</option>
                     </select>
 
-                    {{-- Field teks muncul kalau pilih "Lainnya" --}}
                     <div id="occupation-other-wrap"
                          style="margin-top:0.625rem;{{ $selectedOccupation === 'Lainnya' ? '' : 'display:none;' }}">
                         <input type="text" id="occupation-other"
@@ -303,9 +358,11 @@
                                onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
                     </div>
 
-                    {{-- Hidden field yang dikirim ke server --}}
-                    <input type="hidden" name="occupation" id="occupation-hidden"
-                           value="{{ $currentOccupation }}">
+                    <input type="hidden" name="occupation" id="occupation-hidden" value="{{ $currentOccupation }}">
+
+                    @error('occupation')
+                    <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
@@ -313,15 +370,21 @@
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Institusi / Universitas</label>
                         <input type="text" name="institution" value="{{ old('institution', $member?->institution) }}"
                                placeholder="Nama universitas / instansi..."
-                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('institution') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('institution') }}'"/>
+                        @error('institution')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Program Studi / Jabatan</label>
                         <input type="text" name="position" value="{{ old('position', $member?->position) }}"
                                placeholder="Prodi / Jabatan di instansi..."
-                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='#D6E8F7'"/>
+                               style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('position') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='#2A7FC1'" onblur="this.style.borderColor='{{ $b('position') }}'"/>
+                        @error('position')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -355,7 +418,6 @@
                 </span>
 
                 @if ($isLocked)
-                    {{-- Tombol buka kunci --}}
                     <button type="button" onclick="openUnlockModal()"
                             style="width:100%;padding:0.75rem;background:#fff;color:#C0392B;border:1.5px solid #C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
                         <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +428,6 @@
                     </button>
                     <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.5rem;text-align:center;">Perlu verifikasi ulang setelah diedit.</p>
                 @else
-                    {{-- Tombol simpan & ajukan verifikasi --}}
                     <button type="submit"
                             style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
                         {{ $isRejected ? 'Simpan & Ajukan Ulang' : 'Simpan & Ajukan Verifikasi' }}
@@ -381,7 +442,7 @@
             <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
                 <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:0.75rem;">Pas Foto</label>
                 <div id="photo-preview"
-                     style="width:100%;height:200px;background:#EEF4FB;border-radius:4px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px {{ $isLocked ? 'solid #D6E8F7' : 'dashed #D6E8F7' }};">
+                     style="width:100%;height:200px;background:#EEF4FB;border-radius:4px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px {{ $isLocked ? 'solid' : 'dashed' }} {{ $b('photo') }};">
                     @if ($member?->photo)
                         <img src="{{ Storage::url($member->photo) }}" style="width:100%;height:100%;object-fit:cover;"/>
                     @else
@@ -397,7 +458,11 @@
                 <input type="file" name="photo" accept="image/*"
                        style="width:100%;font-size:0.8rem;color:#4A6580;"
                        onchange="previewPhoto(this)"/>
+                @error('photo')
+                <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                @else
                 <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.375rem;">JPG, PNG. Latar belakang putih. Maks 2MB.</p>
+                @enderror
                 @else
                 <p style="font-size:0.72rem;color:#B0CCDF;text-align:center;">Buka kunci untuk mengubah foto.</p>
                 @endif
@@ -445,7 +510,6 @@ function loadCities(provinceId) {
         });
 }
 
-// ── Pekerjaan dropdown logic ──────────────────────────────────────────────
 function toggleOccupationOther(val) {
     const wrap   = document.getElementById('occupation-other-wrap');
     const other  = document.getElementById('occupation-other');
@@ -454,7 +518,6 @@ function toggleOccupationOther(val) {
     if (val === 'Lainnya') {
         wrap.style.display = 'block';
         other.focus();
-        // Nilai hidden diupdate dari field teks
         hidden.value = other.value;
     } else {
         wrap.style.display = 'none';
@@ -462,12 +525,10 @@ function toggleOccupationOther(val) {
     }
 }
 
-// Sync field "Lainnya" ke hidden input saat diketik
 document.getElementById('occupation-other')?.addEventListener('input', function() {
     document.getElementById('occupation-hidden').value = this.value;
 });
 
-// Sync sebelum submit: pastikan hidden punya nilai terkini
 document.getElementById('biodata-form')?.addEventListener('submit', function() {
     const select = document.getElementById('occupation-select');
     const other  = document.getElementById('occupation-other');
