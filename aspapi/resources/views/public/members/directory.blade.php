@@ -191,7 +191,7 @@
                                 </td>
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
-                                        @php $sidebarPhoto = auth()->user()->member?->photo; @endphp
+                                        @php $sidebarPhoto = $member->photo; @endphp
                                         @if ($sidebarPhoto)
                                             <img src="{{ Storage::url($sidebarPhoto) }}"
                                                 class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-white/20"/>
