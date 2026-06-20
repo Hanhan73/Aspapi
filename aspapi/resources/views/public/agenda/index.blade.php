@@ -45,7 +45,7 @@
 
                 <div class="sm:w-56">
                     <select name="region" class="form-input w-full text-sm" onchange="this.form.submit()">
-                        <option value="">Semua Daerah</option>
+                        <option value="">Semua</option>
                         <option value="pusat" {{ request('region') === 'pusat' ? 'selected' : '' }}>ASPAPI Pusat</option>
                         @foreach ($regions as $region)
                             <option value="{{ $region->id }}" {{ request('region') == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
