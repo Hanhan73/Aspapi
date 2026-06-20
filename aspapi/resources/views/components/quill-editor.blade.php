@@ -96,19 +96,14 @@
             toolbar: '#{{ $editorId }}-toolbar',
             keyboard: {
                 bindings: {
-                    // OVERRIDE ENTER KEY: Make it insert a <br> instead of a <p>
                     enter: {
                         key: 13,
-                        shiftKey: false, // Only normal Enter (Shift+Enter will still be <br>)
+                        shiftKey: false,
                         handler: function(range, context) {
-                            // If user is in a list, let Quill do its default behavior
-                            if (context.format.list) {
-                                return true; 
-                            }
-                            // Otherwise, insert a single line break
+                            if (context.format.list) return true; 
                             this.quill.insertEmbed(range.index, 'break', true, Quill.sources.USER);
                             this.quill.setSelection(range.index + 1, Quill.sources.USER);
-                            return false; // Prevent default <p> creation
+                            return false; 
                         }
                     }
                 }
@@ -123,18 +118,33 @@
         quill.root.innerHTML = initialValue;
     }
 
+    // Fungsi untuk membersihkan HTML sebelum disimpan
+    function cleanHtml() {
+        let html = quill.getSemanticHTML();
+        
+        // 1. Hilangkan <p></p> yang kosong
+        html = html.replace(/<p><\/p>/gi, '');
+        // 2. Hilangkan <p><br></p> yang kosong
+        html = html.replace(/<p><br><\/p>/gi, '');
+        // 3. Ubah <p> menjadi <br> agar text mengalir natural
+        html = html.replace(/<p>/gi, '');
+        html = html.replace(/<\/p>/gi, '<br>');
+        // 4. Hilangkan <br> di akhir teks
+        html = html.replace(/(<br\s*\/?>)+$/i, '');
+        
+        return html.trim() === '<br>' ? '' : html.trim();
+    }
+
     // Sync ke hidden textarea saat konten berubah
     quill.on('text-change', function() {
-        const html = quill.getSemanticHTML();
-        hiddenEl.value = html === '<p><br></p>' || html === '<p></p>' ? '' : html;
+        hiddenEl.value = cleanHtml();
     });
 
     // Sync sebelum form submit
     const form = hiddenEl.closest('form');
     if (form) {
         form.addEventListener('submit', function() {
-            const html = quill.getSemanticHTML();
-            hiddenEl.value = html === '<p><br></p>' || html === '<p></p>' ? '' : html;
+            hiddenEl.value = cleanHtml();
         });
     }
 })();
