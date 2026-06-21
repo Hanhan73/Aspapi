@@ -359,3 +359,34 @@ $ogType = 'article';
 }
 </style>
 @endpush
+
+@push('scripts')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "{{ e($news->title) }}",
+  "description": "{{ e($news->excerpt ?? Str::limit(strip_tags($news->body), 155)) }}",
+  "datePublished": "{{ ($news->published_at ?? $news->created_at)->toIso8601String() }}",
+  "dateModified": "{{ $news->updated_at->toIso8601String() }}",
+  "image": "{{ $news->thumbnail ? Storage::url($news->thumbnail) : asset('images/logo-aspapi.png') }}",
+  "url": "{{ url()->current() }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "ASPAPI",
+    "url": "https://aspapi.id",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ asset('images/logo-aspapi.png') }}"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ url()->current() }}"
+  }
+  @if($news->category)
+  ,"articleSection": "{{ e($news->category) }}"
+  @endif
+}
+</script>
+@endpush

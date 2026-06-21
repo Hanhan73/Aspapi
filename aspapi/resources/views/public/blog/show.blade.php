@@ -360,3 +360,38 @@ $ogType = 'article';
     }
 </style>
 @endpush
+
+@push('scripts')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ e($blog->title) }}",
+  "description": "{{ e($blog->excerpt ?? Str::limit(strip_tags($blog->body), 155)) }}",
+  "datePublished": "{{ ($blog->published_at ?? $blog->created_at)->toIso8601String() }}",
+  "dateModified": "{{ $blog->updated_at->toIso8601String() }}",
+  "image": "{{ $blog->thumbnail ? Storage::url($blog->thumbnail) : asset('images/logo-aspapi.png') }}",
+  "url": "{{ url()->current() }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ e($blog->author_name ?? 'ASPAPI') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "ASPAPI",
+    "url": "https://aspapi.id",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ asset('images/logo-aspapi.png') }}"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ url()->current() }}"
+  }
+  @if($blog->category)
+  ,"articleSection": "{{ e($blog->category) }}"
+  @endif
+}
+</script>
+@endpush
