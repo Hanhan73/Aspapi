@@ -7,6 +7,9 @@ Disallow: /bendahara
 Disallow: /daerah
 Disallow: /login
 Disallow: /daftar
+Disallow: /daftar/lama
+Disallow: /verifikasi-email
 Disallow: /api/
+Disallow: /account/
 
 Sitemap: https://aspapi.id/sitemap.xml
