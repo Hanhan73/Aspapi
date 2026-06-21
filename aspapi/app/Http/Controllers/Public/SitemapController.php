@@ -11,24 +11,23 @@ use App\Models\Agenda;
 
 class SitemapController extends Controller
 {
-    public function index()
-    {
-        $blogs = Blog::where('status', 'published')
-            ->orderByDesc('updated_at')
-            ->get(['slug', 'updated_at']);
+public function index()
+{
+    $blogs = Blog::where('status', 'published')
+        ->orderByDesc('updated_at')
+        ->get(['slug', 'updated_at']);
 
-        $news = News::where('status', 'published')
-            ->orderByDesc('updated_at')
-            ->get(['slug', 'updated_at']);
+    $news = News::where('status', 'published')
+        ->orderByDesc('updated_at')
+        ->get(['slug', 'updated_at']);
 
-        $agendas = Agenda::where('status', 'approved')
-            ->orderByDesc('updated_at')
-            ->get(['id', 'updated_at']);
+    $regions = Region::where('is_active', true)
+        ->get(['slug', 'updated_at']);
 
-        $regions = Region::where('is_active', true)
-            ->get(['slug', 'updated_at']);
+    $content = view('sitemap', compact('blogs', 'news', 'regions'))->render();
 
-        return response()->view('sitemap', compact('blogs', 'news', 'agendas', 'regions'))
-            ->header('Content-Type', 'application/xml');
-    }
+    return response($content, 200)
+        ->header('Content-Type', 'text/xml; charset=UTF-8')
+        ->header('X-Robots-Tag', 'noindex');
+}
 }
