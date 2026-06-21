@@ -1,2 +1,12 @@
 User-agent: *
-Disallow:
+Allow: /
+
+Disallow: /admin
+Disallow: /member
+Disallow: /bendahara
+Disallow: /daerah
+Disallow: /login
+Disallow: /daftar
+Disallow: /api/
+
+Sitemap: https://aspapi.id/sitemap.xml

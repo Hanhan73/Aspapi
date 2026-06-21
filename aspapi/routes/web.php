@@ -160,6 +160,9 @@ Route::get('/admin/login',   [AuthController::class, 'showLogin'])->name('admin.
 Route::post('/admin/login',  [AuthController::class, 'login'])->name('admin.login.post');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/sitemap.xml', [\App\Http\Controllers\Public\SitemapController::class, 'index'])
+    ->name('sitemap');
+    
 // ── HOME ──
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
