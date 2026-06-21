@@ -11,11 +11,37 @@ use Illuminate\Support\Facades\Storage;
 
 class NewsAdminController extends Controller
 {
-    public function index()
-    {
-        $news = News::latest()->paginate(15);
-        return view('admin.news.index', compact('news'));
+public function index(Request $request)
+{
+    $search   = trim($request->get('search', ''));
+    $status   = $request->get('status', '');
+
+    $keywords = $search
+        ? collect(explode(',', $search))
+            ->map(fn($k) => trim($k))
+            ->filter(fn($k) => $k !== '')
+            ->values()
+            ->all()
+        : [];
+
+    $query = News::latest();
+
+    if ($status) {
+        $query->where('status', $status);
     }
+
+    foreach ($keywords as $keyword) {
+        $query->where(function ($q) use ($keyword) {
+            $q->where('title',    'like', "%{$keyword}%")
+              ->orWhere('excerpt','like', "%{$keyword}%")
+              ->orWhere('category','like', "%{$keyword}%");
+        });
+    }
+
+    $news = $query->paginate(15)->withQueryString();
+
+    return view('admin.news.index', compact('news'));
+}
 
     public function create()
     {
