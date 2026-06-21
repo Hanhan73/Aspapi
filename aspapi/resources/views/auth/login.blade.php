@@ -57,8 +57,6 @@
                     Portal ASPAPI</p>
                 <h2 style="font-family:'DM Serif Display',serif;font-size:1.75rem;color:#1A2A3A;margin-bottom:0.5rem;">
                     Masuk ke Akun Anda</h2>
-                <p style="font-size:0.875rem;color:#4A6580;margin-bottom:2rem;">Untuk Anggota, Bendahara, dan ASPAPI
-                    Daerah.</p>
 
                 @if ($errors->any())
                 <div
