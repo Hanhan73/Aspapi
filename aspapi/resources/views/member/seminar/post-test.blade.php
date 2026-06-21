@@ -56,14 +56,6 @@
                     @endforeach
                 </div>
 
-                {{-- Submit bawah --}}
-                <div class="mt-5 flex justify-end">
-                    <button type="button"
-                            onclick="confirmSubmit()"
-                            class="px-8 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition">
-                        Submit Post-Test
-                    </button>
-                </div>
             </form>
         </div>
 
