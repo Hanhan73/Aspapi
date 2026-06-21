@@ -135,14 +135,6 @@
                     </div>
                 </div>
 
-                {{-- Admin link --}}
-                <div style="text-align:center;margin-top:1.25rem;">
-                    <a href="{{ route('admin.login') }}" style="font-size:0.75rem;color:#B0CCDF;text-decoration:none;"
-                        onmouseover="this.style.color='#2A7FC1'" onmouseout="this.style.color='#B0CCDF'">
-                        Login sebagai Admin →
-                    </a>
-                </div>
-
                 <p style="text-align:center;font-size:0.7rem;color:#D6E8F7;margin-top:2rem;">
                     &copy; {{ date('Y') }} ASPAPI. Hak Cipta Dilindungi.
                 </p>
