@@ -286,55 +286,67 @@ class SeminarController extends Controller
     }
 
     public function submitPostTest(Request $request, SeminarAttempt $attempt)
-    {
-        $enrollment = $attempt->enrollment;
-        $member     = $this->getMember();
-        abort_if($enrollment->member_id !== $member->id, 403);
-        abort_if($attempt->submitted_at !== null, 403, 'Attempt sudah disubmit.');
+{
+    $enrollment = $attempt->enrollment;
+    $member     = $this->getMember();
+    abort_if($enrollment->member_id !== $member->id, 403);
+    abort_if($attempt->submitted_at !== null, 403, 'Attempt sudah disubmit.');
 
-        $answers = $request->input('answers', []);
+    // ✅ Guard: jika enrollment sudah completed, jangan proses lagi
+    if ($enrollment->status === 'completed') {
+        return redirect()->route('member.seminar.show', $enrollment)
+            ->with('info', 'Kamu sudah menyelesaikan seminar ini dan sertifikat telah diterbitkan.');
+    }
 
-        DB::transaction(function () use ($attempt, $answers, $enrollment) {
-            foreach ($attempt->answers as $answerRecord) {
-                $chosen    = $answers[$answerRecord->question_id] ?? null;
-                $isCorrect = $chosen !== null
-                    ? $chosen === $answerRecord->question->correct_answer
-                    : false;
+    $answers = $request->input('answers', []);
 
-                $answerRecord->update([
-                    'answer'     => $chosen,
-                    'is_correct' => $isCorrect,
-                ]);
-            }
+    DB::transaction(function () use ($attempt, $answers, $enrollment) {
+        foreach ($attempt->answers as $answerRecord) {
+            $chosen    = $answers[$answerRecord->question_id] ?? null;
+            $isCorrect = $chosen !== null
+                ? $chosen === $answerRecord->question->correct_answer
+                : false;
 
-            $attempt->calculateAndSaveScore();
-            $attempt->refresh();
+            $answerRecord->update([
+                'answer'     => $chosen,
+                'is_correct' => $isCorrect,
+            ]);
+        }
 
-            if ($attempt->is_passed) {
+        $attempt->calculateAndSaveScore();
+        $attempt->refresh();
+
+        if ($attempt->is_passed) {
+            // ✅ Cegah duplicate certificate untuk enrollment yang sama
+            $sudahAdaSertifikat = SeminarCertificate::where('enrollment_id', $enrollment->id)->exists();
+
+            if (! $sudahAdaSertifikat) {
                 SeminarCertificate::create([
                     'enrollment_id'      => $enrollment->id,
                     'certificate_number' => SeminarCertificate::generateNumber(),
                     'score'              => $attempt->score,
                     'issued_at'          => now()->toDateString(),
                 ]);
-                $enrollment->update(['status' => 'completed']);
-            } else {
-                $enrollment->update(['status' => 'post_test_done']);
             }
-        });
 
-        session()->forget("test_options_{$attempt->id}");
-
-        $attempt->refresh();
-
-        if ($attempt->is_passed) {
-            return redirect()->route('member.seminar.show', $enrollment)
-                ->with('success', 'Selamat! Kamu lulus dengan skor ' . $attempt->score . '. Sertifikat sudah tersedia.');
+            $enrollment->update(['status' => 'completed']);
+        } else {
+            $enrollment->update(['status' => 'post_test_done']);
         }
+    });
 
+    session()->forget("test_options_{$attempt->id}");
+
+    $attempt->refresh();
+
+    if ($attempt->is_passed) {
         return redirect()->route('member.seminar.show', $enrollment)
-            ->with('error', 'Skor kamu ' . $attempt->score . ', belum mencapai passing grade (' . $enrollment->seminar->passing_grade . '). Kamu bisa mengulang post-test.');
+            ->with('success', 'Selamat! Kamu lulus dengan skor ' . $attempt->score . '. Sertifikat sudah tersedia.');
     }
+
+    return redirect()->route('member.seminar.show', $enrollment)
+        ->with('error', 'Skor kamu ' . $attempt->score . ', belum mencapai passing grade (' . $enrollment->seminar->passing_grade . '). Kamu bisa mengulang post-test.');
+}
 
     public function certificate(SeminarCertificate $certificate)
     {
