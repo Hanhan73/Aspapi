@@ -363,8 +363,8 @@ $ogType = 'article';
 @push('scripts')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "NewsArticle",
+  "@@context": "https://schema.org",
+  "@@type": "NewsArticle",
   "headline": "{{ e($news->title) }}",
   "description": "{{ e($news->excerpt ?? Str::limit(strip_tags($news->body), 155)) }}",
   "datePublished": "{{ ($news->published_at ?? $news->created_at)->toIso8601String() }}",
@@ -373,17 +373,17 @@ $ogType = 'article';
   "url": "{{ url()->current() }}",
   "articleSection": "{{ e($news->category ?? 'Berita') }}",
   "publisher": {
-    "@type": "Organization",
+    "@@type": "Organization",
     "name": "ASPAPI",
     "url": "https://aspapi.id",
     "logo": {
-      "@type": "ImageObject",
+      "@@type": "ImageObject",
       "url": "{{ asset('images/logo-aspapi.png') }}"
     }
   },
   "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ url()->current() }}"
+    "@@type": "WebPage",
+    "@@id": "{{ url()->current() }}"
   }
 }
 </script>

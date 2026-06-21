@@ -364,8 +364,8 @@ $ogType = 'article';
 @push('scripts')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
+  "@@context": "https://schema.org",
+  "@@type": "BlogPosting",
   "headline": "{{ e($blog->title) }}",
   "description": "{{ e($blog->excerpt ?? Str::limit(strip_tags($blog->body), 155)) }}",
   "datePublished": "{{ ($blog->published_at ?? $blog->created_at)->toIso8601String() }}",
@@ -374,21 +374,21 @@ $ogType = 'article';
   "url": "{{ url()->current() }}",
   "articleSection": "{{ e($blog->category ?? 'Blog') }}",
   "author": {
-    "@type": "Person",
+    "@@type": "Person",
     "name": "{{ e($blog->author_name ?? 'ASPAPI') }}"
   },
   "publisher": {
-    "@type": "Organization",
+    "@@type": "Organization",
     "name": "ASPAPI",
     "url": "https://aspapi.id",
     "logo": {
-      "@type": "ImageObject",
+      "@@type": "ImageObject",
       "url": "{{ asset('images/logo-aspapi.png') }}"
     }
   },
   "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ url()->current() }}"
+    "@@type": "WebPage",
+    "@@id": "{{ url()->current() }}"
   }
 }
 </script>
