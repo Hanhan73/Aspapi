@@ -371,6 +371,7 @@ $ogType = 'article';
   "dateModified": "{{ $news->updated_at->toIso8601String() }}",
   "image": "{{ $news->thumbnail ? Storage::url($news->thumbnail) : asset('images/logo-aspapi.png') }}",
   "url": "{{ url()->current() }}",
+  "articleSection": "{{ e($news->category ?? 'Berita') }}",
   "publisher": {
     "@type": "Organization",
     "name": "ASPAPI",
@@ -384,9 +385,6 @@ $ogType = 'article';
     "@type": "WebPage",
     "@id": "{{ url()->current() }}"
   }
-  @if($news->category)
-  ,"articleSection": "{{ e($news->category) }}"
-  @endif
 }
 </script>
 @endpush

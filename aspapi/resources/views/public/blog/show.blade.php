@@ -372,6 +372,7 @@ $ogType = 'article';
   "dateModified": "{{ $blog->updated_at->toIso8601String() }}",
   "image": "{{ $blog->thumbnail ? Storage::url($blog->thumbnail) : asset('images/logo-aspapi.png') }}",
   "url": "{{ url()->current() }}",
+  "articleSection": "{{ e($blog->category ?? 'Blog') }}",
   "author": {
     "@type": "Person",
     "name": "{{ e($blog->author_name ?? 'ASPAPI') }}"
@@ -389,9 +390,6 @@ $ogType = 'article';
     "@type": "WebPage",
     "@id": "{{ url()->current() }}"
   }
-  @if($blog->category)
-  ,"articleSection": "{{ e($blog->category) }}"
-  @endif
 }
 </script>
 @endpush
