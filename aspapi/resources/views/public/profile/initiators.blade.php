@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Inisiator'; @endphp
+@php
+$title = 'Inisiator';
+$description = 'Para tokoh pendiri ASPAPI yang menginisiasi berdirinya asosiasi profesi administrasi perkantoran Indonesia sejak 2010.';
+@endphp
 
 @section('content')
 

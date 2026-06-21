@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Visi dan Misi'; @endphp
+@php
+$title = 'Visi dan Misi';
+$description = 'Visi, misi, dan tujuan ASPAPI dalam membangun SDM administrasi perkantoran Indonesia yang kompeten, kompetitif, dan kolaboratif.';
+@endphp
 
 @section('content')
 

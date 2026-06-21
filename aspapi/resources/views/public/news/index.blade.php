@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+$description = 'Ikuti perkembangan terbaru kegiatan, program, dan pencapaian ASPAPI di tingkat nasional maupun daerah.';
+@endphp
+
 @section('content')
 
 {{-- PAGE HERO --}}

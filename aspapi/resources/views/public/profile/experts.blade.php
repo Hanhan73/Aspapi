@@ -1,5 +1,10 @@
 @extends('layouts.app')
-@php $title = 'Dewan Pakar'; @endphp
+
+@php
+$title = 'Dewan Pakar';
+$description = 'Dewan Pakar ASPAPI Periode 2022–2026, himpunan guru besar dan ketua program studi administrasi perkantoran dari berbagai perguruan tinggi di Indonesia.';
+@endphp
+
 @section('content')
 
 <div style="background:linear-gradient(135deg,#111E2A,#1A5F9A,#2A7FC1);position:relative;padding:3rem 1.5rem 2.5rem;overflow:hidden;">

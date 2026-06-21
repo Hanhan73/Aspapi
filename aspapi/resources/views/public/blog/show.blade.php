@@ -1,5 +1,12 @@
 @extends('layouts.app')
 
+@php
+$title = $blog->title;
+$description = $blog->excerpt ?? Str::limit(strip_tags($blog->body), 155);
+$ogImage = $blog->thumbnail ? Storage::url($blog->thumbnail) : null;
+$ogType = 'article';
+@endphp
+
 @section('content')
 
 {{-- ══════════════════════════════════════════════

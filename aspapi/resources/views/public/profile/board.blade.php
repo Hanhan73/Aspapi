@@ -1,5 +1,10 @@
 @extends('layouts.app')
-@php $title = 'Pengurus'; @endphp
+
+@php
+$title = 'Pengurus';
+$description = 'Susunan Pengurus Pusat ASPAPI Periode 2022–2026 yang memimpin dan mengelola organisasi di tingkat nasional.';
+@endphp
+
 @section('content')
 
 <div style="background:linear-gradient(135deg,#111E2A,#1A5F9A,#2A7FC1);position:relative;padding:3rem 1.5rem 2.5rem;overflow:hidden;">

@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'LSP — Lembaga Sertifikasi Profesi'; @endphp
+@php
+$title = 'LSP — Lembaga Sertifikasi Profesi';
+$description = 'LSP-KAP adalah lembaga sertifikasi profesi administrasi perkantoran di bawah ASPAPI, berlisensi resmi dari BNSP untuk menyelenggarakan uji kompetensi.';
+@endphp
 
 @section('content')
 

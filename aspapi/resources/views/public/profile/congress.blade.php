@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Kongres'; @endphp
+@php
+$title = 'Kongres';
+$description = 'Riwayat pelaksanaan Kongres ASPAPI I–IV dari 2010 hingga 2022. Musyawarah tertinggi organisasi yang diselenggarakan setiap 4 tahun.';
+@endphp
 
 @section('content')
 

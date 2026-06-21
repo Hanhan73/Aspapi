@@ -1,5 +1,12 @@
 @extends('layouts.app')
 
+@php
+$title = $news->title;
+$description = $news->excerpt ?? Str::limit(strip_tags($news->body), 155);
+$ogImage = $news->thumbnail ? Storage::url($news->thumbnail) : null;
+$ogType = 'article';
+@endphp
+
 @section('content')
 
 {{-- ══════════════════════════════════════════════

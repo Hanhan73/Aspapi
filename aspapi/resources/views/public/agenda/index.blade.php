@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Agenda'; @endphp
+@php
+$title = 'Agenda';
+$description = 'Kumpulan kegiatan dan agenda dari seluruh ASPAPI Daerah di Indonesia. Temukan seminar, pelatihan, dan kegiatan organisasi terbaru.';
+@endphp
 
 @push('styles')
 <style>

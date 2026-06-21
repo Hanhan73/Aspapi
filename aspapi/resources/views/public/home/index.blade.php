@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@php
+$description = 'ASPAPI adalah wadah resmi sarjana dan praktisi administrasi perkantoran Indonesia. Daftar sebagai anggota dan nikmati manfaat sertifikasi, pelatihan, dan jaringan profesional.';
+@endphp
 
 @section('content')
 

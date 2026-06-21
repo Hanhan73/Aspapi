@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Jenis & Syarat Anggota'; @endphp
+@php
+$title = 'Jenis & Syarat Anggota';
+$description = 'Pelajari jenis keanggotaan ASPAPI — Anggota Biasa, Luar Biasa, dan Kehormatan — beserta syarat, hak, dan kewajiban sebagai anggota.';
+@endphp
 
 @section('content')
 

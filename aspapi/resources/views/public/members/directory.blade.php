@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Daftar Anggota'; @endphp
+@php
+$title = 'Daftar Anggota';
+$description = 'Direktori resmi anggota ASPAPI dari seluruh Indonesia. Temukan anggota aktif berdasarkan nama, institusi, dan ASPAPI Daerah.';
+@endphp
 
 @section('content')
 

@@ -1,4 +1,9 @@
 @extends('layouts.app')
+
+@php
+$description = 'ASPAPI menjalin kerjasama strategis dengan perguruan tinggi, sekolah, industri, dan pemerintahan untuk mendukung pengembangan profesi administrasi perkantoran Indonesia.';
+@endphp
+
 @section('title', 'Mitra ASPAPI')
 
 @php use Illuminate\Support\Facades\Storage; @endphp

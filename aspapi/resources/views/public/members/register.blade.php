@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Registrasi & Iuran Anggota'; @endphp
+@php
+$title = 'Registrasi & Iuran Anggota';
+$description = 'Daftar sebagai anggota ASPAPI. Ikuti langkah pendaftaran anggota baru (Rp 250.000) atau perpanjangan anggota lama (Rp 120.000) dan dapatkan kartu anggota resmi.';
+@endphp
 
 @section('content')
 

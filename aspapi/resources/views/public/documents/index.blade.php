@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Download Dokumen'; @endphp
+@php
+$title = 'Download Dokumen';
+$description = 'Unduh dokumen resmi ASPAPI — AD/ART, panduan keanggotaan, formulir, dan materi organisasi lainnya secara gratis.';
+@endphp
 
 @section('content')
 

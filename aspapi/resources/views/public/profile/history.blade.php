@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Sejarah Singkat'; @endphp
+@php
+$title = 'Sejarah Singkat';
+$description = 'Perjalanan sejarah berdirinya ASPAPI sejak inisiasi 27 Februari 2010 di UNS hingga resmi dikukuhkan melalui Kongres Nasional 16–17 Oktober 2010.';
+@endphp
 
 @section('content')
 

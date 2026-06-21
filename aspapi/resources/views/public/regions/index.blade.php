@@ -1,4 +1,9 @@
 @extends('layouts.app')
+
+@php
+$description = 'Jaringan ASPAPI Daerah di seluruh provinsi Indonesia. Temukan ASPAPI di daerah Anda dan bergabung dengan komunitas profesional administrasi perkantoran setempat.';
+@endphp
+
 @section('title', 'ASPAPI Daerah')
 
 @php use Illuminate\Support\Facades\Storage; @endphp

@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+$description = 'Kumpulan artikel, opini, dan tulisan dari anggota serta praktisi administrasi perkantoran Indonesia di Blog ASPAPI.';
+@endphp
+
 @section('content')
 
 {{-- PAGE HERO --}}

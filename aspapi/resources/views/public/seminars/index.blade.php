@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
-@php $title = 'Seminar & Pelatihan'; @endphp
+@php
+$title = 'Seminar & Pelatihan';
+$description = 'Ikuti program seminar dan pelatihan ASPAPI untuk meningkatkan kompetensi di bidang administrasi perkantoran. Dapatkan sertifikat resmi ASPAPI.';
+@endphp
 
 @section('content')
 
