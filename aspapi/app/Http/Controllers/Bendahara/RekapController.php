@@ -143,6 +143,7 @@ class RekapController extends Controller
 
         // Summary counts
         $totalAktifMember  = Member::where('status', 'active')->where('biodata_status', 'verified')->count();
+        $totalMember  = Member::where('biodata_status', 'verified')->count();
         $totalIuranAktif   = count($aktifIds);
         $totalKadaluarsa   = count($kadaluarsaIds);
         $totalBelumAktif   = Member::where('status', 'pending')->where('biodata_status', 'verified')->count();
@@ -152,6 +153,7 @@ class RekapController extends Controller
             'aktifIds',
             'kadaluarsaIds',
             'totalAktifMember',
+            'totalMember',
             'totalIuranAktif',
             'totalKadaluarsa',
             'totalBelumAktif',
