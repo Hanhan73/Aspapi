@@ -169,17 +169,15 @@
                     {{-- Deskripsi: render HTML dari rich editor --}}
                     @if($hasDesc)
                     <div x-data="{ open: false }" class="mb-3 flex-1">
-                        <div x-show="!open" x-cloak
-                            class="text-xs text-neutral-500 leading-relaxed rich-output"
-                            style="overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;">
-                            {!! $seminar->description !!}
-                        </div>
-                        <div x-show="open" x-cloak
-                            class="text-xs text-neutral-500 leading-relaxed rich-output">
+                        <div class="text-xs text-neutral-500 leading-relaxed rich-output"
+                            :style="open ? '' : 'max-height:3.9rem;overflow:hidden;'"
+                            style="max-height:3.9rem;overflow:hidden;">
                             {!! $seminar->description !!}
                         </div>
                         @if ($isLong)
-                        <button @click="open = !open" ...>
+                        <button @click="open = !open" type="button"
+                                class="mt-1 text-2xs font-bold"
+                                style="color:#2A7FC1;background:none;border:none;cursor:pointer;padding:0;line-height:1.4;">
                             <span x-text="open ? '↑ Tutup' : '↓ Selengkapnya'">↓ Selengkapnya</span>
                         </button>
                         @endif
