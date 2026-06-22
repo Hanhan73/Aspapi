@@ -15,62 +15,81 @@
 @endif
 
 @if ($member?->member_number && $member?->canGenerateCard())
+
+{{-- Preferensi Gelar --}}
+<div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <span style="font-size:0.75rem;font-weight:700;color:#4A6580;letter-spacing:0.05em;text-transform:uppercase;">Tampilan Nama di Kartu:</span>
+    <form method="POST" action="{{ route('member.card.preference') }}" style="display:flex;gap:0.5rem;align-items:center;">
+        @csrf
+        <select name="show_title_on_card" onchange="this.form.submit()"
+                style="padding:0.4rem 0.75rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.8rem;color:#1A2A3A;outline:none;cursor:pointer;">
+            <option value="1" {{ $member->show_title_on_card ? 'selected' : '' }}>Dengan Gelar</option>
+            <option value="0" {{ !$member->show_title_on_card ? 'selected' : '' }}>Tanpa Gelar</option>
+        </select>
+    </form>
+    <span style="font-size:0.72rem;color:#B0CCDF;">— Perubahan langsung tampil di preview</span>
+</div>
+
 {{-- Preview Kartu --}}
 <div style="margin-bottom:1.5rem;">
     <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Preview Kartu Anggota</p>
 
-    {{-- KTA Preview — sesuai desain PDF --}}
-<div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
- 
-    {{-- Background image kartu --}}
-    <img src="{{ $frontBase64 ?? asset('images/kta-depan.png') }}"
-         style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;"
-         alt=""/>
- 
-    {{-- Foto anggota — pojok kanan, sejajar area bawah --}}
-<div style="position:absolute;right:48px;top:107px;width:54px;height:69px;overflow:hidden;border-radius:5px;border:1px solid #b0bac5;">
-    @if ($member->photo)
-        <img src="{{ Storage::url($member->photo) }}"
-             style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"
-             alt="foto"/>
-    @else
-        <div style="width:100%;height:100%;background:#b0bac5;display:flex;align-items:center;justify-content:center;">
-            <svg style="width:22px;height:22px;" fill="none" stroke="#fff" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
+    @php
+        $displayName = $member->display_name;
+        // Hitung apakah nama perlu 2 baris (lebih dari 28 karakter)
+        $isLongName  = mb_strlen($displayName) > 28;
+        $nameFontSize = $isLongName ? '7.5px' : '9px';
+        $nameTop      = $isLongName ? '120px' : '127px';
+        $nameLineH    = $isLongName ? '1.25' : '1.2';
+        $niaTop       = $isLongName ? '148px' : '141px';
+    @endphp
+
+    <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
+
+        {{-- Background --}}
+        <img src="{{ $frontBase64 ?? asset('images/kta-depan.png') }}"
+             style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;" alt=""/>
+
+        {{-- Foto --}}
+        <div style="position:absolute;right:48px;top:107px;width:54px;height:69px;overflow:hidden;border-radius:5px;border:1px solid #b0bac5;">
+            @if ($member->photo)
+                <img src="{{ Storage::url($member->photo) }}"
+                     style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="foto"/>
+            @else
+                <div style="width:100%;height:100%;background:#b0bac5;display:flex;align-items:center;justify-content:center;">
+                    <svg style="width:22px;height:22px;" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+            @endif
         </div>
-    @endif
-</div>
 
- 
-    {{-- Nama --}}
-    <div style="position:absolute;top:127px;left:90px;right:70px;
-                font-family:Arial,sans-serif;font-size:9px;font-weight:900;
-                color:#0D2240;letter-spacing:0.02em;line-height:1.2;
-                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            {{ $member->full_name_with_title }}
+        {{-- Nama — wraps ke 2 baris jika panjang, right dibatasi agar tidak tabrak foto --}}
+        <div style="position:absolute;top:{{ $nameTop }};left:90px;right:72px;
+                    font-family:Arial,sans-serif;font-size:{{ $nameFontSize }};font-weight:900;
+                    color:#0D2240;letter-spacing:0.02em;line-height:{{ $nameLineH }};
+                    word-break:break-word;overflow:hidden;">
+            {{ $displayName }}
+        </div>
 
+        {{-- NIA --}}
+        <div style="position:absolute;top:{{ $niaTop }};left:90px;right:72px;
+                    font-family:'Courier New',monospace;font-size:8px;font-weight:700;
+                    color:#0D2240;letter-spacing:0.06em;line-height:1.2;">
+            NIA. {{ $member->member_number }}
+        </div>
+
+        {{-- Strip Berlaku Sampai --}}
+        <div style="position:absolute;bottom:0;left:0;right:0;
+                    background-color:#C0272D;
+                    font-family:Arial,sans-serif;font-size:8px;font-weight:700;
+                    color:#fff;padding:4px 8px 4px 90px;
+                    white-space:nowrap;line-height:1.4;">
+            Berlaku Sampai: {{ $member->active_until
+                ? $member->active_until->translatedFormat('d F Y')
+                : now()->addYear()->translatedFormat('d F Y') }}
+        </div>
     </div>
- 
-    {{-- NIA --}}
-    <div style="position:absolute;top:141px;left:90px;right:70px;
-                font-family:'Courier New',monospace;font-size:8px;font-weight:700;
-                color:#0D2240;letter-spacing:0.06em;line-height:1.2;">
-        NIA. {{ $member->member_number }}
-    </div>
- 
-    {{-- Strip merah Berlaku Sampai --}}
-    <div style="position:absolute;bottom:0;left:0;right:0;
-                background-color:#C0272D;
-                font-family:Arial,sans-serif;font-size:8px;font-weight:700;
-                color:#fff;padding:4px 8px 4px 90px;
-                white-space:nowrap;line-height:1.4;">
-        Berlaku Sampai: {{ $member->active_until
-            ? $member->active_until->translatedFormat('d F Y')
-            : now()->addYear()->translatedFormat('d F Y') }}
-    </div>
- 
-</div>
 </div>
 
 {{-- Download --}}

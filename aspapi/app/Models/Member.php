@@ -291,4 +291,12 @@ class Member extends Model
 
         return implode(' ', $parts);
     }
+
+    public function getDisplayNameAttribute(): string
+    {
+        if (!$this->show_title_on_card) {
+            return strtoupper($this->full_name ?? '');
+        }
+        return $this->full_name_with_title;
+    }
 }

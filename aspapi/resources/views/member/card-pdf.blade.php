@@ -37,20 +37,19 @@
         display: block;
     }
 
-    /* ── Foto: pojok kanan atas ─────────────────────────────────────── */
     .photo-wrap {
         position: absolute;
-        right: 12.5mm;   /* 12 × 1.03855 */
-        top: 28mm;       /* 27 × 1.03716 */
-        width: 14.5mm;   /* 14 × 1.03855 */
-        height: 18.7mm;  /* 18 × 1.03716 */
+        right: 12.5mm;
+        top: 28mm;
+        width: 14.5mm;
+        height: 18.7mm;
         overflow: hidden;
         border-radius: 12px;
         border: 1px solid #b0bac5;
     }
     .photo-wrap img {
-        width: 16.6mm;   /* 16 × 1.03855 */
-        height: 20.7mm;  /* 20 × 1.03716 */
+        width: 16.6mm;
+        height: 20.7mm;
         display: block;
         margin-left: -1mm;
     }
@@ -62,13 +61,12 @@
         display: block;
     }
 
-    /* ── QR: kiri bawah ─────────────────────────────────────────────── */
     .qr-wrap {
         position: absolute;
-        left: 7.3mm;     /* 7 × 1.03855 */
-        top: 30.1mm;     /* 29 × 1.03716 */
-        width: 14.5mm;   /* 14 × 1.03855 */
-        height: 14.5mm;  /* 14 × 1.03716 */
+        left: 7.3mm;
+        top: 30.1mm;
+        width: 14.5mm;
+        height: 14.5mm;
         overflow: hidden;
     }
     .qr-wrap img {
@@ -77,45 +75,52 @@
         display: block;
     }
 
-    /* ── Nama ────────────────────────────────────────────────────────── */
+    /* Nama — right dibatasi agar tidak tabrak foto */
     .member-name {
         position: absolute;
-        top: 34.2mm;     /* 33 × 1.03716 */
-        left: 24.9mm;    /* 24 × 1.03855 */
-        right: 18.7mm;   /* 18 × 1.03855 */
-        font-size: 6pt;
+        top: 32.5mm;
+        left: 24.9mm;
+        right: 18.7mm;   /* batas kanan = lebar foto + margin */
+        font-size: 5.5pt;
         font-weight: 900;
         color: #0D2240;
         letter-spacing: 0.02em;
-        line-height: 1.1;
-        white-space: nowrap;
+        line-height: 1.25;
+        word-wrap: break-word;
         overflow: hidden;
-        text-overflow: ellipsis;
     }
 
-    /* ── NIA ─────────────────────────────────────────────────────────── */
+    /* Nama pendek (≤28 karakter): 1 baris, font sedikit lebih besar */
+    .member-name.short {
+        font-size: 6pt;
+        top: 34.2mm;
+        line-height: 1.1;
+    }
+
     .member-nia {
         position: absolute;
-        top: 36.8mm;     /* 35.5 × 1.03716 */
-        left: 24.9mm;    /* 24 × 1.03855 */
-        right: 18.7mm;   /* 18 × 1.03855 */
-        font-size: 6pt;
+        left: 24.9mm;
+        right: 18.7mm;
+        font-size: 5.5pt;
         font-weight: 400;
         color: #0D2240;
         letter-spacing: 0.06em;
         line-height: 1.1;
     }
 
-    /* ── Strip merah "Berlaku Sampai" ────────────────────────────────── */
+    .member-nia.short {
+        font-size: 6pt;
+    }
+
     .member-valid {
         position: absolute;
-        top: 41.9mm;     /* 39.5 × 1.03716 */
+        top: 41.9mm;
         left: 0;
         right: 0;
         font-size: 4pt;
         font-weight: 700;
         color: #ffffff;
-        padding: 1mm 7.3mm 1mm 24.9mm;  /* right: 7×1.03855, left: 24×1.03855 */
+        padding: 1mm 7.3mm 1mm 24.9mm;
         display: block;
         white-space: nowrap;
         line-height: 1.4;
@@ -126,7 +131,16 @@
 </head>
 <body>
 
-    {{-- ════════════════ SISI DEPAN ════════════════ --}}
+@php
+    $displayName = $member->display_name;
+    $isLong      = mb_strlen($displayName) > 28;
+    $nameClass   = $isLong ? 'member-name' : 'member-name short';
+    $niaClass    = $isLong ? 'member-nia' : 'member-nia short';
+    // top untuk NIA: jika nama panjang (2 baris ~2×1.25×5.5pt ≈ 4.5mm), NIA lebih bawah
+    $niaTop      = $isLong ? '37.5mm' : '36.8mm';
+@endphp
+
+    {{-- SISI DEPAN --}}
     <div class="card">
 
         @if($frontBase64)
@@ -147,15 +161,15 @@
         </div>
         @endif
 
-        <div class="member-name">{{ $member->full_name_with_title }}</div>
-        <div class="member-nia">NIA. {{ $member->member_number }}</div>
+        <div class="{{ $nameClass }}">{{ $displayName }}</div>
+        <div class="{{ $niaClass }}" style="top:{{ $niaTop }};">NIA. {{ $member->member_number }}</div>
         <div class="member-valid">Berlaku Sampai: {{ $member->active_until
             ? $member->active_until->translatedFormat('d F Y')
             : now()->addYear()->translatedFormat('d F Y') }}</div>
 
     </div>
 
-    {{-- ════════════════ SISI BELAKANG ════════════════ --}}
+    {{-- SISI BELAKANG --}}
     <div class="card">
         @if($backBase64)
         <img class="card-bg" src="{{ $backBase64 }}" alt=""/>

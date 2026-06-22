@@ -80,6 +80,7 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
     Route::get('/kartu',           [CardController::class, 'show'])->name('card');
     Route::post('/kartu/generate',  [CardController::class, 'generate'])->name('card.generate');
     Route::get('/kartu/download',  [CardController::class, 'download'])->name('card.download');
+    Route::post('/kartu/preference', [CardController::class, 'updatePreference'])->name('card.preference');
 
     Route::prefix('seminar')->name('seminar.')->group(function () {
         // Daftar seminar tersedia

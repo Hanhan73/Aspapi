@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Member;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class CardController extends Controller
 {
@@ -266,5 +267,17 @@ class CardController extends Controller
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    public function updatePreference(Request $request)
+    {
+        $request->validate([
+            'show_title_on_card' => 'required|boolean',
+        ]);
+
+        $member = auth()->user()->member;
+        $member->update(['show_title_on_card' => $request->boolean('show_title_on_card')]);
+
+        return back()->with('success', 'Preferensi kartu disimpan.');
     }
 }
