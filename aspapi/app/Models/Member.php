@@ -309,39 +309,30 @@ class Member extends Model
      */
     public function getCardNameLinesAttribute(): array
     {
-        $displayName = $this->display_name; // sudah pakai show_title_on_card
-
-        // Pisahkan nama utama dan gelar belakang (jika ada koma)
-        // Contoh: "MUHAMAD NUKHA MURTADLO, M. Pd." → nama="MUHAMAD NUKHA MURTADLO" gelar=", M. Pd."
-        $backGelar = '';
-        $namePart  = $displayName;
-
-        if (str_contains($displayName, ',')) {
-            $commaPos  = strpos($displayName, ',');
-            $namePart  = substr($displayName, 0, $commaPos);
-            $backGelar = substr($displayName, $commaPos); // include koma: ", M. Pd."
-        }
-
-        // Gelar depan (misal "H.", "Dr.") — ambil dari front_title jika show_title_on_card
+        // Tentukan nama murni dan gelar belakang
+        $fullName   = strtoupper($this->full_name ?? '');
         $frontTitle = ($this->show_title_on_card && trim($this->front_title ?? '') !== '')
             ? trim($this->front_title) . ' '
             : '';
+        $backTitle  = ($this->show_title_on_card && trim($this->back_title ?? '') !== '')
+            ? ', ' . trim($this->back_title)
+            : '';
 
-        // Nama murni tanpa gelar depan (untuk split kata)
-        $namePure = trim(str_replace($frontTitle, '', $namePart));
-        $words    = explode(' ', $namePure);
+        // Pecah nama murni (tanpa gelar) jadi kata-kata
+        $words = explode(' ', $fullName);
 
         if (count($words) <= 2) {
-            // 1 baris
-            return [$frontTitle . $namePart . $backGelar];
+            // 1 baris: gelar depan + nama + gelar belakang
+            return [$frontTitle . $fullName . $backTitle];
         }
 
-        // >2 kata → baris1: gelar depan + 2 kata pertama, baris2: sisanya + gelar belakang
+        // >2 kata nama: baris1 = gelar depan + 2 kata pertama
+        //               baris2 = sisa kata + gelar belakang
         $line1Words = array_slice($words, 0, 2);
         $line2Words = array_slice($words, 2);
 
         $line1 = $frontTitle . implode(' ', $line1Words);
-        $line2 = implode(' ', $line2Words) . $backGelar;
+        $line2 = implode(' ', $line2Words) . $backTitle;
 
         return [$line1, $line2];
     }
