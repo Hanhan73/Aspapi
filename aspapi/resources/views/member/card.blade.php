@@ -35,13 +35,11 @@
     <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Preview Kartu Anggota</p>
 
     @php
-        $displayName = $member->display_name;
-        // Hitung apakah nama perlu 2 baris (lebih dari 28 karakter)
-        $isLongName  = mb_strlen($displayName) > 28;
-        $nameFontSize = $isLongName ? '7.5px' : '9px';
-        $nameTop      = $isLongName ? '120px' : '127px';
-        $nameLineH    = $isLongName ? '1.25' : '1.2';
-        $niaTop       = $isLongName ? '148px' : '141px';
+        $cardLines    = $member->card_name_lines;
+        $isMultiLine  = count($cardLines) > 1;
+        $nameFontSize = $isMultiLine ? '7.5px' : '9px';
+        $nameTop      = $isMultiLine ? '119px' : '127px';
+        $niaTop       = $isMultiLine ? '146px' : '141px';
     @endphp
 
     <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
@@ -63,14 +61,6 @@
                 </div>
             @endif
         </div>
-
-        @php
-            $cardLines   = $member->card_name_lines;
-            $isMultiLine = count($cardLines) > 1;
-            $nameFontSize = $isMultiLine ? '7.5px' : '9px';
-            $nameTop      = $isMultiLine ? '119px' : '127px';
-            $niaTop       = $isMultiLine ? '146px' : '141px';
-        @endphp
 
         {{-- Nama --}}
         <div style="position:absolute;top:{{ $nameTop }};left:90px;right:72px;
