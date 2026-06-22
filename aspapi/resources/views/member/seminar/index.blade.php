@@ -174,8 +174,7 @@
                              style="overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;">
                             {!! $seminar->description !!}
                         </div>
-                        <div x-show="open"
-                             style="display:none;"
+                        <div x-show="open" x-cloak
                              class="text-xs text-neutral-500 leading-relaxed rich-output">
                             {!! $seminar->description !!}
                         </div>
