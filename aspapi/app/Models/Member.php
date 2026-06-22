@@ -308,32 +308,47 @@ class Member extends Model
      * Gelar belakang (setelah koma) selalu ikut baris terakhir.
      */
     public function getCardNameLinesAttribute(): array
-    {
-        // Tentukan nama murni dan gelar belakang
-        $fullName   = strtoupper($this->full_name ?? '');
-        $frontTitle = ($this->show_title_on_card && trim($this->front_title ?? '') !== '')
-            ? trim($this->front_title) . ' '
-            : '';
-        $backTitle  = ($this->show_title_on_card && trim($this->back_title ?? '') !== '')
-            ? ', ' . trim($this->back_title)
-            : '';
+{
+    $fullName   = strtoupper($this->full_name ?? '');
+    $frontTitle = ($this->show_title_on_card && trim($this->front_title ?? '') !== '')
+        ? trim($this->front_title) . ' '
+        : '';
+    $backTitle  = ($this->show_title_on_card && trim($this->back_title ?? '') !== '')
+        ? ', ' . trim($this->back_title)
+        : '';
 
-        // Pecah nama murni (tanpa gelar) jadi kata-kata
-        $words = explode(' ', $fullName);
+    $words = explode(' ', $fullName);
 
-        if (count($words) <= 2) {
-            // 1 baris: gelar depan + nama + gelar belakang
-            return [$frontTitle . $fullName . $backTitle];
-        }
+    // Baris 1: gelar depan + semua kata nama (tanpa gelar belakang)
+    $line1Full = $frontTitle . $fullName;
 
-        // >2 kata nama: baris1 = gelar depan + 2 kata pertama
-        //               baris2 = sisa kata + gelar belakang
-        $line1Words = array_slice($words, 0, 2);
-        $line2Words = array_slice($words, 2);
-
-        $line1 = $frontTitle . implode(' ', $line1Words);
-        $line2 = implode(' ', $line2Words) . $backTitle;
-
-        return [$line1, $line2];
+    // Jika tidak ada gelar belakang DAN nama pendek (<= 28 karakter) → 1 baris
+    if ($backTitle === '' && mb_strlen($line1Full) <= 28) {
+        return [$line1Full];
     }
+
+    // Jika ada gelar belakang ATAU nama panjang → selalu 2 baris
+    // Baris 1: gelar depan + 2 kata pertama nama
+    // Baris 2: sisa kata nama + gelar belakang
+    if (count($words) <= 2) {
+        // Nama hanya 1-2 kata tapi punya gelar belakang panjang
+        // → baris 1: gelar depan + nama, baris 2: gelar belakang
+        if ($backTitle !== '') {
+            return [
+                $frontTitle . $fullName,
+                ltrim($backTitle, ', '), // hapus koma di awal untuk baris sendiri
+            ];
+        }
+        return [$line1Full];
+    }
+
+    // Nama >= 3 kata: split di kata ke-2
+    $line1Words = array_slice($words, 0, 2);
+    $line2Words = array_slice($words, 2);
+
+    $line1 = $frontTitle . implode(' ', $line1Words);
+    $line2 = implode(' ', $line2Words) . $backTitle;
+
+    return [$line1, $line2];
+}
 }
