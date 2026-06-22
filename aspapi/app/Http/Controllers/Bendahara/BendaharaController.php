@@ -50,6 +50,12 @@ class BendaharaController extends Controller
     public function verify(Request $request, int $id)
     {
         $payment = Payment::with('member')->findOrFail($id);
+
+        // Guard idempoten: jangan proses ulang jika sudah verified
+        if ($payment->status === 'verified') {
+            return back()->with('info', 'Pembayaran ini sudah diverifikasi sebelumnya.');
+        }
+
         $payment->update([
             'status'      => 'verified',
             'verified_by' => auth()->id(),
@@ -59,21 +65,33 @@ class BendaharaController extends Controller
         $member = $payment->member;
 
         if ($payment->type === 'iuran_tahunan') {
-            // Jika member masih punya sisa masa aktif di masa depan (perpanjang lebih awal),
-            // tambahkan 1 tahun dari active_until lama agar tidak rugi hari.
-            // Jika sudah kadaluarsa atau belum pernah bayar, hitung dari sekarang.
-            $baseDate = ($member->active_until && $member->active_until->isFuture())
-                ? $member->active_until->copy()
-                : now();
+            // Cek apakah member sudah punya iuran aktif untuk tahun ini dari payment lain
+            $alreadyExtended = Payment::where('member_id', $member->id)
+                ->where('id', '!=', $payment->id)
+                ->where('type', 'iuran_tahunan')
+                ->where('status', 'verified')
+                ->where('payment_year', $payment->payment_year)
+                ->exists();
 
-            $member->update([
-                'status'       => 'active',      // aktifkan jika sebelumnya pending
-                'dues_paid'    => true,
-                'dues_paid_at' => now(),
-                'active_until' => $baseDate->addYear(),
-            ]);
+            if (!$alreadyExtended) {
+                $baseDate = ($member->active_until && $member->active_until->isFuture())
+                    ? $member->active_until->copy()
+                    : now();
+
+                $member->update([
+                    'status'       => 'active',
+                    'dues_paid'    => true,
+                    'dues_paid_at' => now(),
+                    'active_until' => $baseDate->addYear(),
+                ]);
+            } else {
+                // Tetap update status/dues_paid tapi jangan extend active_until lagi
+                $member->update([
+                    'status'    => 'active',
+                    'dues_paid' => true,
+                ]);
+            }
         } elseif ($payment->type === 'uang_pangkal') {
-            // Uang pangkal bukan iuran periodik, tidak mengatur active_until
             $member->update([
                 'dues_paid'    => true,
                 'dues_paid_at' => now(),
@@ -163,7 +181,23 @@ class BendaharaController extends Controller
     {
         $batch = PaymentBatch::with('payments.member')->findOrFail($id);
 
+        // Guard idempoten: jangan proses ulang jika batch sudah verified
+        if ($batch->status === 'verified') {
+            return back()->with('info', 'Batch ini sudah diverifikasi sebelumnya.');
+        }
+
         $now = now();
+
+        // Kumpulkan member_id yang sudah punya iuran aktif tahun ini dari payment lain
+        $paymentYear = $batch->payment_year ?? $now->year;
+        $alreadyExtendedMemberIds = Payment::whereIn('member_id', $batch->payments->pluck('member_id'))
+            ->whereNotIn('id', $batch->payments->pluck('id'))
+            ->where('type', 'iuran_tahunan')
+            ->where('status', 'verified')
+            ->where('payment_year', $paymentYear)
+            ->pluck('member_id')
+            ->unique()
+            ->toArray();
 
         $batch->payments()->update([
             'status'      => 'verified',
@@ -174,13 +208,21 @@ class BendaharaController extends Controller
         foreach ($batch->payments as $payment) {
             $member = $payment->member;
 
-            // Hitung active_until per member — logika sama dengan verify mandiri
+            if (in_array($member->id, $alreadyExtendedMemberIds)) {
+                // Sudah di-extend dari payment lain tahun ini, skip extend active_until
+                $member->update([
+                    'status'    => 'active',
+                    'dues_paid' => true,
+                ]);
+                continue;
+            }
+
             $baseDate = ($member->active_until && $member->active_until->isFuture())
                 ? $member->active_until->copy()
                 : $now->copy();
 
             $member->update([
-                'status'       => 'active',      // aktifkan jika sebelumnya pending
+                'status'       => 'active',
                 'dues_paid'    => true,
                 'dues_paid_at' => $now,
                 'active_until' => $baseDate->addYear(),
