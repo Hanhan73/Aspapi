@@ -35,11 +35,12 @@
     <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Preview Kartu Anggota</p>
 
     @php
-        $cardLines    = $member->card_name_lines;
-        $isMultiLine  = count($cardLines) > 1;
-        $nameFontSize = $isMultiLine ? '7.5px' : '9px';
-        $nameTop      = $isMultiLine ? '119px' : '127px';
-        $niaTop       = $isMultiLine ? '146px' : '141px';
+        $cardLines    = array_values(array_filter($member->card_name_lines));
+        $lineCount    = count($cardLines);
+        $nameFontSize = match($lineCount) { 1 => '9px', 2 => '7.5px', default => '6.5px' };
+        $nameTop      = match($lineCount) { 1 => '127px', 2 => '119px', default => '112px' };
+        $niaTop       = match($lineCount) { 1 => '141px', 2 => '146px', default => '151px' };
+        $nameLineH    = match($lineCount) { 1 => '1.1', 2 => '1.3', default => '1.25' };
     @endphp
 
     <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
@@ -65,7 +66,7 @@
         {{-- Nama --}}
         <div style="position:absolute;top:{{ $nameTop }};left:90px;right:72px;
                     font-family:Arial,sans-serif;font-size:{{ $nameFontSize }};font-weight:900;
-                    color:#0D2240;letter-spacing:0.02em;line-height:1.3;overflow:hidden;">
+                    color:#0D2240;letter-spacing:0.02em;line-height:{{ $nameLineH }};overflow:hidden;">
             @foreach($cardLines as $line)
                 <div>{{ $line }}</div>
             @endforeach

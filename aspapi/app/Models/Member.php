@@ -293,20 +293,14 @@ class Member extends Model
         return implode(' ', $parts);
     }
 
-    public function getDisplayNameAttribute(): string
-    {
-        if (!$this->show_title_on_card) {
-            return strtoupper($this->full_name ?? '');
-        }
-        return $this->full_name_with_title;
+public function getDisplayNameAttribute(): string
+{
+    if (!$this->show_title_on_card) {
+        return strtoupper($this->full_name ?? '');
     }
+    return $this->full_name_with_title;
+}
 
-    /**
-     * Split display name untuk kartu:
-     * - Jika ≤2 kata: 1 baris
-     * - Jika >2 kata: baris1 = 2 kata pertama nama, baris2 = sisanya
-     * Gelar belakang (setelah koma) selalu ikut baris terakhir.
-     */
 public function getCardNameLinesAttribute(): array
 {
     $fullName   = strtoupper($this->full_name ?? '');
@@ -318,60 +312,37 @@ public function getCardNameLinesAttribute(): array
         : '';
 
     $words = explode(' ', $fullName);
+    $count = count($words);
 
-    $widthOf = function (string $text): float {
-        $w = 0;
-        foreach (str_split($text) as $char) {
-            if (in_array($char, ['.', ',', ':', ';', '!', '|', 'I', ' '])) {
-                $w += 3;
-            } elseif (in_array(strtoupper($char), ['M', 'W', 'N', 'D', 'O', 'Q', 'U', 'G', 'C', 'H', 'K', 'R', 'A', 'B'])) {
-                $w += 7;
-            } else {
-                $w += 5.5;
-            }
+    // 1-2 kata nama: coba 1 baris dulu
+    if ($count <= 2) {
+        $oneLine = $frontTitle . $fullName . $backTitle;
+        if (mb_strlen($oneLine) <= 26) {
+            return [$oneLine];
         }
-        return $w;
-    };
-
-    $maxWidth = 95;
-
-    // Coba 1 baris
-    $oneLine = $frontTitle . $fullName . $backTitle;
-    if ($widthOf($oneLine) <= $maxWidth) {
-        return [$oneLine];
-    }
-
-    // Perlu 2 baris — cari split terbaik
-    if (count($words) <= 2) {
-        return [
+        // Terlalu panjang → gelar belakang ke baris 2
+        $line2 = trim($backTitle, ', ');
+        return array_values(array_filter([
             $frontTitle . $fullName,
-            trim($backTitle, ', ') ?: null,
-        ];
+            $line2 !== '' ? $line2 : null,
+        ]));
     }
 
-    // Cari split point: kedua baris ≤ maxWidth
-    $bestSplit = 2;
-    $bestDiff  = PHP_INT_MAX;
-
-    for ($i = 1; $i < count($words); $i++) {
-        $l1 = $frontTitle . implode(' ', array_slice($words, 0, $i));
-        $l2 = implode(' ', array_slice($words, $i)) . $backTitle;
-        $w1 = $widthOf($l1);
-        $w2 = $widthOf($l2);
-
-        if ($w1 <= $maxWidth) {
-            // Pilih split yang membuat kedua baris seimbang & baris 2 tidak meledak
-            $diff = abs($w1 - $w2);
-            if ($w2 <= $maxWidth && $diff < $bestDiff) {
-                $bestDiff  = $diff;
-                $bestSplit = $i;
-            }
-        }
+    // 3-4 kata nama: 2 baris, split di kata ke-2
+    if ($count <= 4) {
+        $line1 = $frontTitle . implode(' ', array_slice($words, 0, 2));
+        $line2 = implode(' ', array_slice($words, 2)) . $backTitle;
+        return [$line1, $line2];
     }
 
-    $line1 = $frontTitle . implode(' ', array_slice($words, 0, $bestSplit));
-    $line2 = implode(' ', array_slice($words, $bestSplit)) . $backTitle;
-
-    return array_values(array_filter([$line1, $line2 ?: null]));
+    // 5+ kata nama: 3 baris
+    $line1 = $frontTitle . implode(' ', array_slice($words, 0, 2));
+    $line2 = implode(' ', array_slice($words, 2, 2));
+    $line3 = implode(' ', array_slice($words, 4)) . $backTitle;
+    return array_values(array_filter([
+        $line1,
+        $line2,
+        $line3 !== $backTitle ? $line3 : null,
+    ]));
 }
 }

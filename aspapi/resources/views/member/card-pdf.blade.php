@@ -75,8 +75,22 @@
         display: block;
     }
 
-    /* Nama 2 baris — top lebih tinggi agar NIA tidak bertabrakan */
-    .member-name {
+    /* ── Nama: 1 baris ── */
+    .member-name.single {
+        position: absolute;
+        top: 34.2mm;
+        left: 24.9mm;
+        right: 18.7mm;
+        font-size: 6pt;
+        font-weight: 900;
+        color: #0D2240;
+        letter-spacing: 0.02em;
+        line-height: 1.1;
+        overflow: hidden;
+    }
+
+    /* ── Nama: 2 baris ── */
+    .member-name.double {
         position: absolute;
         top: 31.5mm;
         left: 24.9mm;
@@ -89,15 +103,34 @@
         overflow: hidden;
     }
 
-    /* Nama 1 baris — posisi lebih bawah, font sedikit lebih besar */
-    .member-name.single {
-        top: 34.2mm;
+    /* ── Nama: 3 baris ── */
+    .member-name.triple {
+        position: absolute;
+        top: 29.5mm;
+        left: 24.9mm;
+        right: 18.7mm;
+        font-size: 5pt;
+        font-weight: 900;
+        color: #0D2240;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+        overflow: hidden;
+    }
+
+    /* ── NIA ── */
+    .member-nia.single {
+        position: absolute;
+        top: 36.8mm;
+        left: 24.9mm;
+        right: 18.7mm;
         font-size: 6pt;
+        font-weight: 400;
+        color: #0D2240;
+        letter-spacing: 0.06em;
         line-height: 1.1;
     }
 
-    /* NIA 2 baris nama */
-    .member-nia {
+    .member-nia.double {
         position: absolute;
         top: 37.8mm;
         left: 24.9mm;
@@ -109,10 +142,16 @@
         line-height: 1.1;
     }
 
-    /* NIA 1 baris nama */
-    .member-nia.single {
-        top: 36.8mm;
-        font-size: 6pt;
+    .member-nia.triple {
+        position: absolute;
+        top: 38.8mm;
+        left: 24.9mm;
+        right: 18.7mm;
+        font-size: 5pt;
+        font-weight: 400;
+        color: #0D2240;
+        letter-spacing: 0.06em;
+        line-height: 1.1;
     }
 
     .member-valid {
@@ -135,10 +174,18 @@
 <body>
 
 @php
-    $cardLines   = $member->card_name_lines;
-    $isMultiLine = count($cardLines) > 1;
-    $nameClass   = $isMultiLine ? 'member-name' : 'member-name single';
-    $niaClass    = $isMultiLine ? 'member-nia'  : 'member-nia single';
+    $cardLines = array_values(array_filter($member->card_name_lines));
+    $lineCount = count($cardLines);
+    $nameClass = match($lineCount) {
+        1       => 'member-name single',
+        2       => 'member-name double',
+        default => 'member-name triple',
+    };
+    $niaClass  = match($lineCount) {
+        1       => 'member-nia single',
+        2       => 'member-nia double',
+        default => 'member-nia triple',
+    };
 @endphp
 
     {{-- SISI DEPAN --}}
