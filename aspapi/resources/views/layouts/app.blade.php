@@ -135,6 +135,8 @@
         content: '';
         margin-top: 0.5em;
     }
+
+    [x-cloak] { display: none !important; }
     </style>
 </head>
 

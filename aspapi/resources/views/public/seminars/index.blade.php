@@ -138,6 +138,7 @@ $description = 'Ikuti program seminar dan pelatihan ASPAPI untuk meningkatkan ko
                     <div x-data="{ open: false }" class="mb-3 flex-1">
                         {{-- Collapsed: max 3 baris --}}
                         <div x-show="!open"
+                        x-cloak
                              class="text-xs text-neutral-500 leading-relaxed rich-output"
                              style="overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;">
                             {!! $seminar->description !!}

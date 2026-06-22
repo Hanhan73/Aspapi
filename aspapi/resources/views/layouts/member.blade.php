@@ -100,6 +100,8 @@
     content: '';
     margin-top: 0.5em;
 }
+
+[x-cloak] { display: none !important; }
 </style>
 </head>
 <body class="bg-neutral-100 font-sans antialiased">
