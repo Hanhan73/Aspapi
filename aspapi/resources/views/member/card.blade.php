@@ -64,12 +64,21 @@
             @endif
         </div>
 
-        {{-- Nama — wraps ke 2 baris jika panjang, right dibatasi agar tidak tabrak foto --}}
+        @php
+            $cardLines   = $member->card_name_lines;
+            $isMultiLine = count($cardLines) > 1;
+            $nameFontSize = $isMultiLine ? '7.5px' : '9px';
+            $nameTop      = $isMultiLine ? '119px' : '127px';
+            $niaTop       = $isMultiLine ? '146px' : '141px';
+        @endphp
+
+        {{-- Nama --}}
         <div style="position:absolute;top:{{ $nameTop }};left:90px;right:72px;
                     font-family:Arial,sans-serif;font-size:{{ $nameFontSize }};font-weight:900;
-                    color:#0D2240;letter-spacing:0.02em;line-height:{{ $nameLineH }};
-                    word-break:break-word;overflow:hidden;">
-            {{ $displayName }}
+                    color:#0D2240;letter-spacing:0.02em;line-height:1.3;overflow:hidden;">
+            @foreach($cardLines as $line)
+                <div>{{ $line }}</div>
+            @endforeach
         </div>
 
         {{-- NIA --}}

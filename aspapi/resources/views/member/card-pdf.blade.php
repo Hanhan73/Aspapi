@@ -75,30 +75,31 @@
         display: block;
     }
 
-    /* Nama — right dibatasi agar tidak tabrak foto */
+    /* Nama 2 baris — top lebih tinggi agar NIA tidak bertabrakan */
     .member-name {
         position: absolute;
-        top: 32.5mm;
+        top: 31.5mm;
         left: 24.9mm;
-        right: 18.7mm;   /* batas kanan = lebar foto + margin */
+        right: 18.7mm;
         font-size: 5.5pt;
         font-weight: 900;
         color: #0D2240;
         letter-spacing: 0.02em;
-        line-height: 1.25;
-        word-wrap: break-word;
+        line-height: 1.3;
         overflow: hidden;
     }
 
-    /* Nama pendek (≤28 karakter): 1 baris, font sedikit lebih besar */
-    .member-name.short {
-        font-size: 6pt;
+    /* Nama 1 baris — posisi lebih bawah, font sedikit lebih besar */
+    .member-name.single {
         top: 34.2mm;
+        font-size: 6pt;
         line-height: 1.1;
     }
 
+    /* NIA 2 baris nama */
     .member-nia {
         position: absolute;
+        top: 37.8mm;
         left: 24.9mm;
         right: 18.7mm;
         font-size: 5.5pt;
@@ -108,7 +109,9 @@
         line-height: 1.1;
     }
 
-    .member-nia.short {
+    /* NIA 1 baris nama */
+    .member-nia.single {
+        top: 36.8mm;
         font-size: 6pt;
     }
 
@@ -132,12 +135,10 @@
 <body>
 
 @php
-    $displayName = $member->display_name;
-    $isLong      = mb_strlen($displayName) > 28;
-    $nameClass   = $isLong ? 'member-name' : 'member-name short';
-    $niaClass    = $isLong ? 'member-nia' : 'member-nia short';
-    // top untuk NIA: jika nama panjang (2 baris ~2×1.25×5.5pt ≈ 4.5mm), NIA lebih bawah
-    $niaTop      = $isLong ? '37.5mm' : '36.8mm';
+    $cardLines   = $member->card_name_lines;
+    $isMultiLine = count($cardLines) > 1;
+    $nameClass   = $isMultiLine ? 'member-name' : 'member-name single';
+    $niaClass    = $isMultiLine ? 'member-nia'  : 'member-nia single';
 @endphp
 
     {{-- SISI DEPAN --}}
@@ -161,8 +162,14 @@
         </div>
         @endif
 
-        <div class="{{ $nameClass }}">{{ $displayName }}</div>
-        <div class="{{ $niaClass }}" style="top:{{ $niaTop }};">NIA. {{ $member->member_number }}</div>
+        <div class="{{ $nameClass }}">
+            @foreach($cardLines as $line)
+                <div>{{ $line }}</div>
+            @endforeach
+        </div>
+
+        <div class="{{ $niaClass }}">NIA. {{ $member->member_number }}</div>
+
         <div class="member-valid">Berlaku Sampai: {{ $member->active_until
             ? $member->active_until->translatedFormat('d F Y')
             : now()->addYear()->translatedFormat('d F Y') }}</div>
