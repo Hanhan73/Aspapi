@@ -137,7 +137,7 @@
                         @endif
                         <div>
                             <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;">
-                                {{ $member->full_name ?? $member->user?->name ?? '—' }}
+                                {{ $member->full_name_with_title ?? $member->user?->name ?? '—' }}
                             </p>
                             <p style="font-size:0.72rem;color:#B0CCDF;">{{ $member->email ?? $member->user?->email }}</p>
                         </div>
