@@ -34,7 +34,7 @@
     <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1.25rem;border-top:3px solid #E8B84B;">
         <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;">Tingkat Kepatuhan</p>
         <p style="font-size:2rem;font-family:'DM Serif Display',serif;color:#1A2A3A;margin-top:0.25rem;">
-            {{ round(($totalMember / $totalIuranAktif) * 100) }}%
+            {{ round(($totalIuranAktif / $totalMember) * 100) }}%
         </p>
         <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.125rem;">dari anggota aktif</p>
     </div>
