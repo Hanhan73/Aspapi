@@ -46,6 +46,12 @@
 <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
     <form method="GET" action="{{ route('bendahara.iuran') }}" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
 
+
+    <input type="text" name="search" value="{{ request('search') }}"
+               placeholder="Cari nama / NIA / email..."
+               style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;width:220px;"/>
+
+               
         <select name="region" style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;min-width:180px;">
             <option value="">Semua Daerah</option>
             @foreach ($regions as $r)
@@ -60,10 +66,7 @@
             <option value="belum_aktif" {{ $filterStatus === 'belum_aktif' ? 'selected' : '' }}>Belum Aktif</option>
         </select>
 
-        <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="Cari nama / NIA / email..."
-               style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;width:220px;"/>
-
+        
         <button type="submit"
                 style="padding:0.5rem 1rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;">
             Filter
