@@ -314,35 +314,100 @@ public function getCardNameLinesAttribute(): array
     $words = explode(' ', $fullName);
     $count = count($words);
 
-    // 1-2 kata nama: coba 1 baris dulu
-    if ($count <= 2) {
-        $oneLine = $frontTitle . $fullName . $backTitle;
-        if (mb_strlen($oneLine) <= 26) {
-            return [$oneLine];
+    // Selalu coba 1 baris dulu — pakai estimasi lebar karakter
+    $widthOf = function (string $text): float {
+        $w = 0;
+        foreach (mb_str_split($text) as $char) {
+            $up = strtoupper($char);
+            if (in_array($char, [' ', '.', ',', ';', ':', '!', '|'])) {
+                $w += 3;
+            } elseif ($up === 'I') {
+                $w += 2.5;
+            } elseif (in_array($up, ['M', 'W'])) {
+                $w += 8;
+            } elseif (in_array($up, ['N', 'D', 'O', 'Q', 'U', 'G', 'C', 'H', 'K', 'R', 'A', 'B'])) {
+                $w += 6.5;
+            } else {
+                $w += 5.5;
+            }
         }
-        // Terlalu panjang → gelar belakang ke baris 2
-        $line2 = trim($backTitle, ', ');
+        return $w;
+    };
+
+    $maxWidth = 100; // unit lebar area nama (kiri QR → kiri foto)
+
+    $oneLine = $frontTitle . $fullName . $backTitle;
+
+    // Muat 1 baris → langsung return
+    if ($widthOf($oneLine) <= $maxWidth) {
+        return [$oneLine];
+    }
+
+    // Tidak muat → perlu 2 atau 3 baris
+    // Cari split terbaik: coba tiap titik potong kata
+    // Prioritas: kedua baris ≤ maxWidth, dan baris 1 tidak jauh lebih panjang dari baris 2
+
+    if ($count === 1) {
+        // Nama 1 kata tapi gelar panjang → nama baris 1, gelar baris 2
         return array_values(array_filter([
             $frontTitle . $fullName,
-            $line2 !== '' ? $line2 : null,
+            trim($backTitle, ', ') ?: null,
         ]));
     }
 
-    // 3-4 kata nama: 2 baris, split di kata ke-2
-    if ($count <= 4) {
-        $line1 = $frontTitle . implode(' ', array_slice($words, 0, 2));
-        $line2 = implode(' ', array_slice($words, 2)) . $backTitle;
-        return [$line1, $line2];
+    // Coba split 2 baris dulu
+    $bestSplit2 = null;
+    $bestDiff2  = PHP_INT_MAX;
+
+    for ($i = 1; $i < $count; $i++) {
+        $l1 = $frontTitle . implode(' ', array_slice($words, 0, $i));
+        $l2 = implode(' ', array_slice($words, $i)) . $backTitle;
+        $w1 = $widthOf($l1);
+        $w2 = $widthOf($l2);
+
+        if ($w1 <= $maxWidth && $w2 <= $maxWidth) {
+            $diff = abs($w1 - $w2);
+            if ($diff < $bestDiff2) {
+                $bestDiff2  = $diff;
+                $bestSplit2 = $i;
+            }
+        }
     }
 
-    // 5+ kata nama: 3 baris
+    if ($bestSplit2 !== null) {
+        return [
+            $frontTitle . implode(' ', array_slice($words, 0, $bestSplit2)),
+            implode(' ', array_slice($words, $bestSplit2)) . $backTitle,
+        ];
+    }
+
+    // Tidak ada split 2 baris yang muat → coba 3 baris
+    // Split: baris1 = gelar depan + kata1..i, baris2 = kata i+1..j, baris3 = sisa + gelar belakang
+    for ($i = 1; $i < $count - 1; $i++) {
+        for ($j = $i + 1; $j < $count; $j++) {
+            $l1 = $frontTitle . implode(' ', array_slice($words, 0, $i));
+            $l2 = implode(' ', array_slice($words, $i, $j - $i));
+            $l3 = implode(' ', array_slice($words, $j)) . $backTitle;
+
+            if ($widthOf($l1) <= $maxWidth && $widthOf($l2) <= $maxWidth && $widthOf($l3) <= $maxWidth) {
+                return [$l1, $l2, $l3];
+            }
+        }
+    }
+
+    // Fallback ekstrem: paksa split per 2 kata, max 3 baris
     $line1 = $frontTitle . implode(' ', array_slice($words, 0, 2));
-    $line2 = implode(' ', array_slice($words, 2, 2));
-    $line3 = implode(' ', array_slice($words, 4)) . $backTitle;
-    return array_values(array_filter([
-        $line1,
-        $line2,
-        $line3 !== $backTitle ? $line3 : null,
-    ]));
-}
+    $line2 = $count > 2 ? implode(' ', array_slice($words, 2, 2)) : null;
+
+    if ($count > 4) {
+        $line3 = implode(' ', array_slice($words, 4)) . $backTitle;
+    } elseif ($line2) {
+        $line2 .= $backTitle;
+        $line3 = null;
+    } else {
+        $line3 = (trim($backTitle, ', ') !== '') ? trim($backTitle, ', ') : null;
+    }
+
+    return array_values(array_filter([$line1, $line2, $line3]));
+    }
 }
