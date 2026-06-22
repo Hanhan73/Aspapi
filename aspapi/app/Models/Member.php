@@ -86,6 +86,11 @@ class Member extends Model
         return $this->belongsTo(Region::class, 'registered_by_region_id');
     }
 
+    public function region()
+    {
+        return $this->belongsTo(Region::class, 'registered_by_region_id');
+    }
+
     // ── Accessors ──────────────────────────────────────────────────────────────
 
     public function getMemberTypeLabelAttribute(): string
