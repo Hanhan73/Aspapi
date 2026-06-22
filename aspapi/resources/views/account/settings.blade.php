@@ -74,7 +74,7 @@
                 </label>
                 <input type="password" name="password" required minlength="8"
                        style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"/>
-                <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.25rem;">Minimal 8 karakter.</p>
+                <p style="font-size:0.7rem; color:#d6e8f715;margin-top:0.25rem;">Minimal 8 karakter.</p>
             </div>
 
             <div>
