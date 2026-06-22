@@ -116,7 +116,7 @@ $validated = $request->validate([
                         'member'      => $member->fresh(),
                         'isResubmit'  => $isResubmit,
                         'submittedAt' => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
-                        'adminUrl'    => route('admin.members.verify'),
+                        'adminUrl'    => route('admin.members.verify.index'),
                     ],
                     function ($m) use ($isResubmit) {
                         $subject = $isResubmit
