@@ -319,31 +319,59 @@ public function getCardNameLinesAttribute(): array
 
     $words = explode(' ', $fullName);
 
-    // Coba 1 baris dulu: gelar depan + nama + gelar belakang
-    $oneLine = $frontTitle . $fullName . $backTitle;
+    $widthOf = function (string $text): float {
+        $w = 0;
+        foreach (str_split($text) as $char) {
+            if (in_array($char, ['.', ',', ':', ';', '!', '|', 'I', ' '])) {
+                $w += 3;
+            } elseif (in_array(strtoupper($char), ['M', 'W', 'N', 'D', 'O', 'Q', 'U', 'G', 'C', 'H', 'K', 'R', 'A', 'B'])) {
+                $w += 7;
+            } else {
+                $w += 5.5;
+            }
+        }
+        return $w;
+    };
 
-    // Threshold: 26 karakter aman untuk tidak tabrak foto
-    if (mb_strlen($oneLine) <= 26) {
+    $maxWidth = 95;
+
+    // Coba 1 baris
+    $oneLine = $frontTitle . $fullName . $backTitle;
+    if ($widthOf($oneLine) <= $maxWidth) {
         return [$oneLine];
     }
 
-    // Terlalu panjang → 2 baris
-    // Baris 1: gelar depan + nama (tanpa gelar belakang)
-    // Baris 2: gelar belakang saja (jika nama <= 2 kata)
-    // atau: gelar depan + 2 kata pertama / sisa kata + gelar belakang (jika nama >= 3 kata)
-
+    // Perlu 2 baris — cari split terbaik
     if (count($words) <= 2) {
-        // Nama pendek tapi panjang karena gelar → pisah gelar belakang ke baris 2
         return [
             $frontTitle . $fullName,
-            trim($backTitle, ', '),
+            trim($backTitle, ', ') ?: null,
         ];
     }
 
-    // Nama >= 3 kata: split di kata ke-2, gelar belakang ikut baris 2
-    $line1 = $frontTitle . implode(' ', array_slice($words, 0, 2));
-    $line2 = implode(' ', array_slice($words, 2)) . $backTitle;
+    // Cari split point: kedua baris ≤ maxWidth
+    $bestSplit = 2;
+    $bestDiff  = PHP_INT_MAX;
 
-    return [$line1, $line2];
+    for ($i = 1; $i < count($words); $i++) {
+        $l1 = $frontTitle . implode(' ', array_slice($words, 0, $i));
+        $l2 = implode(' ', array_slice($words, $i)) . $backTitle;
+        $w1 = $widthOf($l1);
+        $w2 = $widthOf($l2);
+
+        if ($w1 <= $maxWidth) {
+            // Pilih split yang membuat kedua baris seimbang & baris 2 tidak meledak
+            $diff = abs($w1 - $w2);
+            if ($w2 <= $maxWidth && $diff < $bestDiff) {
+                $bestDiff  = $diff;
+                $bestSplit = $i;
+            }
+        }
+    }
+
+    $line1 = $frontTitle . implode(' ', array_slice($words, 0, $bestSplit));
+    $line2 = implode(' ', array_slice($words, $bestSplit)) . $backTitle;
+
+    return array_values(array_filter([$line1, $line2 ?: null]));
 }
 }
