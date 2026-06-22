@@ -47,6 +47,7 @@ class Member extends Model
         'dues_receipt',
         'is_batch',
         'registered_by_region_id',
+        'show_title_on_card',
     ];
 
     protected $casts = [
