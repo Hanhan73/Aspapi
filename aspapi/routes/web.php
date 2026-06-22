@@ -222,6 +222,8 @@ Route::get('/mitra', [PartnerController::class, 'index'])->name('partners.index'
 Route::prefix('account')->name('account.')->middleware('auth')->group(function () {
     Route::get('/settings',  [AccountController::class, 'show'])->name('settings');
     Route::post('/password', [AccountController::class, 'updatePassword'])->name('password');
+    Route::post('/account/email', [AccountController::class, 'updateEmail'])->name('email');
+
 });
 
 
