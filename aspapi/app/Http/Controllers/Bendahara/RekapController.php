@@ -5,56 +5,56 @@ namespace App\Http\Controllers\Bendahara;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Member;
+use App\Models\Region;
+use App\Exports\RekapTransaksiExport;
+use App\Exports\IuranAnggotaExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RekapController extends Controller
 {
-    /**
-     * #9 — Rekap Pemasukan
-     * Route: GET /bendahara/rekap → name: bendahara.rekap
-     */
     public function rekap(Request $request)
     {
-        $year = $request->filled('year') ? (int) $request->year : now()->year;
+        $year     = $request->filled('year') ? (int) $request->year : now()->year;
+        $regionId = $request->filled('region') ? (int) $request->region : null;
+        $regions  = Region::orderBy('name')->get();
 
-        $totalTahun = Payment::where('status', 'verified')
+        $basePayment = Payment::where('status', 'verified')
             ->whereYear('verified_at', $year)
-            ->sum('amount');
+            ->when($regionId, fn($q) => $q->whereHas('member', fn($sub) =>
+                $sub->where('registered_by_region_id', $regionId)
+            ));
 
-        $totalPangkal = Payment::where('status', 'verified')
-            ->where('type', 'uang_pangkal')
-            ->whereYear('verified_at', $year)
-            ->sum('amount');
-
-        $totalIuran = Payment::where('status', 'verified')
-            ->where('type', 'iuran_tahunan')
-            ->whereYear('verified_at', $year)
-            ->sum('amount');
+        $totalTahun  = (clone $basePayment)->sum('amount');
+        $totalPangkal = (clone $basePayment)->where('type', 'uang_pangkal')->sum('amount');
+        $totalIuran   = (clone $basePayment)->where('type', 'iuran_tahunan')->sum('amount');
 
         $perBulan = [];
         for ($m = 1; $m <= 12; $m++) {
+            $base = Payment::where('status', 'verified')
+                ->whereYear('verified_at', $year)
+                ->whereMonth('verified_at', $m)
+                ->when($regionId, fn($q) => $q->whereHas('member', fn($sub) =>
+                    $sub->where('registered_by_region_id', $regionId)
+                ));
+
             $perBulan[$m] = [
-                'bulan'        => $m,
-                'nama_bulan'   => \Carbon\Carbon::create()->month($m)->translatedFormat('F'),
-                'uang_pangkal' => Payment::where('status', 'verified')
-                    ->where('type', 'uang_pangkal')
-                    ->whereYear('verified_at', $year)
-                    ->whereMonth('verified_at', $m)
-                    ->sum('amount'),
-                'iuran_tahunan' => Payment::where('status', 'verified')
-                    ->where('type', 'iuran_tahunan')
-                    ->whereYear('verified_at', $year)
-                    ->whereMonth('verified_at', $m)
-                    ->sum('amount'),
+                'bulan'         => $m,
+                'nama_bulan'    => \Carbon\Carbon::create()->month($m)->translatedFormat('F'),
+                'uang_pangkal'  => (clone $base)->where('type', 'uang_pangkal')->sum('amount'),
+                'iuran_tahunan' => (clone $base)->where('type', 'iuran_tahunan')->sum('amount'),
             ];
             $perBulan[$m]['total'] = $perBulan[$m]['uang_pangkal'] + $perBulan[$m]['iuran_tahunan'];
         }
 
-        $transaksi = Payment::with(['member', 'verifier'])
+        $transaksi = Payment::with(['member.region', 'verifier'])
             ->where('status', 'verified')
             ->whereYear('verified_at', $year)
-            ->when($request->filled('month'), fn($q) => $q->whereMonth('verified_at', $request->month))
-            ->when($request->filled('type'),  fn($q) => $q->where('type', $request->type))
+            ->when($regionId, fn($q) => $q->whereHas('member', fn($sub) =>
+                $sub->where('registered_by_region_id', $regionId)
+            ))
+            ->when($request->filled('month'),  fn($q) => $q->whereMonth('verified_at', $request->month))
+            ->when($request->filled('type'),   fn($q) => $q->where('type', $request->type))
             ->when($request->filled('search'), fn($q) =>
                 $q->whereHas('member', fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
@@ -66,52 +66,50 @@ class RekapController extends Controller
             ->withQueryString();
 
         return view('bendahara.rekap', compact(
-            'year',
-            'totalTahun',
-            'totalPangkal',
-            'totalIuran',
-            'perBulan',
-            'transaksi'
+            'year', 'regionId', 'regions',
+            'totalTahun', 'totalPangkal', 'totalIuran',
+            'perBulan', 'transaksi'
         ));
     }
 
-    /**
-     * #10 — Status Iuran Anggota
-     * Route: GET /bendahara/iuran → name: bendahara.iuran
-     *
-     * Scope anggota yang ditampilkan:
-     *   A) status = 'active'  + biodata_status = 'verified'  → anggota penuh
-     *   B) status = 'pending' + biodata_status = 'verified'  → biodata sudah disetujui,
-     *      belum bayar / belum diaktifkan (segmen "Belum Aktif")
-     *
-     * Status iuran berbasis active_until (bukan tahun kalender):
-     *   - Iuran Aktif       : active_until > now()
-     *   - Kadaluarsa        : active_until <= now() (pernah bayar, sudah lewat)
-     *   - Belum Aktif       : status = 'pending' (biodata verified, belum pernah bayar)
-     */
+    public function rekapExport(Request $request)
+    {
+        $year     = $request->filled('year') ? (int) $request->year : now()->year;
+        $regionId = $request->filled('region') ? (int) $request->region : null;
+        $region   = $regionId ? Region::find($regionId) : null;
+        $suffix   = $region ? '_' . \Illuminate\Support\Str::slug($region->name) : '';
+
+        return Excel::download(
+            new RekapTransaksiExport(
+                year:     $year,
+                month:    $request->filled('month') ? (int) $request->month : null,
+                type:     $request->input('type'),
+                search:   $request->input('search'),
+                regionId: $regionId,
+            ),
+            "rekap_transaksi_{$year}{$suffix}.xlsx"
+        );
+    }
+
     public function iuran(Request $request)
     {
-        $filterStatus = $request->input('status_iuran'); // 'aktif'|'kadaluarsa'|'belum_aktif'|''
+        $regionId = $request->filled('region') ? (int) $request->region : null;
+        $regions  = Region::orderBy('name')->get();
+        $filterStatus = $request->input('status_iuran');
 
-        // IDs anggota active yang iurannya masih berlaku
         $aktifIds = Member::where('status', 'active')
             ->where('biodata_status', 'verified')
             ->whereNotNull('active_until')
             ->where('active_until', '>', now())
-            ->pluck('id')
-            ->toArray();
+            ->when($regionId, fn($q) => $q->where('registered_by_region_id', $regionId))
+            ->pluck('id')->toArray();
 
-        // IDs anggota active yang iurannya sudah kadaluarsa (pernah bayar tapi expired)
         $kadaluarsaIds = Member::where('status', 'active')
             ->where('biodata_status', 'verified')
-            ->where(fn($q) =>
-                $q->whereNull('active_until')
-                  ->orWhere('active_until', '<=', now())
-            )
-            ->pluck('id')
-            ->toArray();
+            ->where(fn($q) => $q->whereNull('active_until')->orWhere('active_until', '<=', now()))
+            ->when($regionId, fn($q) => $q->where('registered_by_region_id', $regionId))
+            ->pluck('id')->toArray();
 
-        // Query utama: gabungkan active + pending(biodata verified)
         $members = Member::with(['payments' => fn($q) =>
                 $q->where('type', 'iuran_tahunan')
                   ->where('status', 'verified')
@@ -120,15 +118,10 @@ class RekapController extends Controller
             ])
             ->where('biodata_status', 'verified')
             ->whereIn('status', ['active', 'pending'])
-            ->when($filterStatus === 'aktif', fn($q) =>
-                $q->whereIn('id', $aktifIds)
-            )
-            ->when($filterStatus === 'kadaluarsa', fn($q) =>
-                $q->whereIn('id', $kadaluarsaIds)
-            )
-            ->when($filterStatus === 'belum_aktif', fn($q) =>
-                $q->where('status', 'pending')
-            )
+            ->when($regionId, fn($q) => $q->where('registered_by_region_id', $regionId))
+            ->when($filterStatus === 'aktif',       fn($q) => $q->whereIn('id', $aktifIds))
+            ->when($filterStatus === 'kadaluarsa',  fn($q) => $q->whereIn('id', $kadaluarsaIds))
+            ->when($filterStatus === 'belum_aktif', fn($q) => $q->where('status', 'pending'))
             ->when($request->filled('search'), fn($q) =>
                 $q->where(fn($sub) =>
                     $sub->where('full_name', 'like', '%' . $request->search . '%')
@@ -141,23 +134,52 @@ class RekapController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        // Summary counts
-        $totalAktifMember  = Member::where('status', 'active')->where('biodata_status', 'verified')->count();
-        $totalMember  = Member::where('biodata_status', 'verified')->count();
-        $totalIuranAktif   = count($aktifIds);
-        $totalKadaluarsa   = count($kadaluarsaIds);
-        $totalBelumAktif   = Member::where('status', 'pending')->where('biodata_status', 'verified')->count();
+        // Summary scoped ke region yang dipilih (atau semua)
+        $scopedBase = Member::where('biodata_status', 'verified')
+            ->when($regionId, fn($q) => $q->where('registered_by_region_id', $regionId));
+
+        $totalAktifMember = (clone $scopedBase)->where('status', 'active')->count();
+        $totalMember      = (clone $scopedBase)->count();
+        $totalIuranAktif  = count($aktifIds);
+        $totalKadaluarsa  = count($kadaluarsaIds);
+        $totalBelumAktif  = (clone $scopedBase)->where('status', 'pending')->count();
 
         return view('bendahara.iuran', compact(
-            'members',
-            'aktifIds',
-            'kadaluarsaIds',
-            'totalAktifMember',
-            'totalMember',
-            'totalIuranAktif',
-            'totalKadaluarsa',
-            'totalBelumAktif',
-            'filterStatus'
+            'members', 'aktifIds', 'kadaluarsaIds',
+            'totalAktifMember', 'totalMember',
+            'totalIuranAktif', 'totalKadaluarsa', 'totalBelumAktif',
+            'filterStatus', 'regions', 'regionId'
         ));
+    }
+
+    public function iuranExport(Request $request)
+    {
+        $regionId = $request->filled('region') ? (int) $request->region : null;
+        $region   = $regionId ? Region::find($regionId) : null;
+        $suffix   = $region ? '_' . \Illuminate\Support\Str::slug($region->name) : '';
+
+        $aktifIds = Member::where('status', 'active')
+            ->where('biodata_status', 'verified')
+            ->whereNotNull('active_until')
+            ->where('active_until', '>', now())
+            ->when($regionId, fn($q) => $q->where('registered_by_region_id', $regionId))
+            ->pluck('id')->toArray();
+
+        $kadaluarsaIds = Member::where('status', 'active')
+            ->where('biodata_status', 'verified')
+            ->where(fn($q) => $q->whereNull('active_until')->orWhere('active_until', '<=', now()))
+            ->when($regionId, fn($q) => $q->where('registered_by_region_id', $regionId))
+            ->pluck('id')->toArray();
+
+        return Excel::download(
+            new IuranAnggotaExport(
+                filterStatus:  $request->input('status_iuran'),
+                search:        $request->input('search'),
+                regionId:      $regionId,
+                aktifIds:      $aktifIds,
+                kadaluarsaIds: $kadaluarsaIds,
+            ),
+            "iuran_anggota{$suffix}.xlsx"
+        );
     }
 }

@@ -123,6 +123,8 @@ Route::prefix('bendahara')->name('bendahara.')->middleware(['auth', 'role:bendah
     // Dalam group bendahara
     Route::get('/rekap', [RekapController::class, 'rekap'])->name('rekap');
     Route::get('/iuran', [RekapController::class, 'iuran'])->name('iuran');
+    Route::get('/rekap/export',  [RekapController::class, 'rekapExport'])->name('rekap.export');
+    Route::get('/iuran/export',  [RekapController::class, 'iuranExport'])->name('iuran.export');
 });
 
 // ── ASPAPI DAERAH PORTAL ──

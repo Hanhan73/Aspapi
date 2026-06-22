@@ -3,7 +3,7 @@
 
 @section('content')
 
-{{-- Filter tahun --}}
+{{-- Filter tahun + daerah --}}
 <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
     <form method="GET" action="{{ route('bendahara.rekap') }}" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
         <select name="year" style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;">
@@ -11,10 +11,24 @@
             <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
             @endfor
         </select>
+
+        <select name="region" style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;min-width:180px;">
+            <option value="">Semua Daerah</option>
+            @foreach ($regions as $r)
+            <option value="{{ $r->id }}" {{ $regionId == $r->id ? 'selected' : '' }}>{{ $r->name }}</option>
+            @endforeach
+        </select>
+
         <button type="submit"
                 style="padding:0.5rem 1rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;">
             Tampilkan
         </button>
+
+        {{-- Tombol Export --}}
+        <a href="{{ route('bendahara.rekap.export', array_filter(request()->only(['year','region','month','type','search']))) }}"
+           style="padding:0.5rem 1rem;background:#276749;color:#fff;border-radius:4px;font-size:0.75rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:0.375rem;">
+            ↓ Export Excel
+        </a>
     </form>
 </div>
 
@@ -135,6 +149,7 @@
             <thead>
                 <tr style="background:#EEF4FB;">
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Anggota</th>
+                    <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Daerah</th>
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Jenis</th>
                     <th style="padding:0.75rem 1rem;text-align:right;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Jumlah</th>
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Diverifikasi Oleh</th>
@@ -148,6 +163,9 @@
                     <td style="padding:0.75rem 1rem;">
                         <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;margin:0;">{{ $trx->member->full_name }}</p>
                         <p style="font-size:0.72rem;color:#B0CCDF;margin:0;">{{ $trx->member->member_number ?? $trx->member->email }}</p>
+                    </td>
+                    <td style="padding:0.75rem 1rem;font-size:0.8rem;color:#4A6580;white-space:nowrap;">
+                        {{ $trx->member->region->name ?? '—' }}
                     </td>
                     <td style="padding:0.75rem 1rem;font-size:0.825rem;color:#4A6580;white-space:nowrap;">{{ $trx->type_label }}</td>
                     <td style="padding:0.75rem 1rem;text-align:right;font-size:0.825rem;font-weight:700;color:#1A2A3A;white-space:nowrap;">

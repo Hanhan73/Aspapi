@@ -46,11 +46,18 @@
 <div style="background:#fff;border:1px solid #D6E8F7;border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
     <form method="GET" action="{{ route('bendahara.iuran') }}" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
 
+        <select name="region" style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;min-width:180px;">
+            <option value="">Semua Daerah</option>
+            @foreach ($regions as $r)
+            <option value="{{ $r->id }}" {{ $regionId == $r->id ? 'selected' : '' }}>{{ $r->name }}</option>
+            @endforeach
+        </select>
+
         <select name="status_iuran" style="padding:0.5rem 0.875rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;">
-            <option value="">Semua</option>
-            <option value="aktif"       {{ $filterStatus === 'aktif'       ? 'selected' : '' }}>✓ Iuran Aktif</option>
-            <option value="kadaluarsa"  {{ $filterStatus === 'kadaluarsa'  ? 'selected' : '' }}>✗ Iuran Kadaluarsa</option>
-            <option value="belum_aktif" {{ $filterStatus === 'belum_aktif' ? 'selected' : '' }}>⏳ Belum Aktif</option>
+            <option value="">Semua Status</option>
+            <option value="aktif"       {{ $filterStatus === 'aktif'       ? 'selected' : '' }}>Iuran Aktif</option>
+            <option value="kadaluarsa"  {{ $filterStatus === 'kadaluarsa'  ? 'selected' : '' }}>Iuran Kadaluarsa</option>
+            <option value="belum_aktif" {{ $filterStatus === 'belum_aktif' ? 'selected' : '' }}>Belum Aktif</option>
         </select>
 
         <input type="text" name="search" value="{{ request('search') }}"
@@ -65,11 +72,18 @@
            style="padding:0.5rem 1rem;border:1.5px solid #D6E8F7;color:#4A6580;border-radius:4px;font-size:0.75rem;font-weight:700;text-decoration:none;">
             Reset
         </a>
+
+        {{-- Export --}}
+        <a href="{{ route('bendahara.iuran.export', array_filter(request()->only(['region','status_iuran','search']))) }}"
+           style="padding:0.5rem 1rem;background:#276749;color:#fff;border-radius:4px;font-size:0.75rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:0.375rem;">
+            ↓ Export Excel
+        </a>
     </form>
 
-    @if (request()->hasAny(['status_iuran', 'search']))
+    @if (request()->hasAny(['region', 'status_iuran', 'search']))
     <p style="font-size:0.75rem;color:#4A6580;margin-top:0.625rem;">
         Menampilkan <strong>{{ $members->total() }}</strong> anggota
+        @if($regionId) — {{ $regions->firstWhere('id', $regionId)?->name }} @endif
         @if(request('search')) — "<em>{{ request('search') }}</em>" @endif
     </p>
     @endif
@@ -83,6 +97,7 @@
                 <tr style="background:#EEF4FB;">
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Anggota</th>
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">NIA</th>
+                    <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Daerah</th>
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Status Akun</th>
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Status Iuran</th>
                     <th style="padding:0.75rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;">Terakhir Bayar</th>
@@ -118,6 +133,10 @@
                     {{-- NIA --}}
                     <td style="padding:0.75rem 1rem;font-size:0.8rem;color:#4A6580;font-family:monospace;white-space:nowrap;">
                         {{ $member->member_number ?? '—' }}
+                    </td>
+
+                    <td style="padding:0.75rem 1rem;font-size:0.8rem;color:#4A6580;white-space:nowrap;">
+                        {{ $member->region->name ?? '—' }}
                     </td>
 
                     {{-- Status Akun --}}
