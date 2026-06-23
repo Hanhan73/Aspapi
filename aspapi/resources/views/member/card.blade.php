@@ -33,9 +33,9 @@
 @php
     $cardLines = array_values(array_filter($member->card_name_lines));
     $lineCount = count($cardLines);
-    $nameTop  = match($lineCount) { 1 => '110px', 2 => '112px', default => '106px' };
-    $niaTop   = match($lineCount) { 1 => '138px', 2 => '148px', default => '156px' };
-    $validTop = match($lineCount) { 1 => '152px', 2 => '162px', default => '171px' };
+    $nameTop  = match($lineCount) { 1 => '118px', 2 => '112px', default => '106px' };
+    $niaTop   = match($lineCount) { 1 => '134px', 2 => '144px', default => '152px' };
+    $validTop = match($lineCount) { 1 => '150px', 2 => '160px', default => '169px' };
 @endphp
 
 <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
