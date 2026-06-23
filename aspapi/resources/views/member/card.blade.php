@@ -36,7 +36,7 @@
     $nameTop  = match($lineCount) { 1 => '120px', 2 => '114px', default => '108px' };
     $niaTop   = match($lineCount) { 1 => '139px', 2 => '149px', default => '157px' };
     $validTop = match($lineCount) { 1 => '153px', 2 => '163px', default => '172px' };
-    $frontBase64 = Storage::disk('public')->url('images/kta-depan.png');
+    $frontBase64 = Storage::disk('public')->path('images/kta-depan.png');
 @endphp
 
 <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
