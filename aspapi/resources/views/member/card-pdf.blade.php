@@ -146,7 +146,7 @@
     /* ── NIA ── */
     .member-nia.single {
         position: absolute;
-        top: 32mm;
+        top: 31mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
@@ -183,7 +183,7 @@
     /* ── Berlaku Sampai ── */
     .member-valid.single {
         position: absolute;
-        top: 36mm;
+        top: 36.5mm;
         left: 23mm;
         right: 2mm;
         font-size: 5pt;
