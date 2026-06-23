@@ -67,7 +67,7 @@ $validTop = match($lineCount) { 1 => '127px', 2 => '137px', default => '146px' }
     </div>
 
     {{-- Nama --}}
-    <div style="position:absolute;top:{{ $nameTop }};left:88px;right:8px;
+    <div style="position:absolute;top:{{ $nameTop }};left:87px;right:8px;
                 font-family:Arial,sans-serif;font-size:9px;font-weight:900;
                 color:#0D2240;letter-spacing:0.02em;line-height:1.3;overflow:hidden;">
         @foreach($cardLines as $line)
@@ -76,14 +76,14 @@ $validTop = match($lineCount) { 1 => '127px', 2 => '137px', default => '146px' }
     </div>
 
     {{-- NIA --}}
-    <div style="position:absolute;top:{{ $niaTop }};left:88px;right:8px;
+    <div style="position:absolute;top:{{ $niaTop }};left:87px;right:8px;
                 font-family:'Courier New',monospace;font-size:9px;font-weight:700;
                 color:#0D2240;letter-spacing:0.06em;line-height:1.2;">
         NIA. {{ $member->member_number }}
     </div>
 
     {{-- Berlaku Sampai --}}
-    <div style="position:absolute;top:{{ $validTop }};left:88px;right:8px;
+    <div style="position:absolute;top:{{ $validTop }};left:87px;right:8px;
                 font-family:Arial,sans-serif;font-size:7.5px;font-weight:700;
                 color:#0D2240;line-height:1.2;">
         Berlaku Sampai: {{ $member->active_until
