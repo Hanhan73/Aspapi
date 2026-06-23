@@ -4,215 +4,215 @@
 <head>
     <meta charset="utf-8" />
     <style>
-    @page {
-        size: 88.9mm 50.8mm;
-        margin: 0;
-    }
+        @page {
+            size: 88.9mm 50.8mm;
+            margin: 0;
+        }
 
-    @font-face {
-        font-family: 'Inter';
-        font-weight: 400;
-        src: url("file://{{ storage_path('fonts/Inter_28pt-Regular.ttf') }}");
-    }
+        @font-face {
+            font-family: 'Inter';
+            font-weight: 400;
+            src: url("file://{{ storage_path('fonts/Inter_28pt-Regular.ttf') }}");
+        }
 
-    @font-face {
-        font-family: 'Inter';
-        font-weight: 700;
-        src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
-    }
+        @font-face {
+            font-family: 'Inter';
+            font-weight: 700;
+            src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
+        }
 
-    @font-face {
-        font-family: 'Inter';
-        font-weight: 900;
-        src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
-    }
+        @font-face {
+            font-family: 'Inter';
+            font-weight: 900;
+            src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
+        }
 
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        width: 88.9mm;
-        height: 50.8mm;
-        overflow: hidden;
-        font-family: 'Inter', sans-serif;
-    }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 88.9mm;
+            height: 50.8mm;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
 
-    * {
-        box-sizing: border-box;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    .card {
-        position: relative;
-        width: 88.9mm;
-        height: 50.8mm;
-        overflow: hidden;
-        page-break-after: always;
-    }
+        .card {
+            position: relative;
+            width: 88.9mm;
+            height: 50.8mm;
+            overflow: hidden;
+            page-break-after: always;
+        }
 
-    .card:last-child {
-        page-break-after: avoid;
-    }
+        .card:last-child {
+            page-break-after: avoid;
+        }
 
-    .card-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 88.9mm;
-        height: 50.8mm;
-        display: block;
-    }
+        .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 88.9mm;
+            height: 50.8mm;
+            display: block;
+        }
 
-    /* ── QR: pojok kanan atas ── */
-    .qr-wrap {
-        position: absolute;
-        right: 2mm;
-        top: 2mm;
-        width: 13mm;
-        height: 13mm;
-        overflow: hidden;
-    }
+        /* ── QR: pojok kanan atas ── */
+        .qr-wrap {
+            position: absolute;
+            right: 2mm;
+            top: 2mm;
+            width: 13mm;
+            height: 13mm;
+            overflow: hidden;
+        }
 
-    .qr-wrap img {
-        width: 13mm;
-        height: 13mm;
-        display: block;
-    }
+        .qr-wrap img {
+            width: 13mm;
+            height: 13mm;
+            display: block;
+        }
 
-    /* ── Foto: kiri bawah, sejajar area identitas ── */
-    .photo-wrap {
-        position: absolute;
-        left: 6mm;
-        top: 20.5mm;
-        width: 15mm;
-        height: 18mm;
-        overflow: hidden;
-        border-radius: 3px;
-        border: 1px solid #b0bac5;
-    }
+        /* ── Foto: kiri bawah, sejajar area identitas ── */
+        .photo-wrap {
+            position: absolute;
+            left: 6mm;
+            top: 20.5mm;
+            width: 15mm;
+            height: 18mm;
+            overflow: hidden;
+            border-radius: 3px;
+            border: 1px solid #b0bac5;
+        }
 
-    .photo-wrap img {
-        width: 15mm;
-        height: 18mm;
-        display: block;
-    }
+        .photo-wrap img {
+            width: 15mm;
+            height: 18mm;
+            display: block;
+        }
 
-    .photo-placeholder {
-        width: 100%;
-        height: 100%;
-        background: #b0bac5;
-        display: block;
-    }
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #b0bac5;
+            display: block;
+        }
 
-    /* ── Nama ── */
-    .member-name.single {
-        position: absolute;
-        top: 26.5mm;
-        left: 22mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 900;
-        color: #0D2240;
-        letter-spacing: 0.02em;
-        line-height: 1.1;
-        overflow: hidden;
-    }
+        /* ── Nama ── */
+        .member-name.single {
+            position: absolute;
+            top: 26.5mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 900;
+            color: #0D2240;
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+            overflow: hidden;
+        }
 
-    .member-name.double {
-        position: absolute;
-        top: 26mm;
-        left: 22mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 900;
-        color: #0D2240;
-        letter-spacing: 0.02em;
-        line-height: 1.3;
-        overflow: hidden;
-    }
+        .member-name.double {
+            position: absolute;
+            top: 26mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 900;
+            color: #0D2240;
+            letter-spacing: 0.02em;
+            line-height: 1.3;
+            overflow: hidden;
+        }
 
-    .member-name.triple {
-        position: absolute;
-        top: 25mm;
-        left: 22mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 900;
-        color: #0D2240;
-        letter-spacing: 0.02em;
-        line-height: 1.25;
-        overflow: hidden;
-    }
+        .member-name.triple {
+            position: absolute;
+            top: 25mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 900;
+            color: #0D2240;
+            letter-spacing: 0.02em;
+            line-height: 1.25;
+            overflow: hidden;
+        }
 
-    /* ── NIA ── */
-    .member-nia.single {
-        position: absolute;
-        top: 31.5mm;
-        left: 22mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 700;
-        color: #0D2240;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
-    }
+        /* ── NIA ── */
+        .member-nia.single {
+            position: absolute;
+            top: 31.5mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #0D2240;
+            letter-spacing: 0.06em;
+            line-height: 1.1;
+        }
 
-    .member-nia.double {
-        position: absolute;
-        top: 34mm;
-        left: 22mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 700;
-        color: #0D2240;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
-    }
+        .member-nia.double {
+            position: absolute;
+            top: 34mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #0D2240;
+            letter-spacing: 0.06em;
+            line-height: 1.1;
+        }
 
-    .member-nia.triple {
-        position: absolute;
-        top: 35.5mm;
-        left: 22mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 700;
-        color: #0D2240;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
-    }
+        .member-nia.triple {
+            position: absolute;
+            top: 35.5mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #0D2240;
+            letter-spacing: 0.06em;
+            line-height: 1.1;
+        }
 
-    /* ── Berlaku Sampai ── */
-    .member-valid.single {
-        position: absolute;
-        top: 36.5mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 5pt;
-        font-weight: 700;
-        color: #0D2240;
-        line-height: 1.2;
-    }
+        /* ── Berlaku Sampai ── */
+        .member-valid.single {
+            position: absolute;
+            top: 36.5mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 5pt;
+            font-weight: 700;
+            color: #0D2240;
+            line-height: 1.2;
+        }
 
-    .member-valid.double {
-        position: absolute;
-        top: 38mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 5pt;
-        font-weight: 700;
-        color: #0D2240;
-        line-height: 1.2;
-    }
+        .member-valid.double {
+            position: absolute;
+            top: 38mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 5pt;
+            font-weight: 700;
+            color: #0D2240;
+            line-height: 1.2;
+        }
 
-    .member-valid.triple {
-        position: absolute;
-        top: 40.5mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 5pt;
-        font-weight: 700;
-        color: #0D2240;
-        line-height: 1.2;
-    }
+        .member-valid.triple {
+            position: absolute;
+            top: 40.5mm;
+            left: 22mm;
+            right: 2mm;
+            font-size: 5pt;
+            font-weight: 700;
+            color: #0D2240;
+            line-height: 1.2;
+        }
     </style>
 </head>
 
