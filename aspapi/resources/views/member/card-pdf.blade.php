@@ -9,13 +9,29 @@
         margin: 0;
     }
 
+    @font-face {
+        font-family: 'Inter';
+        font-weight: 400;
+        src: url("file://{{ storage_path('fonts/Inter_28pt-Regular.ttf') }}");
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-weight: 700;
+        src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
+    }
+    @font-face {
+        font-family: 'Inter';
+        font-weight: 900;
+        src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
+    }
+
     html, body {
         margin: 0;
         padding: 0;
         width: 88.9mm;
         height: 50.8mm;
         overflow: hidden;
-        font-family: 'DejaVu Sans', Arial, sans-serif;
+        font-family: 'Inter', sans-serif;
     }
 
     * { box-sizing: border-box; }
