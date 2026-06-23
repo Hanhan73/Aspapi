@@ -45,7 +45,7 @@
         style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;" alt=""/>
 
     {{-- Foto: top=86px (22.5mm × 3.825) --}}
-    <div style="position:absolute;left:10px;top:80px;width:69px;height:84px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
+    <div style="position:absolute;left:10px;top:70px;width:69px;height:84px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
         @if ($member->photo)
             <img src="{{ Storage::url($member->photo) }}"
                  style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="foto"/>
