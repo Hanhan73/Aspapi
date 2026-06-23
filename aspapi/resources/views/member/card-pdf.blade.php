@@ -146,7 +146,7 @@
     /* ── NIA ── */
     .member-nia.single {
         position: absolute;
-        top: 31mm;
+        top: 31.5mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
