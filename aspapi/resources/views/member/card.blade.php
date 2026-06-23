@@ -44,7 +44,7 @@ $validTop = match($lineCount) { 1 => '127px', 2 => '137px', default => '146px' }
 @endphp
 
 <div
-    style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
+    style="width:320px;height:174px;border-radius:6px;overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
 
     {{-- Background --}}
     <img src="{{ isset($frontBase64) && $frontBase64 ? $frontBase64 : asset('images/kta-depan.png') }}"

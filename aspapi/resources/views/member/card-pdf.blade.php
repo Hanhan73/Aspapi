@@ -82,17 +82,17 @@
     .photo-wrap {
         position: absolute;
         left: 6mm;
-        top: 18mm;
-        width: 16mm;
-        height: 20mm;
+        top: 22mm;
+        width: 14mm;
+        height: 16mm;
         overflow: hidden;
         border-radius: 3px;
         border: 1px solid #b0bac5;
     }
 
     .photo-wrap img {
-        width: 16mm;
-        height: 20mm;
+        width: 14mm;
+        height: 16mm;
         display: block;
     }
 
