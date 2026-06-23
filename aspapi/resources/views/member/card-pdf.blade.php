@@ -119,7 +119,7 @@
     /* ── NIA ── */
     .member-nia.single {
         position: absolute;
-        top: 30mm;
+        top: 35mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
@@ -131,7 +131,7 @@
 
     .member-nia.double {
         position: absolute;
-        top: 32mm;
+        top: 37mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
@@ -143,7 +143,7 @@
 
     .member-nia.triple {
         position: absolute;
-        top: 33.5mm;
+        top: 38.5mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
@@ -156,7 +156,7 @@
     /* ── Berlaku Sampai ── */
     .member-valid.single {
         position: absolute;
-        top: 33mm;
+        top: 40mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
@@ -167,7 +167,7 @@
 
     .member-valid.double {
         position: absolute;
-        top: 35mm;
+        top: 42mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
@@ -178,7 +178,7 @@
 
     .member-valid.triple {
         position: absolute;
-        top: 36.5mm;
+        top: 44.5mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
