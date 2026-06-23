@@ -86,27 +86,12 @@ class BiodataController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            // 3. Hapus foto lama
             if ($member->photo) {
                 Storage::disk('public')->delete($member->photo);
             }
-
-            // 4. Simpan foto baru
-            $path = 'member-photos/' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $fullPath = storage_path('app/public/' . $path);
-            @mkdir(dirname($fullPath), 0755, true);
-
-            $ext = strtolower($file->getClientOriginalExtension());
-            if ($ext === 'png') {
-                imagepng($image, $fullPath);
-            } else {
-                imagejpeg($image, $fullPath, 90);
-            }
-            imagedestroy($image);
-
-            $validated['photo'] = $path;
+            $validated['photo'] = $request->file('photo')->store('member-photos', 'public');
         }
+        
 
         // Cek apakah ini verifikasi ulang (pernah submit sebelumnya)
         $isResubmit = $member->registered_at !== null;
