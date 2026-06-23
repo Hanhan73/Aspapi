@@ -84,7 +84,7 @@
         left: 6mm;
         top: 20mm;
         width: 15mm;
-        height: 17mm;
+        height: 18mm;
         overflow: hidden;
         border-radius: 3px;
         border: 1px solid #b0bac5;
@@ -92,7 +92,7 @@
 
     .photo-wrap img {
         width: 15mm;
-        height: 17mm;
+        height: 18mm;
         display: block;
     }
 
