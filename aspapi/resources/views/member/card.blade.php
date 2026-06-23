@@ -36,14 +36,13 @@
     $nameTop  = match($lineCount) { 1 => '120px', 2 => '114px', default => '108px' };
     $niaTop   = match($lineCount) { 1 => '139px', 2 => '149px', default => '157px' };
     $validTop = match($lineCount) { 1 => '153px', 2 => '163px', default => '172px' };
-    $frontBase64 = Storage::disk('public')->path('images/kta-depan.png');
 @endphp
 
 <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
 
     {{-- Background --}}
-    <img src="{{ $frontBase64 }}"
-         style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;" alt=""/>
+    blade<img src="{{ isset($frontBase64) && $frontBase64 ? $frontBase64 : asset('images/kta-depan.png') }}"
+        style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;" alt=""/>
 
     {{-- Foto: top=86px (22.5mm × 3.825) --}}
     <div style="position:absolute;left:10px;top:86px;width:69px;height:84px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
