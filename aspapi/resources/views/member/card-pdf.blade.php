@@ -106,7 +106,7 @@
     /* ── Nama ── */
     .member-name.single {
         position: absolute;
-        top: 27mm;
+        top: 26.5mm;
         left: 23mm;
         right: 2mm;
         font-size: 6.5pt;
