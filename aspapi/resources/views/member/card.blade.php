@@ -52,7 +52,7 @@ $validTop = match($lineCount) { 1 => '127px', 2 => '137px', default => '146px' }
 
     {{-- Foto: top=86px (22.5mm × 3.825) --}}
     <div
-        style="position:absolute;left:15px;top:65px;width:61px;height:77px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
+        style="position:absolute;left:23px;top:69px;width:61px;height:77px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
         @if ($member->photo)
         <img src="{{ Storage::url($member->photo) }}"
             style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="foto" />
