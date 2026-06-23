@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\PartnerController as AdminPartnerController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Admin\RegionController as AdminRegionController;
 use App\Http\Controllers\Admin\SeminarAdminController;
+use App\Http\Controllers\Admin\SuperAdminController;
 
 use App\Http\Controllers\Member\DashboardController as MemberDashboard;
 use App\Http\Controllers\Member\BiodataController;
@@ -165,7 +166,7 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\Public\SitemapController::class, 'index'])
     ->name('sitemap');
-    
+
 // ── HOME ──
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -226,9 +227,17 @@ Route::prefix('account')->name('account.')->middleware('auth')->group(function (
     Route::get('/settings',  [AccountController::class, 'show'])->name('settings');
     Route::post('/password', [AccountController::class, 'updatePassword'])->name('password');
     Route::post('/account/email', [AccountController::class, 'updateEmail'])->name('email');
-
 });
 
+Route::middleware('role:superadmin')->prefix('akun')->name('superadmin.')->group(function () {
+    Route::get('/',                                      [SuperAdminController::class, 'index'])->name('users');
+    Route::get('/tambah',                                [SuperAdminController::class, 'create'])->name('create');
+    Route::post('/',                                     [SuperAdminController::class, 'store'])->name('store');
+    Route::get('/{user}/edit',                           [SuperAdminController::class, 'edit'])->name('edit');
+    Route::put('/{user}',                                [SuperAdminController::class, 'update'])->name('update');
+    Route::post('/{user}/reset-password',                [SuperAdminController::class, 'resetPassword'])->name('reset-password');
+    Route::delete('/{user}',                             [SuperAdminController::class, 'destroy'])->name('destroy');
+});
 
 /* ─────────────────────────────────────────
    ADMIN ROUTES
