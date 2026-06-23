@@ -229,18 +229,9 @@ Route::prefix('account')->name('account.')->middleware('auth')->group(function (
     Route::post('/account/email', [AccountController::class, 'updateEmail'])->name('email');
 });
 
-Route::middleware('role:superadmin')->prefix('akun')->name('superadmin.')->group(function () {
-    Route::get('/',                                      [SuperAdminController::class, 'index'])->name('users');
-    Route::get('/tambah',                                [SuperAdminController::class, 'create'])->name('create');
-    Route::post('/',                                     [SuperAdminController::class, 'store'])->name('store');
-    Route::get('/{user}/edit',                           [SuperAdminController::class, 'edit'])->name('edit');
-    Route::put('/{user}',                                [SuperAdminController::class, 'update'])->name('update');
-    Route::post('/{user}/reset-password',                [SuperAdminController::class, 'resetPassword'])->name('reset-password');
-    Route::delete('/{user}',                             [SuperAdminController::class, 'destroy'])->name('destroy');
-});
 
 /* ─────────────────────────────────────────
-   ADMIN ROUTES
+ADMIN ROUTES
 ───────────────────────────────────────── */
 
 Route::prefix('admin')
@@ -248,6 +239,16 @@ Route::prefix('admin')
     ->middleware(['auth', 'admin'])
     ->group(function () {
 
+        Route::middleware('role:superadmin')->prefix('akun')->name('superadmin.')->group(function () {
+            Route::get('/',                                      [SuperAdminController::class, 'index'])->name('users');
+            Route::get('/tambah',                                [SuperAdminController::class, 'create'])->name('create');
+            Route::post('/',                                     [SuperAdminController::class, 'store'])->name('store');
+            Route::get('/{user}/edit',                           [SuperAdminController::class, 'edit'])->name('edit');
+            Route::put('/{user}',                                [SuperAdminController::class, 'update'])->name('update');
+            Route::post('/{user}/reset-password',                [SuperAdminController::class, 'resetPassword'])->name('reset-password');
+            Route::delete('/{user}',                             [SuperAdminController::class, 'destroy'])->name('destroy');
+        });
+        
         // Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
