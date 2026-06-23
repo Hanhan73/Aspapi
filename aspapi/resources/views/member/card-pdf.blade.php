@@ -82,7 +82,7 @@
         top: 27mm;
         left: 23mm;
         right: 2mm;
-        font-size: 6pt;
+        font-size: 6.5pt;
         font-weight: 900;
         color: #0D2240;
         letter-spacing: 0.02em;
@@ -95,7 +95,7 @@
         top: 26mm;
         left: 23mm;
         right: 2mm;
-        font-size: 5.5pt;
+        font-size: 6.5pt;
         font-weight: 900;
         color: #0D2240;
         letter-spacing: 0.02em;
@@ -108,7 +108,7 @@
         top: 25mm;
         left: 23mm;
         right: 2mm;
-        font-size: 5pt;
+        font-size: 6.5pt;
         font-weight: 900;
         color: #0D2240;
         letter-spacing: 0.02em;
@@ -134,7 +134,7 @@
         top: 32mm;
         left: 23mm;
         right: 2mm;
-        font-size: 6pt;
+        font-size: 6.5pt;
         font-weight: 700;
         color: #0D2240;
         letter-spacing: 0.06em;
@@ -146,7 +146,7 @@
         top: 33.5mm;
         left: 23mm;
         right: 2mm;
-        font-size: 5.5pt;
+        font-size: 6.5pt;
         font-weight: 700;
         color: #0D2240;
         letter-spacing: 0.06em;
@@ -159,7 +159,7 @@
         top: 33mm;
         left: 23mm;
         right: 2mm;
-        font-size: 5pt;
+        font-size: 6.5pt;
         font-weight: 700;
         color: #0D2240;
         line-height: 1.2;
@@ -170,7 +170,7 @@
         top: 35mm;
         left: 23mm;
         right: 2mm;
-        font-size: 5pt;
+        font-size: 6.5pt;
         font-weight: 700;
         color: #0D2240;
         line-height: 1.2;
@@ -181,7 +181,7 @@
         top: 36.5mm;
         left: 23mm;
         right: 2mm;
-        font-size: 4.5pt;
+        font-size: 6.5pt;
         font-weight: 700;
         color: #0D2240;
         line-height: 1.2;
