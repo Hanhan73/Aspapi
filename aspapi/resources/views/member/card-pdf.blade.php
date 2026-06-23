@@ -107,7 +107,7 @@
     .member-name.single {
         position: absolute;
         top: 26.5mm;
-        left: 23mm;
+        left: 22mm;
         right: 2mm;
         font-size: 6.5pt;
         font-weight: 900;
@@ -120,7 +120,7 @@
     .member-name.double {
         position: absolute;
         top: 26mm;
-        left: 23mm;
+        left: 22mm;
         right: 2mm;
         font-size: 6.5pt;
         font-weight: 900;
@@ -133,7 +133,7 @@
     .member-name.triple {
         position: absolute;
         top: 25mm;
-        left: 23mm;
+        left: 22mm;
         right: 2mm;
         font-size: 6.5pt;
         font-weight: 900;
@@ -147,7 +147,7 @@
     .member-nia.single {
         position: absolute;
         top: 31.5mm;
-        left: 23mm;
+        left: 22mm;
         right: 2mm;
         font-size: 6.5pt;
         font-weight: 700;
@@ -159,7 +159,7 @@
     .member-nia.double {
         position: absolute;
         top: 34mm;
-        left: 23mm;
+        left: 22mm;
         right: 2mm;
         font-size: 6.5pt;
         font-weight: 700;
@@ -171,7 +171,7 @@
     .member-nia.triple {
         position: absolute;
         top: 35.5mm;
-        left: 23mm;
+        left: 22mm;
         right: 2mm;
         font-size: 6.5pt;
         font-weight: 700;
