@@ -9,39 +9,50 @@ use Illuminate\Support\Facades\Auth;
 
 class ImpersonateController extends Controller
 {
-    /**
-     * Admin/daerah masuk sebagai member.
-     * Hanya bisa impersonate user dengan role 'anggota'.
-     */
     public function impersonate(int $userId)
     {
         $actor = auth()->user();
 
-        // Hanya admin dan aspapi_daerah yang boleh
-        if (!in_array($actor->role, ['admin', 'aspapi_daerah'])) {
+        // Yang boleh impersonate: superadmin dan admin (dan daerah untuk anggotanya)
+        if (!in_array($actor->role, ['superadmin', 'admin', 'aspapi_daerah'])) {
             abort(403);
         }
 
         $target = User::findOrFail($userId);
 
-        // Hanya boleh impersonate anggota biasa
-        if ($target->role !== 'anggota') {
+        // Jangan impersonate diri sendiri
+        if ($target->id === $actor->id) {
+            return back()->with('error', 'Tidak bisa masuk sebagai diri sendiri.');
+        }
+
+        // Jangan impersonate superadmin lain
+        if ($target->role === 'superadmin') {
+            return back()->with('error', 'Tidak bisa impersonate akun superadmin.');
+        }
+
+        // Admin & daerah hanya boleh impersonate anggota
+        // Superadmin bisa impersonate semua role
+        if ($actor->role !== 'superadmin' && $target->role !== 'anggota') {
             return back()->with('error', 'Hanya bisa masuk sebagai anggota biasa.');
         }
 
-        // Simpan ID admin asli di session sebelum switch
+        // Simpan ID & role asli di session
         session(['impersonator_id'   => $actor->id]);
         session(['impersonator_role' => $actor->role]);
 
         Auth::login($target);
 
-        return redirect()->route('member.dashboard')
-            ->with('info', 'Anda sedang masuk sebagai ' . $target->name . '.');
+        // Redirect ke dashboard sesuai role target
+        $redirect = match($target->role) {
+            'admin'         => redirect()->route('admin.dashboard'),
+            'bendahara'     => redirect()->route('bendahara.dashboard'),
+            'aspapi_daerah' => redirect()->route('daerah.dashboard'),
+            default         => redirect()->route('member.dashboard'),
+        };
+
+        return $redirect->with('info', 'Anda sedang masuk sebagai ' . $target->name . ' (' . $target->role . ').');
     }
 
-    /**
-     * Keluar dari mode impersonate, kembali ke akun asli.
-     */
     public function leave()
     {
         $impersonatorId   = session('impersonator_id');
@@ -53,18 +64,16 @@ class ImpersonateController extends Controller
 
         $original = User::findOrFail($impersonatorId);
 
-        // Bersihkan session impersonate
         session()->forget(['impersonator_id', 'impersonator_role']);
 
         Auth::login($original);
 
-        // Redirect ke dashboard asal sesuai role
         return match($impersonatorRole) {
-            'admin'         => redirect()->route('admin.dashboard')
-                                   ->with('success', 'Anda kembali ke akun admin.'),
-            'aspapi_daerah' => redirect()->route('daerah.dashboard')
-                                   ->with('success', 'Anda kembali ke akun daerah.'),
-            default         => redirect()->route('admin.dashboard'),
+            'superadmin', 'admin' => redirect()->route('admin.dashboard')
+                                         ->with('success', 'Anda kembali ke akun ' . $original->name . '.'),
+            'aspapi_daerah'       => redirect()->route('daerah.dashboard')
+                                         ->with('success', 'Anda kembali ke akun daerah.'),
+            default               => redirect()->route('admin.dashboard'),
         };
     }
 }

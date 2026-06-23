@@ -14,7 +14,14 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        if (!in_array(auth()->user()->role, $roles)) {
+        $userRole = auth()->user()->role;
+
+        // Superadmin lolos semua gate
+        if ($userRole === 'superadmin') {
+            return $next($request);
+        }
+
+        if (!in_array($userRole, $roles)) {
             abort(403, 'Akses ditolak.');
         }
 
