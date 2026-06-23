@@ -41,7 +41,7 @@
 <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
 
     {{-- Background --}}
-    <img src="{{ asset('images/kta-depan.png') }}"
+    <img src="{{ public_path('images/kta-depan.png') }}"
          style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;" alt=""/>
 
     {{-- Foto: top=86px (22.5mm × 3.825) --}}
