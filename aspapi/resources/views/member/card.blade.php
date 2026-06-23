@@ -30,62 +30,57 @@
     <span style="font-size:0.72rem;color:#B0CCDF;">— Perubahan langsung tampil di preview</span>
 </div>
 
-{{-- Preview Kartu --}}
-<div style="margin-bottom:1.5rem;">
-    <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4A6580;margin-bottom:1rem;">Preview Kartu Anggota</p>
+@php
+    $cardLines = array_values(array_filter($member->card_name_lines));
+    $lineCount = count($cardLines);
+    $nameTop  = match($lineCount) { 1 => '120px', 2 => '114px', default => '108px' };
+    $niaTop   = match($lineCount) { 1 => '139px', 2 => '149px', default => '157px' };
+    $validTop = match($lineCount) { 1 => '153px', 2 => '163px', default => '172px' };
+@endphp
 
-    @php
-        $cardLines = array_values(array_filter($member->card_name_lines));
-        $lineCount = count($cardLines);
-        $nameTop  = match($lineCount) { 1 => '103px', 2 => '99px',  default => '96px'  };
-        $niaTop   = match($lineCount) { 1 => '122px', 2 => '130px', default => '136px' };
-        $validTop = match($lineCount) { 1 => '138px', 2 => '145px', default => '155px' };
-    @endphp
+<div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
 
-    <div style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
+    {{-- Background --}}
+    <img src="{{ $frontBase64 ?? asset('images/kta-depan.png') }}"
+         style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;" alt=""/>
 
-        {{-- Background --}}
-        <img src="{{ $frontBase64 ?? asset('images/kta-depan.png') }}"
-             style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;" alt=""/>
+    {{-- Foto: top=86px (22.5mm × 3.825) --}}
+    <div style="position:absolute;left:10px;top:86px;width:69px;height:84px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
+        @if ($member->photo)
+            <img src="{{ Storage::url($member->photo) }}"
+                 style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="foto"/>
+        @else
+            <div style="width:100%;height:100%;background:#b0bac5;display:flex;align-items:center;justify-content:center;">
+                <svg style="width:24px;height:24px;" fill="none" stroke="#fff" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </div>
+        @endif
+    </div>
 
-        {{-- Foto: kiri, sejajar nama (top=18mm=69px) --}}
-        <div style="position:absolute;left:10px;top:69px;width:69px;height:84px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
-            @if ($member->photo)
-                <img src="{{ Storage::url($member->photo) }}"
-                     style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="foto"/>
-            @else
-                <div style="width:100%;height:100%;background:#b0bac5;display:flex;align-items:center;justify-content:center;">
-                    <svg style="width:24px;height:24px;" fill="none" stroke="#fff" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
-                </div>
-            @endif
-        </div>
+    {{-- Nama --}}
+    <div style="position:absolute;top:{{ $nameTop }};left:88px;right:8px;
+                font-family:Arial,sans-serif;font-size:9px;font-weight:900;
+                color:#0D2240;letter-spacing:0.02em;line-height:1.3;overflow:hidden;">
+        @foreach($cardLines as $line)
+            <div>{{ $line }}</div>
+        @endforeach
+    </div>
 
-        {{-- Nama --}}
-        <div style="position:absolute;top:{{ $nameTop }};left:88px;right:8px;
-                    font-family:Arial,sans-serif;font-size:9px;font-weight:900;
-                    color:#0D2240;letter-spacing:0.02em;line-height:1.3;overflow:hidden;">
-            @foreach($cardLines as $line)
-                <div>{{ $line }}</div>
-            @endforeach
-        </div>
+    {{-- NIA --}}
+    <div style="position:absolute;top:{{ $niaTop }};left:88px;right:8px;
+                font-family:'Courier New',monospace;font-size:9px;font-weight:700;
+                color:#0D2240;letter-spacing:0.06em;line-height:1.2;">
+        NIA. {{ $member->member_number }}
+    </div>
 
-        {{-- NIA --}}
-        <div style="position:absolute;top:{{ $niaTop }};left:88px;right:8px;
-                    font-family:'Courier New',monospace;font-size:9px;font-weight:700;
-                    color:#0D2240;letter-spacing:0.06em;line-height:1.2;">
-            NIA. {{ $member->member_number }}
-        </div>
-
-        {{-- Berlaku Sampai --}}
-        <div style="position:absolute;top:{{ $validTop }};left:88px;right:8px;
-                    font-family:Arial,sans-serif;font-size:7.5px;font-weight:700;
-                    color:#0D2240;line-height:1.2;">
-            Berlaku Sampai: {{ $member->active_until
-                ? $member->active_until->translatedFormat('d F Y')
-                : now()->addYear()->translatedFormat('d F Y') }}
-        </div>
+    {{-- Berlaku Sampai --}}
+    <div style="position:absolute;top:{{ $validTop }};left:88px;right:8px;
+                font-family:Arial,sans-serif;font-size:7.5px;font-weight:700;
+                color:#0D2240;line-height:1.2;">
+        Berlaku Sampai: {{ $member->active_until
+            ? $member->active_until->translatedFormat('d F Y')
+            : now()->addYear()->translatedFormat('d F Y') }}
     </div>
 </div>
 
