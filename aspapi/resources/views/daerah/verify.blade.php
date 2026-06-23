@@ -62,7 +62,7 @@
                         </div>
                         @endif
                         <div>
-                            <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;margin:0;">{{ $member->full_name }}</p>
+                            <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;margin:0;">{{ $member->full_name_with_title ?? '—' }}</p>
                             <p style="font-size:0.72rem;color:#B0CCDF;margin:0;">{{ $member->email }}</p>
                         </div>
                     </div>

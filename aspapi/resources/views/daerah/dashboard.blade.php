@@ -125,7 +125,7 @@
         @foreach ($recentMembers as $member)
         <div class="flex items-center justify-between py-3">
             <div>
-                <p class="text-sm font-medium text-navy">{{ $member->full_name }}</p>
+                <p class="text-sm font-medium text-navy">{{ $member->full_name_with_title }}</p>
                 <p class="text-xs text-neutral-400">{{ $member->institution ?? '—' }}</p>
             </div>
             <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold

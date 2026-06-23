@@ -75,7 +75,7 @@
             <tr class="hover:bg-blue-50 transition-colors cursor-pointer"
                 onclick="openMemberModal({{ $member->id }})">
                 <td class="px-4 py-3.5">
-                    <p class="text-sm font-semibold text-navy">{{ $member->full_name }}</p>
+                    <p class="text-sm font-semibold text-navy">{{ $member->full_name_with_title }}</p>
                     <p class="text-xs text-neutral-400">{{ $member->email }}</p>
                 </td>
                 <td class="px-4 py-3.5 text-sm text-neutral-600">{{ $member->institution ?? '—' }}</td>

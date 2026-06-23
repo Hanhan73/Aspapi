@@ -43,7 +43,7 @@
                            class="member-check w-4 h-4 accent-primary flex-shrink-0"/>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2">
-                            <p class="text-sm font-semibold text-navy truncate">{{ $member->full_name }}</p>
+                            <p class="text-sm font-semibold text-navy truncate">{{ $member->full_name_with_title ?? '—' }}</p>
                             @if ($isNew)
                                 <span style="font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:2px;background:#F5F0FF;color:#9B59B6;white-space:nowrap;">⊕ BARU</span>
                             @else

@@ -161,7 +161,7 @@
                 <tr style="border-bottom:1px solid #EEF4FB;"
                     onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#fff'">
                     <td style="padding:0.75rem 1rem;">
-                        <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;margin:0;">{{ $trx->member->full_name }}</p>
+                        <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;margin:0;">{{ $trx->member->full_name_with_title }}</p>
                         <p style="font-size:0.72rem;color:#B0CCDF;margin:0;">{{ $trx->member->member_number ?? $trx->member->email }}</p>
                     </td>
                     <td style="padding:0.75rem 1rem;font-size:0.8rem;color:#4A6580;white-space:nowrap;">
