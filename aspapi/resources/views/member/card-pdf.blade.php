@@ -156,10 +156,10 @@
     /* ── Berlaku Sampai ── */
     .member-valid.single {
         position: absolute;
-        top: 38mm;
+        top: 34mm;
         left: 23mm;
         right: 2mm;
-        font-size: 6.5pt;
+        font-size: 5pt;
         font-weight: 700;
         color: #0D2240;
         line-height: 1.2;
@@ -167,10 +167,10 @@
 
     .member-valid.double {
         position: absolute;
-        top: 40mm;
+        top: 36mm;
         left: 23mm;
         right: 2mm;
-        font-size: 6.5pt;
+        font-size: 5pt;
         font-weight: 700;
         color: #0D2240;
         line-height: 1.2;
@@ -178,10 +178,10 @@
 
     .member-valid.triple {
         position: absolute;
-        top: 42mm;
+        top: 38.5mm;
         left: 23mm;
         right: 2mm;
-        font-size: 6.5pt;
+        font-size: 5pt;
         font-weight: 700;
         color: #0D2240;
         line-height: 1.2;
