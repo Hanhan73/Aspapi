@@ -15,7 +15,7 @@
         width: 88.9mm;
         height: 50.8mm;
         overflow: hidden;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: 'DejaVu Sans', Arial, sans-serif;
     }
 
     * { box-sizing: border-box; }
