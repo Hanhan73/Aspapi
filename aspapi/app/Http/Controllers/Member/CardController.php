@@ -16,8 +16,10 @@ class CardController extends Controller
      */
     public function show()
     {
-        $member = auth()->user()->member;
-        return view('member.card', compact('member'));
+        $member      = auth()->user()->member;
+        $frontBase64 = $this->imageToBase64(public_path('images/kta-depan.png'));
+
+        return view('member.card', compact('member', 'frontBase64'));
     }
 
     /**
