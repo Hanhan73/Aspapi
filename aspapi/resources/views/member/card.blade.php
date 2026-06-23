@@ -44,7 +44,7 @@ $validTop = match($lineCount) { 1 => '127px', 2 => '137px', default => '146px' }
 @endphp
 
 <div
-    style="width:320px;height:174px;border-radius:6px;overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
+    style="width:340px;height:194px;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;background:#ddeeff;">
 
     {{-- Background --}}
     <img src="{{ isset($frontBase64) && $frontBase64 ? $frontBase64 : asset('images/kta-depan.png') }}"
@@ -52,7 +52,7 @@ $validTop = match($lineCount) { 1 => '127px', 2 => '137px', default => '146px' }
 
     {{-- Foto: top=86px (22.5mm × 3.825) --}}
     <div
-        style="position:absolute;left:23px;top:69px;width:61px;height:77px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
+        style="position:absolute;left:22px;top:72px;width:51px;height:67px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
         @if ($member->photo)
         <img src="{{ Storage::url($member->photo) }}"
             style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="foto" />
