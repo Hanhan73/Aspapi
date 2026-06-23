@@ -1,259 +1,270 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <style>
+        @page {
+            size: 88.9mm 50.8mm;
+            margin: 0;
+        }
 
-    @page {
-        size: 88.9mm 50.8mm;
-        margin: 0;
-    }
+        @font-face {
+            font-family: 'Inter';
+            font-weight: 400;
+            src: url("file://{{ storage_path('fonts/Inter_28pt-Regular.ttf') }}");
+        }
 
-    @font-face {
-        font-family: 'Inter';
-        font-weight: 400;
-        src: url("file://{{ storage_path('fonts/Inter_28pt-Regular.ttf') }}");
-    }
-    @font-face {
-        font-family: 'Inter';
-        font-weight: 700;
-        src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
-    }
-    @font-face {
-        font-family: 'Inter';
-        font-weight: 900;
-        src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
-    }
+        @font-face {
+            font-family: 'Inter';
+            font-weight: 700;
+            src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
+        }
 
-    html, body {
-        margin: 0;
-        padding: 0;
-        width: 88.9mm;
-        height: 50.8mm;
-        overflow: hidden;
-        font-family: 'Inter', sans-serif;
-    }
+        @font-face {
+            font-family: 'Inter';
+            font-weight: 900;
+            src: url("file://{{ storage_path('fonts/Inter_28pt-Bold.ttf') }}");
+        }
 
-    * { box-sizing: border-box; }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 88.9mm;
+            height: 50.8mm;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
 
-    .card {
-        position: relative;
-        width: 88.9mm;
-        height: 50.8mm;
-        overflow: hidden;
-        page-break-after: always;
-    }
-    .card:last-child { page-break-after: avoid; }
+        * {
+            box-sizing: border-box;
+        }
 
-    .card-bg {
-        position: absolute;
-        top: 0; left: 0;
-        width: 88.9mm;
-        height: 50.8mm;
-        display: block;
-    }
+        .card {
+            position: relative;
+            width: 88.9mm;
+            height: 50.8mm;
+            overflow: hidden;
+            page-break-after: always;
+        }
 
-    /* ── QR: pojok kanan atas ── */
-    .qr-wrap {
-        position: absolute;
-        right: 2mm;
-        top: 2mm;
-        width: 13mm;
-        height: 13mm;
-        overflow: hidden;
-    }
-    .qr-wrap img {
-        width: 13mm;
-        height: 13mm;
-        display: block;
-    }
+        .card:last-child {
+            page-break-after: avoid;
+        }
 
-    /* ── Foto: kiri bawah, sejajar area identitas ── */
-    .photo-wrap {
-        position: absolute;
-        left: 2.5mm;
-        top: 18mm;
-        width: 18mm;
-        height: 22mm;
-        overflow: hidden;
-        border-radius: 3px;
-        border: 1px solid #b0bac5;
-    }
-    .photo-wrap img {
-        width: 18mm;
-        height: 22mm;
-        display: block;
-    }
+        .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 88.9mm;
+            height: 50.8mm;
+            display: block;
+        }
 
-    .photo-placeholder {
-        width: 100%;
-        height: 100%;
-        background: #b0bac5;
-        display: block;
-    }
+        /* ── QR: pojok kanan atas ── */
+        .qr-wrap {
+            position: absolute;
+            right: 2mm;
+            top: 2mm;
+            width: 13mm;
+            height: 13mm;
+            overflow: hidden;
+        }
 
-    /* ── Nama ── */
-    .member-name.single {
-        position: absolute;
-        top: 27mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 900;
-        color: #0D2240;
-        letter-spacing: 0.02em;
-        line-height: 1.1;
-        overflow: hidden;
-    }
+        .qr-wrap img {
+            width: 13mm;
+            height: 13mm;
+            display: block;
+        }
 
-    .member-name.double {
-        position: absolute;
-        top: 26mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 900;
-        color: #0D2240;
-        letter-spacing: 0.02em;
-        line-height: 1.3;
-        overflow: hidden;
-    }
+        /* ── Foto: kiri bawah, sejajar area identitas ── */
+        .photo-wrap {
+            position: absolute;
+            left: 4mm;
+            top: 17mm;
+            width: 16mm;
+            height: 20mm;
+            overflow: hidden;
+            border-radius: 3px;
+            border: 1px solid #b0bac5;
+        }
 
-    .member-name.triple {
-        position: absolute;
-        top: 25mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 900;
-        color: #0D2240;
-        letter-spacing: 0.02em;
-        line-height: 1.25;
-        overflow: hidden;
-    }
+        .photo-wrap img {
+            width: 16mm;
+            height: 20mm;
+            display: block;
+        }
 
-    /* ── NIA ── */
-    .member-nia.single {
-        position: absolute;
-        top: 32mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 700;
-        color: #0D2240;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
-    }
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #b0bac5;
+            display: block;
+        }
 
-    .member-nia.double {
-        position: absolute;
-        top: 34mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 700;
-        color: #0D2240;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
-    }
+        /* ── Nama ── */
+        .member-name.single {
+            position: absolute;
+            top: 27mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 900;
+            color: #0D2240;
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+            overflow: hidden;
+        }
 
-    .member-nia.triple {
-        position: absolute;
-        top: 35.5mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 6.5pt;
-        font-weight: 700;
-        color: #0D2240;
-        letter-spacing: 0.06em;
-        line-height: 1.1;
-    }
+        .member-name.double {
+            position: absolute;
+            top: 26mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 900;
+            color: #0D2240;
+            letter-spacing: 0.02em;
+            line-height: 1.3;
+            overflow: hidden;
+        }
 
-    /* ── Berlaku Sampai ── */
-    .member-valid.single {
-        position: absolute;
-        top: 36mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 5pt;
-        font-weight: 700;
-        color: #0D2240;
-        line-height: 1.2;
-    }
+        .member-name.triple {
+            position: absolute;
+            top: 25mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 900;
+            color: #0D2240;
+            letter-spacing: 0.02em;
+            line-height: 1.25;
+            overflow: hidden;
+        }
 
-    .member-valid.double {
-        position: absolute;
-        top: 38mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 5pt;
-        font-weight: 700;
-        color: #0D2240;
-        line-height: 1.2;
-    }
+        /* ── NIA ── */
+        .member-nia.single {
+            position: absolute;
+            top: 32mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #0D2240;
+            letter-spacing: 0.06em;
+            line-height: 1.1;
+        }
 
-    .member-valid.triple {
-        position: absolute;
-        top: 40.5mm;
-        left: 23mm;
-        right: 2mm;
-        font-size: 5pt;
-        font-weight: 700;
-        color: #0D2240;
-        line-height: 1.2;
-    }
+        .member-nia.double {
+            position: absolute;
+            top: 34mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #0D2240;
+            letter-spacing: 0.06em;
+            line-height: 1.1;
+        }
 
+        .member-nia.triple {
+            position: absolute;
+            top: 35.5mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 6.5pt;
+            font-weight: 700;
+            color: #0D2240;
+            letter-spacing: 0.06em;
+            line-height: 1.1;
+        }
+
+        /* ── Berlaku Sampai ── */
+        .member-valid.single {
+            position: absolute;
+            top: 36mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 5pt;
+            font-weight: 700;
+            color: #0D2240;
+            line-height: 1.2;
+        }
+
+        .member-valid.double {
+            position: absolute;
+            top: 38mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 5pt;
+            font-weight: 700;
+            color: #0D2240;
+            line-height: 1.2;
+        }
+
+        .member-valid.triple {
+            position: absolute;
+            top: 40.5mm;
+            left: 23mm;
+            right: 2mm;
+            font-size: 5pt;
+            font-weight: 700;
+            color: #0D2240;
+            line-height: 1.2;
+        }
     </style>
 </head>
+
 <body>
 
-@php
+    @php
     $cardLines = array_values(array_filter($member->card_name_lines));
     $lineCount = count($cardLines);
-    $nameClass  = match($lineCount) {
-        1       => 'member-name single',
-        2       => 'member-name double',
-        default => 'member-name triple',
+    $nameClass = match($lineCount) {
+    1 => 'member-name single',
+    2 => 'member-name double',
+    default => 'member-name triple',
     };
-    $niaClass   = match($lineCount) {
-        1       => 'member-nia single',
-        2       => 'member-nia double',
-        default => 'member-nia triple',
+    $niaClass = match($lineCount) {
+    1 => 'member-nia single',
+    2 => 'member-nia double',
+    default => 'member-nia triple',
     };
     $validClass = match($lineCount) {
-        1       => 'member-valid single',
-        2       => 'member-valid double',
-        default => 'member-valid triple',
+    1 => 'member-valid single',
+    2 => 'member-valid double',
+    default => 'member-valid triple',
     };
-@endphp
+    @endphp
 
     {{-- SISI DEPAN --}}
     <div class="card">
 
         @if($frontBase64)
-        <img class="card-bg" src="{{ $frontBase64 }}" alt=""/>
+        <img class="card-bg" src="{{ $frontBase64 }}" alt="" />
         @endif
 
         {{-- QR: pojok kanan atas --}}
         @if($qrBase64)
         <div class="qr-wrap">
-            <img src="{{ $qrBase64 }}" alt="QR"/>
+            <img src="{{ $qrBase64 }}" alt="QR" />
         </div>
         @endif
 
         {{-- Foto: kiri bawah --}}
         <div class="photo-wrap">
             @if($photoBase64)
-                <img src="{{ $photoBase64 }}" alt=""/>
+            <img src="{{ $photoBase64 }}" alt="" />
             @else
-                <span class="photo-placeholder"></span>
+            <span class="photo-placeholder"></span>
             @endif
         </div>
 
         {{-- Nama --}}
         <div class="{{ $nameClass }}">
             @foreach($cardLines as $line)
-                <div>{{ $line }}</div>
+            <div>{{ $line }}</div>
             @endforeach
         </div>
 
@@ -270,9 +281,10 @@
     {{-- SISI BELAKANG --}}
     <div class="card">
         @if($backBase64)
-        <img class="card-bg" src="{{ $backBase64 }}" alt=""/>
+        <img class="card-bg" src="{{ $backBase64 }}" alt="" />
         @endif
     </div>
 
 </body>
+
 </html>
