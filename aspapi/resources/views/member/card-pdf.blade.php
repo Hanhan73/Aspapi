@@ -156,7 +156,7 @@
     /* ── Berlaku Sampai ── */
     .member-valid.single {
         position: absolute;
-        top: 34mm;
+        top: 36mm;
         left: 23mm;
         right: 2mm;
         font-size: 5pt;
@@ -167,7 +167,7 @@
 
     .member-valid.double {
         position: absolute;
-        top: 36mm;
+        top: 38mm;
         left: 23mm;
         right: 2mm;
         font-size: 5pt;
@@ -178,7 +178,7 @@
 
     .member-valid.triple {
         position: absolute;
-        top: 38.5mm;
+        top: 40.5mm;
         left: 23mm;
         right: 2mm;
         font-size: 5pt;
