@@ -85,9 +85,9 @@
 </div>
 
 {{-- Download --}}
-<div style="display:flex;gap:0.75rem;">
+<div style="display:flex;gap:1rem;">
     <a href="{{ route('member.card.download') }}"
-       style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;background:#2A7FC1;color:#fff;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;">
+       style="display:inline-flex;align-items:center;gap:0.5rem;padding:1rem 1.5rem;background:#2A7FC1;color:#fff;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;">
         Download KTA (PDF)
     </a>
 </div>
