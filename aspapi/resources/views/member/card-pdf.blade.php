@@ -82,7 +82,7 @@
     .photo-wrap {
         position: absolute;
         left: 6mm;
-        top: 22mm;
+        top: 20mm;
         width: 15mm;
         height: 17mm;
         overflow: hidden;
