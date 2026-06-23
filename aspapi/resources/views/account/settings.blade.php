@@ -3,6 +3,7 @@
         'admin'         => 'layouts.admin',
         'bendahara'     => 'layouts.bendahara',
         'aspapi_daerah' => 'layouts.daerah',
+        'superadmin'    => 'layouts.admin',
         default         => 'layouts.member',
     };
     $title = 'Pengaturan Akun';
@@ -71,6 +72,7 @@
                 <p style="font-size:0.9rem;color:#1A2A3A;margin-top:0.2rem;">
                     {{ match($user->role) {
                         'admin'         => 'Administrator',
+                        'superadmin'    => 'Super Administrator',
                         'bendahara'     => 'Bendahara',
                         'aspapi_daerah' => 'ASPAPI Daerah',
                         default         => 'Anggota',
