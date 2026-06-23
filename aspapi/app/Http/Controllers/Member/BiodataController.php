@@ -86,10 +86,37 @@ class BiodataController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+
+            // 1. Cek rasio 3:4 dulu sebelum simpan
+            [$width, $height] = getimagesize($file->getRealPath());
+            $ratio = $width / $height;
+            if ($ratio < 0.70 || $ratio > 0.80) {
+                return back()
+                    ->withErrors(['photo' => 'Foto harus berukuran 3×4 (rasio lebar:tinggi sekitar 3:4). Foto yang diupload memiliki rasio yang tidak sesuai.'])
+                    ->withInput();
+            }
+
+
+            // 3. Hapus foto lama
             if ($member->photo) {
                 Storage::disk('public')->delete($member->photo);
             }
-            $validated['photo'] = $request->file('photo')->store('member-photos', 'public');
+
+            // 4. Simpan foto baru
+            $path = 'member-photos/' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fullPath = storage_path('app/public/' . $path);
+            @mkdir(dirname($fullPath), 0755, true);
+
+            $ext = strtolower($file->getClientOriginalExtension());
+            if ($ext === 'png') {
+                imagepng($image, $fullPath);
+            } else {
+                imagejpeg($image, $fullPath, 90);
+            }
+            imagedestroy($image);
+
+            $validated['photo'] = $path;
         }
 
         // Cek apakah ini verifikasi ulang (pernah submit sebelumnya)
