@@ -334,7 +334,7 @@ public function getCardNameLinesAttribute(): array
         return $w;
     };
 
-    $maxWidth = 100; // unit lebar area nama (kiri QR → kiri foto)
+    $maxWidth = 180; // unit lebar area nama (kiri QR → kiri foto)
 
     $oneLine = $frontTitle . $fullName . $backTitle;
 

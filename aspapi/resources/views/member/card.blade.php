@@ -54,7 +54,7 @@
         {{-- QR di preview dikosongkan, sudah ada di background --}}
 
         {{-- Foto: kiri bawah --}}
-        <div style="position:absolute;left:10px;top:100px;width:68px;height:84px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
+        <div style="position:absolute;left:10px;top:78px;width:68px;height:84px;overflow:hidden;border-radius:3px;border:1px solid #b0bac5;">
             @if ($member->photo)
                 <img src="{{ Storage::url($member->photo) }}"
                      style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="foto"/>
