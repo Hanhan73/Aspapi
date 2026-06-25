@@ -149,7 +149,7 @@ class BiodataController extends Controller
                                 'submittedAt' => $submittedAt,
                                 'daerahUrl'   => route('daerah.verify.index'),
                             ],
-                            function ($m) use ($isResubmit, $region) {
+                            function ($m) use ($isResubmit, $region, $daerahEmail) {
                                 $regionName = $region?->name ?? $region?->province ?? 'ASPAPI Daerah';
                                 $subject    = $isResubmit
                                     ? "Verifikasi Ulang Biodata — {$regionName}"
