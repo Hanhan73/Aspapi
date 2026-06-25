@@ -8,6 +8,7 @@ use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class RegisterController extends Controller
@@ -27,16 +28,15 @@ class RegisterController extends Controller
             'password'  => 'required|min:8|confirmed',
         ]);
 
-        // Token disimpan di kolom tersendiri, BUKAN remember_token
         $token = Str::random(64);
 
         $user = User::create([
-            'name'                => $request->full_name,
-            'email'               => $request->email,
-            'password'            => Hash::make($request->password),
-            'role'                => 'anggota',
-            'email_verified'      => false,
-            'email_verify_token'  => $token,
+            'name'               => $request->full_name,
+            'email'              => $request->email,
+            'password'           => Hash::make($request->password),
+            'role'               => 'anggota',
+            'email_verified'     => false,
+            'email_verify_token' => $token,
         ]);
 
         Member::create([
@@ -48,36 +48,18 @@ class RegisterController extends Controller
             'biodata_status'    => 'draft',
         ]);
 
-        // Kirim email verifikasi ke anggota
         $verifyUrl = route('verify.email', ['token' => $token]);
 
-        Mail::send(
-            'emails.verify',
-            ['verifyUrl' => $verifyUrl, 'name' => $request->full_name],
-            function ($m) use ($request) {
-                $m->to($request->email)->subject('Verifikasi Email — ASPAPI');
-            }
-        );
-
-        // Notif ke admin
-        $adminUrl = route('admin.member.verify.index');
         try {
             Mail::send(
-                'emails.notify-admin-new-member',
-                [
-                    'name'         => $request->full_name,
-                    'email'        => $request->email,
-                    'registeredAt' => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
-                    'adminUrl'     => $adminUrl,
-                ],
-                function ($m) {
-                    $m->to(config('mail.admin_email'))
-                      ->subject('Pendaftaran Anggota Baru — ASPAPI');
+                'emails.verify',
+                ['verifyUrl' => $verifyUrl, 'name' => $request->full_name],
+                function ($m) use ($request) {
+                    $m->to($request->email)->subject('Verifikasi Email — ASPAPI');
                 }
             );
         } catch (\Exception $e) {
-            // Gagal kirim notif admin tidak boleh menghentikan proses registrasi
-            \Log::warning('Gagal kirim notif admin (new member): ' . $e->getMessage());
+            Log::warning('Email verifikasi gagal (baru): ' . $e->getMessage());
         }
 
         return redirect()->route('login')
@@ -100,12 +82,16 @@ class RegisterController extends Controller
             'claimed_join_year' => 'required|integer|min:2010|max:' . now()->year,
         ]);
 
+        // Anggota lama sekarang juga wajib verifikasi email
+        $token = Str::random(64);
+
         $user = User::create([
-            'name'           => $request->full_name,
-            'email'          => $request->email,
-            'password'       => Hash::make($request->password),
-            'role'           => 'anggota',
-            'email_verified' => true, // anggota lama tidak perlu verif email
+            'name'               => $request->full_name,
+            'email'              => $request->email,
+            'password'           => Hash::make($request->password),
+            'role'               => 'anggota',
+            'email_verified'     => false,
+            'email_verify_token' => $token,
         ]);
 
         Member::create([
@@ -119,29 +105,43 @@ class RegisterController extends Controller
             'biodata_status'     => 'draft',
         ]);
 
-        // Notif ke admin
+        $verifyUrl = route('verify.email', ['token' => $token]);
+
+        // Kirim email verifikasi (sama seperti anggota baru)
+        try {
+            Mail::send(
+                'emails.verify',
+                ['verifyUrl' => $verifyUrl, 'name' => $request->full_name],
+                function ($m) use ($request) {
+                    $m->to($request->email)->subject('Verifikasi Email — ASPAPI');
+                }
+            );
+        } catch (\Exception $e) {
+            Log::warning('Email verifikasi gagal (lama): ' . $e->getMessage());
+        }
+
+        // Notif admin
         $adminUrl = route('admin.member.verify.index');
         try {
             Mail::send(
                 'emails.notify-admin-old-member',
                 [
-                    'name'         => $request->full_name,
-                    'email'        => $request->email,
-                    'year'         => $request->claimed_join_year,
-                    'registeredAt' => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
-                    'adminUrl'     => $adminUrl,
+                    'name'     => $request->full_name,
+                    'email'    => $request->email,
+                    'year'     => $request->claimed_join_year,
+                    'adminUrl' => $adminUrl,
                 ],
                 function ($m) {
-                    $m->to(config('mail.admin_email'))
+                    $m->to(config('mail.admin_email', 'admin@aspapi.or.id'))
                       ->subject('Klaim Anggota Lama Baru — ASPAPI');
                 }
             );
         } catch (\Exception $e) {
-            \Log::warning('Gagal kirim notif admin (old member): ' . $e->getMessage());
+            Log::warning('Notif admin old member gagal: ' . $e->getMessage());
         }
 
         return redirect()->route('login')
-            ->with('success', 'Pendaftaran anggota lama berhasil! Tunggu verifikasi dari Admin ASPAPI.');
+            ->with('success', 'Pendaftaran berhasil! Cek email Anda untuk verifikasi akun sebelum login.');
     }
 
     // ── Verifikasi Email ──────────────────────────────────────────────────────
