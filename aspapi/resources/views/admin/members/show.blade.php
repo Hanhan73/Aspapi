@@ -110,24 +110,22 @@
                     </div>
                 @endif
 
+                {{-- Info klaim lama sebagai referensi --}}
+                @if ($member->claims_old_member)
+                <div style="background:#FEF8EC;border-left:3px solid #E8B84B;border-radius:4px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.8rem;color:#8B6914;">
+                    ⚠ Anggota ini mengklaim bergabung sejak tahun <strong>{{ $member->claimed_join_year }}</strong>. Tanggal bergabung akan disesuaikan otomatis saat diverifikasi.
+                </div>
+                @endif
+
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                    {{-- Satu tombol approve untuk semua --}}
                     <form method="POST" action="{{ route('admin.member.verify.approve', $member->id) }}">
                         @csrf
                         <button type="submit"
                                 style="padding:0.625rem 1.25rem;background:#276749;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
-                            Setujui Biodata
+                            ✓ Setujui Biodata
                         </button>
                     </form>
-
-                    @if ($member->claims_old_member)
-                    <form method="POST" action="{{ route('admin.member.verify.approve-old', $member->id) }}">
-                        @csrf
-                        <button type="submit"
-                                style="padding:0.625rem 1.25rem;background:#B8860B;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
-                            Konfirmasi Anggota Lama
-                        </button>
-                    </form>
-                    @endif
 
                     <button onclick="document.getElementById('reject-biodata-modal').style.display='flex'"
                             style="padding:0.625rem 1.25rem;background:transparent;border:1.5px solid #C0392B;color:#C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
@@ -229,13 +227,12 @@
             @endforeach
         </div>
 
-        {{-- ══ ASPAPI Daerah ══ --}}
+        {{-- ASPAPI Daerah --}}
         <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
             <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 1rem;">
                 ASPAPI Daerah
             </p>
 
-            {{-- Info daerah saat ini --}}
             @if ($member->registeredByRegion)
                 <div style="background:#EEF4FB;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
                     <div>
@@ -261,7 +258,6 @@
                 </div>
             @endif
 
-            {{-- Auto-suggest berdasarkan provinsi member --}}
             @if ($suggestedRegions->isNotEmpty())
                 <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A97A4;margin:0 0 0.5rem;">
                     Saran — Provinsi {{ $member->provinceModel?->name ?? $member->province }}
@@ -286,9 +282,7 @@
                 </div>
             @endif
 
-            {{-- Dropdown semua daerah --}}
-            <form method="POST" action="{{ route('admin.members.assign-region', $member) }}"
-                  x-data="{ open: false }">
+            <form method="POST" action="{{ route('admin.members.assign-region', $member) }}">
                 @csrf
                 <label style="display:block;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A97A4;margin-bottom:0.4rem;">
                     Semua Daerah
@@ -325,51 +319,42 @@
         </div>
         @endif
 
-        {{-- ══ AKSI ══ --}}
+        {{-- Aksi --}}
         <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
             <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 1rem;">
                 Aksi
             </p>
             <div style="display:flex;flex-direction:column;gap:0.5rem;">
 
-                {{-- Kembali --}}
                 <a href="{{ route('admin.members.index') }}"
                    style="display:block;text-align:center;padding:0.625rem;border:1.5px solid #D6E8F7;color:#4A6580;border-radius:4px;font-size:0.75rem;font-weight:700;text-decoration:none;">
                     ← Kembali ke Daftar
                 </a>
 
-                {{-- Reset Password --}}
                 @if ($member->user)
                 <button onclick="document.getElementById('modal-reset-password').style.display='flex'"
                         style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #2A7FC1;color:#2A7FC1;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
                     🔑 Reset Password
                 </button>
 
-                {{-- Set Password Manual --}}
                 <button onclick="document.getElementById('modal-set-password').style.display='flex'"
                         style="width:100%;padding:0.625rem;background:transparent;border:1.5px solid #4A6580;color:#4A6580;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
                     ✏️ Set Password Manual
                 </button>
+
+                <form method="POST" action="{{ route('impersonate', $member->user->id) }}">
+                    @csrf
+                    <button type="submit"
+                            style="width:100%;padding:0.625rem;background:#1A2A3A;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
+                        👁 Masuk sebagai Anggota Ini
+                    </button>
+                </form>
                 @else
                 <p style="font-size:0.75rem;color:#B0CCDF;text-align:center;margin:0;">
                     Anggota belum memiliki akun login.
                 </p>
                 @endif
 
-                @if ($member->user)
-<form method="POST" action="{{ route('impersonate', $member->user->id) }}">
-    @csrf
-    <button type="submit"
-            style="width:100%;padding:0.625rem;background:#1A2A3A;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;text-align:center;">
-        👁 Masuk sebagai Anggota Ini
-    </button>
-</form>
-@endif
-
-
-
-
-                {{-- Hapus Anggota --}}
                 <form method="POST" action="{{ route('admin.members.destroy', $member) }}"
                       onsubmit="return confirm('Hapus anggota ini secara permanen?')">
                     @csrf @method('DELETE')

@@ -33,18 +33,14 @@ class MemberVerificationController extends Controller
         $member = Member::findOrFail($id);
 
         // Jika klaim anggota lama, set registered_at mundur ke tahun klaim
-        // Jika anggota baru, set registered_at ke sekarang (jika belum ada)
-        if ($member->claims_old_member && $member->claimed_join_year) {
-            $registeredAt = now()->setYear((int) $member->claimed_join_year);
-        } else {
-            $registeredAt = $member->registered_at ?? now();
-        }
+        $registeredAt = ($member->claims_old_member && $member->claimed_join_year)
+            ? now()->setYear((int) $member->claimed_join_year)
+            : ($member->registered_at ?? now());
 
         $member->update([
             'biodata_status'    => 'verified',
             'status'            => $member->status === 'active' ? 'active' : 'pending',
             'registered_at'     => $registeredAt,
-            // Jika klaim lama, pastikan registration_type ikut ter-set ke 'lama'
             'registration_type' => $member->claims_old_member ? 'lama' : $member->registration_type,
         ]);
 
@@ -57,15 +53,13 @@ class MemberVerificationController extends Controller
                 : $request->note,
         ]);
 
-        // Kirim email notifikasi (hanya untuk anggota baru)
-        if (! $member->claims_old_member) {
-            try {
-                Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
-                    $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
-                });
-            } catch (\Exception $e) {
-                Log::warning('Mail biodata-approved gagal: ' . $e->getMessage());
-            }
+        // Kirim email ke semua anggota yang diverifikasi
+        try {
+            Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
+                $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
+            });
+        } catch (\Exception $e) {
+            Log::warning('Mail biodata-approved gagal: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Biodata anggota berhasil diverifikasi.');
