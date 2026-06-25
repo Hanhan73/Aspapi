@@ -22,6 +22,7 @@ class Region extends Model
         'description',
         'photo', 'cover_image',
         'is_active', 'sort_order',
+        'notification_email',       // email notifikasi khusus untuk admin daerah (bisa beda dari user login)
     ];
 
     protected $casts = [

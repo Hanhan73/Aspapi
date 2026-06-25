@@ -155,6 +155,9 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                     'Pendidikan' => $member?->last_education_label,
                     'Provinsi' => $member?->provinceModel?->name,
                     'Kota' => $member?->cityModel?->name,
+                    'ASPAPI Daerah'  => $member?->registeredByRegion?->province
+                                        ? 'ASPAPI ' . $member->registeredByRegion->province
+                                        : '—',
                     'Pekerjaan' => $member?->occupation,
                     'Institusi' => $member?->institution,
                     ] as $label => $val)
@@ -401,6 +404,29 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                     @error('address')
                     <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
                     @enderror
+                </div>
+
+                {{-- Pilihan ASPAPI Daerah --}}
+                <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
+                    <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Keanggotaan Daerah</p>
+
+                    <div>
+                        <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">ASPAPI Daerah</label>
+                        <select name="registered_by_region_id"
+                                style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('registered_by_region_id') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
+                            <option value="">— Belum pilih / Independen —</option>
+                            @foreach ($regions as $region)
+                            <option value="{{ $region->id }}"
+                                {{ old('registered_by_region_id', $member?->registered_by_region_id) == $region->id ? 'selected' : '' }}>
+                                ASPAPI {{ $region->province }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('registered_by_region_id')
+                        <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
+                        @enderror
+                        <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.3rem;">Pilih sesuai wilayah domisili Anda. Admin daerah akan ikut memverifikasi biodata Anda.</p>
+                    </div>
                 </div>
             </div>
 

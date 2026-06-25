@@ -20,6 +20,7 @@ class User extends Authenticatable
         'email_verified_at',
         'email_verify_token',
         'region_id',
+        'notification_email',
     ];
 
     protected $hidden = [

@@ -27,12 +27,22 @@
                 @error('name')<p style="font-size:0.75rem;color:#C0392B;margin-top:0.25rem;">{{ $message }}</p>@enderror
             </div>
 
-            {{-- Email --}}
+            {{-- Email Login --}}
             <div style="margin-bottom:1rem;">
-                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.375rem;">Email</label>
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.375rem;">Email Login</label>
                 <input type="email" name="email" value="{{ old('email') }}" required
                        style="width:100%;padding:0.5rem 0.75rem;border:1.5px solid {{ $errors->has('email') ? '#C0392B' : '#D6E8F7' }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;box-sizing:border-box;">
                 @error('email')<p style="font-size:0.75rem;color:#C0392B;margin-top:0.25rem;">{{ $message }}</p>@enderror
+            </div>
+
+            {{-- Email Notifikasi --}}
+            <div style="margin-bottom:1rem;">
+                <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.375rem;">Email Notifikasi</label>
+                <input type="email" name="notification_email" value="{{ old('notification_email') }}"
+                       placeholder="Kosongkan jika sama dengan email login..."
+                       style="width:100%;padding:0.5rem 0.75rem;border:1.5px solid {{ $errors->has('notification_email') ? '#C0392B' : '#D6E8F7' }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;box-sizing:border-box;">
+                <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.25rem;">Email yang menerima notifikasi sistem (verifikasi biodata, pembayaran, dll). Jika dikosongkan, sistem akan menggunakan fallback dari ENV.</p>
+                @error('notification_email')<p style="font-size:0.75rem;color:#C0392B;margin-top:0.25rem;">{{ $message }}</p>@enderror
             </div>
 
             {{-- Role --}}

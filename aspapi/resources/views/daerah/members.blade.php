@@ -135,7 +135,7 @@ const MEMBERS_DATA = {
     {{ $member->id }}: {
         id:               {{ $member->id }},
         user_id:          {{ $member->user_id ?? 'null' }},
-        full_name:        @json($member->full_name ?? '—'),
+        full_name:        @json($member->full_name_with_title ?? '—'),
         email:            @json($member->email ?? '—'),
         member_number:    @json($member->member_number ?? null),
         photo:            @json($member->photo ? Storage::url($member->photo) : null),

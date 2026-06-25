@@ -15,11 +15,12 @@ class BiodataController extends Controller
     {
         $member    = auth()->user()->member;
         $provinces = Province::orderBy('name')->get();
+        $regions   = Region::where('is_active', true)->orderBy('province')->get();
         $cities    = $member?->province_id
             ? City::where('province_id', $member->province_id)->orderBy('name')->get()
             : collect();
 
-        return view('member.biodata', compact('member', 'provinces', 'cities'));
+        return view('member.biodata', compact('member', 'provinces', 'cities', 'regions'));
     }
 
     public function update(Request $request)
@@ -50,6 +51,7 @@ class BiodataController extends Controller
             'institution'    => 'nullable|string|max:255',
             'position'       => 'nullable|string|max:150',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'registered_by_region_id' => 'nullable|exists:regions,id',
         ], [
             'full_name.required'      => 'Nama lengkap wajib diisi.',
             'full_name.max'           => 'Nama lengkap maksimal 255 karakter.',
@@ -83,6 +85,7 @@ class BiodataController extends Controller
             'photo.image'             => 'File foto harus berupa gambar.',
             'photo.mimes'             => 'Format foto harus JPG atau PNG.',
             'photo.max'               => 'Ukuran foto maksimal 2MB.',
+            'registered_by_region_id.exists' => 'ASPAPI Daerah yang dipilih tidak valid.',
         ]);
 
         if ($request->hasFile('photo')) {
@@ -109,25 +112,76 @@ class BiodataController extends Controller
         $member->update($validated);
 
         // Kirim notif ke admin (hanya jika bukan mode impersonate)
-        if (!$isImpersonating) {
+        if ($isImpersonating) {
+            $validated['biodata_status']        = 'verified';
+            $validated['biodata_reject_reason'] = null;
+        } else {
+            $validated['biodata_status']        = 'pending';
+            $validated['biodata_reject_reason'] = null;
+        }
+
+        // Jika sebelumnya tidak punya region (daftar mandiri), set registered_at
+        if (! $member->registered_at) {
+            $validated['registered_at'] = now();
+        }
+
+        $member->update($validated);
+        $member->refresh();
+
+        // Kirim notifikasi (hanya jika bukan mode impersonate)
+        if (! $isImpersonating) {
+            $adminUrl    = route('admin.member.verify.index');
+            $submittedAt = now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB';
+
+            // Email ke admin pusat
             try {
                 Mail::send(
                     'emails.notify-admin-biodata-submitted',
                     [
-                        'member'      => $member->fresh(),
+                        'member'      => $member,
                         'isResubmit'  => $isResubmit,
-                        'submittedAt' => now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB',
-                        'adminUrl'    => route('admin.members.verify.index'),
+                        'submittedAt' => $submittedAt,
+                        'adminUrl'    => $adminUrl,
                     ],
                     function ($m) use ($isResubmit) {
                         $subject = $isResubmit
                             ? 'Verifikasi Ulang Biodata Anggota — ASPAPI'
                             : 'Pengajuan Biodata Baru — ASPAPI';
-                        $m->to(config('mail.admin_email'))->subject($subject);
+                        $m->to(NotificationEmail::admin())->subject($subject);
                     }
                 );
             } catch (\Exception $e) {
-                \Log::warning('Gagal kirim notif admin (biodata submit): ' . $e->getMessage());
+                Log::warning('Gagal kirim notif admin (biodata submit): ' . $e->getMessage());
+            }
+
+            // Email ke admin daerah (jika anggota memilih/assign ke region)
+            if ($member->registered_by_region_id) {
+                $daerahEmail = NotificationEmail::daerah($member->registered_by_region_id);
+                $region      = Region::find($member->registered_by_region_id);
+
+                if ($daerahEmail) {
+                    try {
+                        Mail::send(
+                            'emails.notify-daerah-biodata-submitted',
+                            [
+                                'member'      => $member,
+                                'region'      => $region,
+                                'isResubmit'  => $isResubmit,
+                                'submittedAt' => $submittedAt,
+                                'daerahUrl'   => route('daerah.verify.index'),
+                            ],
+                            function ($m) use ($isResubmit, $region) {
+                                $regionName = $region?->name ?? $region?->province ?? 'ASPAPI Daerah';
+                                $subject    = $isResubmit
+                                    ? "Verifikasi Ulang Biodata — {$regionName}"
+                                    : "Pengajuan Biodata Baru — {$regionName}";
+                                $m->to($daerahEmail)->subject($subject);
+                            }
+                        );
+                    } catch (\Exception $e) {
+                        Log::warning('Gagal kirim notif daerah (biodata submit): ' . $e->getMessage());
+                    }
+                }
             }
         }
 

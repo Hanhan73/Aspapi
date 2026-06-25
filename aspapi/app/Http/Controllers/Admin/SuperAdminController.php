@@ -63,16 +63,18 @@ class SuperAdminController extends Controller
     {
         abort_if($user->role === 'superadmin', 403);
 
-        $request->validate([
-            'name'      => 'required|string|max:100',
-            'email'     => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'role'      => ['required', Rule::in(['admin', 'bendahara', 'aspapi_daerah'])],
-            'region_id' => 'nullable|exists:regions,id',
+        $validated = $request->validate([
+            'name'               => 'required|string|max:255',
+            'email'              => 'required|email|unique:users,email,' . $user->id,
+            'notification_email' => 'nullable|email|max:255',
+            'role'               => 'required|in:admin,bendahara,aspapi_daerah,anggota,superadmin',
+            'password'           => 'nullable|min:8|confirmed',
         ]);
 
         $user->update([
             'name'      => $request->name,
             'email'     => $request->email,
+            'notification_email' => $request->notification_email,
             'role'      => $request->role,
             'region_id' => $request->role === 'aspapi_daerah' ? $request->region_id : null,
         ]);
