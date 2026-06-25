@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\NotificationEmail;
 use App\Models\Province;
 use App\Models\City;
 use App\Models\Region;
-use App\Helpers\NotificationEmail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Supporrt\Facades\Log;
 
 class BiodataController extends Controller
 {
@@ -28,32 +28,31 @@ class BiodataController extends Controller
 
     public function update(Request $request)
     {
-        $member = auth()->user()->member;
+        $member          = auth()->user()->member;
         $isImpersonating = session()->has('impersonator_id');
 
-        // Guard: tidak boleh update kalau terkunci — KECUALI sedang diimpersonate
-        if (!$isImpersonating && in_array($member->biodata_status, ['pending', 'verified'])) {
+        if (! $isImpersonating && in_array($member->biodata_status, ['pending', 'verified'])) {
             return back()->with('error', 'Biodata terkunci. Klik "Buka Kunci" terlebih dahulu.');
         }
 
         $validated = $request->validate([
-            'full_name'      => 'required|string|max:255',
-            'front_title'    => 'nullable|string|max:50',
-            'back_title'     => 'nullable|string|max:100',
-            'nik'            => 'required|digits:16',
-            'birth_place'    => 'required|string|max:100',
-            'birth_date'     => 'required|date|before:today',
-            'phone'          => 'required|string|max:20',
-            'email'          => 'required|email|max:255',
-            'gender'         => 'required|in:L,P',
-            'last_education' => 'required|in:sd,smp,sma,d3,s1,s2,s3,profesi,lainnya',
-            'province_id'    => 'required|exists:provinces,id',
-            'city_id'        => 'required|exists:cities,id',
-            'address'        => 'required|string|max:500',
-            'occupation'     => 'nullable|string|max:150',
-            'institution'    => 'nullable|string|max:255',
-            'position'       => 'nullable|string|max:150',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'full_name'               => 'required|string|max:255',
+            'front_title'             => 'nullable|string|max:50',
+            'back_title'              => 'nullable|string|max:100',
+            'nik'                     => 'required|digits:16',
+            'birth_place'             => 'required|string|max:100',
+            'birth_date'              => 'required|date|before:today',
+            'phone'                   => 'required|string|max:20',
+            'email'                   => 'required|email|max:255',
+            'gender'                  => 'required|in:L,P',
+            'last_education'          => 'required|in:sd,smp,sma,d3,s1,s2,s3,profesi,lainnya',
+            'province_id'             => 'required|exists:provinces,id',
+            'city_id'                 => 'required|exists:cities,id',
+            'address'                 => 'required|string|max:500',
+            'occupation'              => 'nullable|string|max:150',
+            'institution'             => 'nullable|string|max:255',
+            'position'                => 'nullable|string|max:150',
+            'photo'                   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'registered_by_region_id' => 'nullable|exists:regions,id',
         ], [
             'full_name.required'      => 'Nama lengkap wajib diisi.',
@@ -97,33 +96,12 @@ class BiodataController extends Controller
             }
             $validated['photo'] = $request->file('photo')->store('member-photos', 'public');
         }
-        
 
-        // Cek apakah ini verifikasi ulang (pernah submit sebelumnya)
         $isResubmit = $member->registered_at !== null;
 
-        if ($isImpersonating) {
-            // Admin yang edit → langsung verified, tidak perlu antri ke admin lagi
-            $validated['biodata_status']        = 'verified';
-            $validated['biodata_reject_reason'] = null;
-        } else {
-            // Member sendiri yang edit → masuk antrian verifikasi seperti biasa
-            $validated['biodata_status']        = 'pending';
-            $validated['biodata_reject_reason'] = null;
-        }
+        $validated['biodata_status']        = $isImpersonating ? 'verified' : 'pending';
+        $validated['biodata_reject_reason'] = null;
 
-        $member->update($validated);
-
-        // Kirim notif ke admin (hanya jika bukan mode impersonate)
-        if ($isImpersonating) {
-            $validated['biodata_status']        = 'verified';
-            $validated['biodata_reject_reason'] = null;
-        } else {
-            $validated['biodata_status']        = 'pending';
-            $validated['biodata_reject_reason'] = null;
-        }
-
-        // Jika sebelumnya tidak punya region (daftar mandiri), set registered_at
         if (! $member->registered_at) {
             $validated['registered_at'] = now();
         }
@@ -131,12 +109,10 @@ class BiodataController extends Controller
         $member->update($validated);
         $member->refresh();
 
-        // Kirim notifikasi (hanya jika bukan mode impersonate)
         if (! $isImpersonating) {
-            $adminUrl    = route('admin.member.verify.index');
             $submittedAt = now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i') . ' WIB';
 
-            // Email ke admin pusat
+            // Notif ke admin pusat
             try {
                 Mail::send(
                     'emails.notify-admin-biodata-submitted',
@@ -144,7 +120,7 @@ class BiodataController extends Controller
                         'member'      => $member,
                         'isResubmit'  => $isResubmit,
                         'submittedAt' => $submittedAt,
-                        'adminUrl'    => $adminUrl,
+                        'adminUrl'    => route('admin.member.verify.index'),
                     ],
                     function ($m) use ($isResubmit) {
                         $subject = $isResubmit
@@ -157,7 +133,7 @@ class BiodataController extends Controller
                 Log::warning('Gagal kirim notif admin (biodata submit): ' . $e->getMessage());
             }
 
-            // Email ke admin daerah (jika anggota memilih/assign ke region)
+            // Notif ke admin daerah (jika anggota memilih region)
             if ($member->registered_by_region_id) {
                 $daerahEmail = NotificationEmail::daerah($member->registered_by_region_id);
                 $region      = Region::find($member->registered_by_region_id);
@@ -195,16 +171,12 @@ class BiodataController extends Controller
         return redirect()->route('member.biodata')->with('success', $msg);
     }
 
-    /**
-     * Buka kunci biodata — set status ke 'draft' agar bisa diedit.
-     * Hanya bisa dilakukan dari status 'pending' atau 'verified'.
-     */
     public function unlock(Request $request)
     {
-        $member = auth()->user()->member;
+        $member          = auth()->user()->member;
         $isImpersonating = session()->has('impersonator_id');
 
-        if (!$isImpersonating && !in_array($member->biodata_status, ['pending', 'verified'])) {
+        if (! $isImpersonating && ! in_array($member->biodata_status, ['pending', 'verified'])) {
             return back()->with('error', 'Biodata tidak dalam kondisi terkunci.');
         }
 

@@ -52,6 +52,8 @@
         <tbody>
             @forelse ($members as $member)
             <tr style="border-bottom:1px solid #EEF4FB;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#fff'">
+
+                {{-- Anggota --}}
                 <td style="padding:0.875rem 1rem;">
                     <div style="display:flex;align-items:center;gap:0.75rem;">
                         @if ($member->photo)
@@ -67,12 +69,16 @@
                         </div>
                     </div>
                 </td>
+
+                {{-- Tipe --}}
                 <td style="padding:0.875rem 1rem;">
                     <span style="font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:2px;
                         {{ $member->registration_type === 'baru' ? 'background:#EEF4FB;color:#2A7FC1;' : 'background:#FEF8EC;color:#B8860B;' }}">
                         {{ $member->registration_type === 'baru' ? 'Baru' : 'Lama' }}
                     </span>
                 </td>
+
+                {{-- Klaim Lama --}}
                 <td style="padding:0.875rem 1rem;">
                     @if ($member->claims_old_member)
                     <span style="font-size:0.72rem;color:#B8860B;font-weight:600;">Klaim sejak {{ $member->claimed_join_year }}</span>
@@ -80,48 +86,44 @@
                     <span style="color:#B0CCDF;font-size:0.8rem;">—</span>
                     @endif
                 </td>
+
+                {{-- Status Biodata --}}
                 <td style="padding:0.875rem 1rem;">
                     <span style="font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:2px;
                         {{ $member->biodata_status === 'verified' ? 'background:#F0FFF4;color:#276749;' : ($member->biodata_status === 'rejected' ? 'background:#FDECEA;color:#C0392B;' : 'background:#FEF8EC;color:#B8860B;') }}">
                         {{ $member->biodata_status === 'verified' ? 'Terverifikasi' : ($member->biodata_status === 'rejected' ? 'Ditolak' : 'Pending') }}
                     </span>
                 </td>
+
+                {{-- Tanggal Daftar --}}
                 <td style="padding:0.875rem 1rem;font-size:0.8rem;color:#4A6580;">
                     {{ $member->created_at->format('d M Y') }}
                 </td>
+
+                {{-- Aksi --}}
                 <td style="padding:0.875rem 1rem;">
+                    @if ($member->biodata_status === 'pending')
                     <div style="display:flex;flex-wrap:wrap;gap:0.375rem;">
-@if ($member->biodata_status === 'pending')
 
-    {{-- Approve: jika klaim lama, pakai route approve-old; jika tidak, approve biasa --}}
-    @if ($member->claims_old_member)
-        <form method="POST" action="{{ route('admin.member.verify.approve-old', $member->id) }}">
-            @csrf
-            <button type="submit"
-                    style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#B8860B;color:#fff;border:none;border-radius:3px;cursor:pointer;"
-                    title="Verifikasi biodata sekaligus konfirmasi sebagai anggota lama sejak {{ $member->claimed_join_year }}">
-                ✓ Approve (Lama {{ $member->claimed_join_year }})
-            </button>
-        </form>
-    @else
-        <form method="POST" action="{{ route('admin.member.verify.approve', $member->id) }}">
-            @csrf
-            <button type="submit"
-                    style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#276749;color:#fff;border:none;border-radius:3px;cursor:pointer;">
-                ✓ Approve
-            </button>
-        </form>
-    @endif
+                        {{-- Satu tombol Approve untuk semua jenis anggota --}}
+                        <form method="POST" action="{{ route('admin.member.verify.approve', $member->id) }}">
+                            @csrf
+                            <button type="submit"
+                                    style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:#276749;color:#fff;border:none;border-radius:3px;cursor:pointer;">
+                                ✓ Approve
+                            </button>
+                        </form>
 
-    {{-- Tolak --}}
-    <button onclick="showRejectModal({{ $member->id }})"
-            style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:transparent;border:1.5px solid #C0392B;color:#C0392B;border-radius:3px;cursor:pointer;">
-        Tolak
-    </button>
+                        {{-- Tombol Tolak --}}
+                        <button onclick="showRejectModal({{ $member->id }})"
+                                style="font-size:0.65rem;font-weight:700;padding:0.25rem 0.5rem;background:transparent;border:1.5px solid #C0392B;color:#C0392B;border-radius:3px;cursor:pointer;">
+                            Tolak
+                        </button>
 
-@endif
                     </div>
+                    @endif
                 </td>
+
             </tr>
             @empty
             <tr><td colspan="6" style="padding:3rem;text-align:center;color:#B0CCDF;font-size:0.875rem;">Tidak ada data anggota.</td></tr>

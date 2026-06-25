@@ -43,7 +43,7 @@ class NotificationEmail
     {
         $region = Region::with('activeUser')->find($regionId);
 
-        if (! $region) {
+        if (!$region) {
             return null;
         }
 

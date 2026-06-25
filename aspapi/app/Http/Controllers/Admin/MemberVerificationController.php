@@ -7,6 +7,7 @@ use App\Models\Member;
 use App\Models\MemberVerificationLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class MemberVerificationController extends Controller
 {
@@ -20,9 +21,9 @@ class MemberVerificationController extends Controller
                 ->orWhere('email', 'like', '%' . $request->search . '%'))
             ->latest();
 
-        $members        = $query->paginate(20);
-        $pendingCount   = Member::where('biodata_status', 'pending')->count();
-        $oldClaimCount  = Member::where('claims_old_member', true)->where('biodata_status', 'pending')->count();
+        $members       = $query->paginate(20);
+        $pendingCount  = Member::where('biodata_status', 'pending')->count();
+        $oldClaimCount = Member::where('claims_old_member', true)->where('biodata_status', 'pending')->count();
 
         return view('admin.members.verify', compact('members', 'pendingCount', 'oldClaimCount'));
     }
@@ -30,25 +31,41 @@ class MemberVerificationController extends Controller
     public function approve(Request $request, int $id)
     {
         $member = Member::findOrFail($id);
+
+        // Jika klaim anggota lama, set registered_at mundur ke tahun klaim
+        // Jika anggota baru, set registered_at ke sekarang (jika belum ada)
+        if ($member->claims_old_member && $member->claimed_join_year) {
+            $registeredAt = now()->setYear((int) $member->claimed_join_year);
+        } else {
+            $registeredAt = $member->registered_at ?? now();
+        }
+
         $member->update([
-            'biodata_status' => 'verified',
-            'status'         => $member->status === 'active' ? 'active' : 'pending',
-            'registered_at'  => $member->registered_at ?? now(),
+            'biodata_status'    => 'verified',
+            'status'            => $member->status === 'active' ? 'active' : 'pending',
+            'registered_at'     => $registeredAt,
+            // Jika klaim lama, pastikan registration_type ikut ter-set ke 'lama'
+            'registration_type' => $member->claims_old_member ? 'lama' : $member->registration_type,
         ]);
 
         MemberVerificationLog::create([
             'member_id'   => $member->id,
             'verified_by' => auth()->id(),
-            'action'      => 'approve_biodata',
-            'note'        => $request->note,
+            'action'      => $member->claims_old_member ? 'approve_old_member' : 'approve_biodata',
+            'note'        => $member->claims_old_member
+                ? 'Dikonfirmasi sebagai anggota lama sejak ' . $member->claimed_join_year
+                : $request->note,
         ]);
 
-        try {
-            Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
-                $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
-            });
-        } catch (\Exception $e) {
-            \Log::error('Mail gagal: ' . $e->getMessage());
+        // Kirim email notifikasi (hanya untuk anggota baru)
+        if (! $member->claims_old_member) {
+            try {
+                Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
+                    $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
+                });
+            } catch (\Exception $e) {
+                Log::warning('Mail biodata-approved gagal: ' . $e->getMessage());
+            }
         }
 
         return back()->with('success', 'Biodata anggota berhasil diverifikasi.');
@@ -76,29 +93,9 @@ class MemberVerificationController extends Controller
                 $m->to($member->email)->subject('Biodata Anda Perlu Diperbaiki — ASPAPI');
             });
         } catch (\Exception $e) {
-            \Log::error('Mail gagal: ' . $e->getMessage());
+            Log::warning('Mail biodata-rejected gagal: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Biodata anggota ditolak dan notifikasi telah dikirim.');
-    }
-
-    public function approveOldMember(Request $request, int $id)
-    {
-        $member = Member::findOrFail($id);
-        $member->update([
-            'biodata_status'    => 'verified',
-            'status'            => $member->status === 'active' ? 'active' : 'pending',  // ← fix sama
-            'registration_type' => 'lama',
-            'registered_at'     => now()->setYear((int) $member->claimed_join_year), // fix cast ke int
-        ]);
-
-        MemberVerificationLog::create([
-            'member_id'   => $member->id,
-            'verified_by' => auth()->id(),
-            'action'      => 'approve_old_member',
-            'note'        => 'Dikonfirmasi sebagai anggota lama sejak ' . $member->claimed_join_year,
-        ]);
-
-        return back()->with('success', 'Klaim anggota lama berhasil dikonfirmasi.');
     }
 }
