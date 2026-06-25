@@ -120,7 +120,7 @@ class RegisterController extends Controller
         ]);
 
         // Notif ke admin
-        $adminUrl = route('admin.members.verify');
+        $adminUrl = route('admin.member.verify.index');
         try {
             Mail::send(
                 'emails.notify-admin-old-member',
