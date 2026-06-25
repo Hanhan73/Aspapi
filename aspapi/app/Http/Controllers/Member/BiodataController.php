@@ -10,6 +10,7 @@ use App\Helpers\NotificationEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Supporrt\Facades\Log;
 
 class BiodataController extends Controller
 {
