@@ -582,34 +582,41 @@ class RegionMemberController extends Controller
 
         return view('daerah.verify', compact('region', 'members', 'pendingCount', 'oldClaimCount'));
     }
-    public function verifyApprove(Request $request, int $id)
-    {
-        $region = $this->region();
-        $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
+public function verifyApprove(Request $request, int $id)
+{
+    $region = $this->region();
+    $member = Member::where('registered_by_region_id', $region->id)->findOrFail($id);
 
-        $member->update([
-            'biodata_status' => 'verified',
-            'status'         => $member->status === 'active' ? 'active' : 'pending',
-            'registered_at'  => $member->registered_at ?? now(),
-        ]);
+    $registeredAt = ($member->claims_old_member && $member->claimed_join_year)
+        ? now()->setYear((int) $member->claimed_join_year)
+        : ($member->registered_at ?? now());
 
-        \App\Models\MemberVerificationLog::create([
-            'member_id'   => $member->id,
-            'verified_by' => auth()->id(),
-            'action'      => 'approve_biodata',
-            'note'        => $request->note,
-        ]);
+    $member->update([
+        'biodata_status'    => 'verified',
+        'status'            => $member->status === 'active' ? 'active' : 'pending',
+        'registered_at'     => $registeredAt,
+        'registration_type' => $member->claims_old_member ? 'lama' : $member->registration_type,
+    ]);
 
-        try {
-            Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
-                $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
-            });
-        } catch (\Exception $e) {
-            Log::warning('Mail gagal: ' . $e->getMessage());
-        }
+    \App\Models\MemberVerificationLog::create([
+        'member_id'   => $member->id,
+        'verified_by' => auth()->id(),
+        'action'      => $member->claims_old_member ? 'approve_old_member' : 'approve_biodata',
+        'note'        => $member->claims_old_member
+            ? 'Dikonfirmasi sebagai anggota lama sejak ' . $member->claimed_join_year
+            : $request->note,
+    ]);
 
-        return back()->with('success', 'Biodata anggota berhasil diverifikasi.');
+    try {
+        Mail::send('emails.biodata-approved', ['member' => $member], function ($m) use ($member) {
+            $m->to($member->email)->subject('Biodata Anda Telah Diverifikasi — ASPAPI');
+        });
+    } catch (\Exception $e) {
+        Log::warning('Mail biodata-approved gagal: ' . $e->getMessage());
     }
+
+    return back()->with('success', 'Biodata anggota berhasil diverifikasi.');
+}
 
     public function verifyReject(Request $request, int $id)
     {

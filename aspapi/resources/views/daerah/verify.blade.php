@@ -137,9 +137,7 @@ const VERIFY_DATA = {
         is_batch:            {{ $member->is_batch ? 'true' : 'false' }},
         registered_at:       @json($member->created_at->format('d M Y')),
         biodata_complete:    {{ $member->isBiodataComplete() ? 'true' : 'false' }},
-        approve_url:         @json($member->claims_old_member
-                                ? route('daerah.verify.approve-old', $member->id)
-                                : route('daerah.verify.approve', $member->id)),
+        approve_url: @json(route('daerah.verify.approve', $member->id)),
         reject_url:          @json(route('daerah.verify.reject', $member->id)),
     },
     @endforeach
