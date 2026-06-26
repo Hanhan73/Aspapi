@@ -285,14 +285,13 @@ class SeminarController extends Controller
         return view('member.seminar.post-test', compact('enrollment', 'attempt', 'questions', 'shuffledOptions'));
     }
 
-    public function submitPostTest(Request $request, SeminarAttempt $attempt)
+   public function submitPostTest(Request $request, SeminarAttempt $attempt)
 {
     $enrollment = $attempt->enrollment;
     $member     = $this->getMember();
     abort_if($enrollment->member_id !== $member->id, 403);
     abort_if($attempt->submitted_at !== null, 403, 'Attempt sudah disubmit.');
 
-    // ✅ Guard: jika enrollment sudah completed, jangan proses lagi
     if ($enrollment->status === 'completed') {
         return redirect()->route('member.seminar.show', $enrollment)
             ->with('info', 'Kamu sudah menyelesaikan seminar ini dan sertifikat telah diterbitkan.');
@@ -301,6 +300,14 @@ class SeminarController extends Controller
     $answers = $request->input('answers', []);
 
     DB::transaction(function () use ($attempt, $answers, $enrollment) {
+        // 🔒 Lock enrollment row agar request paralel tidak lolos bersamaan
+        $enrollment = SeminarEnrollment::lockForUpdate()->find($enrollment->id);
+
+        // Guard kedua di dalam transaction setelah lock
+        if ($enrollment->status === 'completed') {
+            return;
+        }
+
         foreach ($attempt->answers as $answerRecord) {
             $chosen    = $answers[$answerRecord->question_id] ?? null;
             $isCorrect = $chosen !== null
@@ -317,17 +324,15 @@ class SeminarController extends Controller
         $attempt->refresh();
 
         if ($attempt->is_passed) {
-            // ✅ Cegah duplicate certificate untuk enrollment yang sama
-            $sudahAdaSertifikat = SeminarCertificate::where('enrollment_id', $enrollment->id)->exists();
-
-            if (! $sudahAdaSertifikat) {
-                SeminarCertificate::create([
-                    'enrollment_id'      => $enrollment->id,
+            // ✅ firstOrCreate = aman dari duplicate apapun kondisinya
+            SeminarCertificate::firstOrCreate(
+                ['enrollment_id' => $enrollment->id],
+                [
                     'certificate_number' => SeminarCertificate::generateNumber(),
                     'score'              => $attempt->score,
                     'issued_at'          => now()->toDateString(),
-                ]);
-            }
+                ]
+            );
 
             $enrollment->update(['status' => 'completed']);
         } else {
