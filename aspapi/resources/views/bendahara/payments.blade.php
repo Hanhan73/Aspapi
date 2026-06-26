@@ -69,8 +69,8 @@
                 @forelse ($payments as $pay)
                 <tr style="border-bottom:1px solid #EEF4FB;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#fff'">
                     <td style="padding:0.875rem 1rem;">
-                        <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;margin:0;">{{ $pay->member->full_name }}</p>
-                        <p style="font-size:0.72rem;color:#B0CCDF;margin:0;">{{ $pay->member->email }}</p>
+                        <p style="font-size:0.85rem;font-weight:600;color:#1A2A3A;margin:0;">{{ $pay->member->full_name ?? '-' }}</p>
+                        <p style="font-size:0.72rem;color:#B0CCDF;margin:0;">{{ $pay->member->email ?? '-' }}</p>
                     </td>
                     <td style="padding:0.875rem 1rem;font-size:0.825rem;color:#4A6580;white-space:nowrap;">{{ $pay->type_label }}</td>
                     <td style="padding:0.875rem 1rem;font-size:0.825rem;font-weight:700;color:#1A2A3A;white-space:nowrap;">{{ $pay->amount_formatted }}</td>
