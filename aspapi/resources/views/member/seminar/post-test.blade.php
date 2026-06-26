@@ -199,9 +199,20 @@
     }
 
     function doSubmit() {
-        const btn    = document.getElementById('btn-submit-confirm');
-        btn.disabled    = true;
-        btn.textContent = 'Menyimpan...';
+        const btnConfirm = document.getElementById('btn-submit-confirm');
+        const btnMain    = document.querySelector('button[onclick="confirmSubmit()"]');
+
+        // Disable keduanya
+        btnConfirm.disabled    = true;
+        btnConfirm.textContent = 'Menyimpan...';
+
+        if (btnMain) {
+            btnMain.disabled  = true;
+            btnMain.textContent = 'Menyimpan...';
+            btnMain.classList.remove('hover:bg-primary/90');
+            btnMain.classList.add('opacity-60', 'cursor-not-allowed');
+        }
+
         document.getElementById('posttest-form').submit();
     }
 
