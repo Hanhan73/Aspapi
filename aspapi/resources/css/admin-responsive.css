@@ -1,0 +1,171 @@
+/* ============================================================
+   ASPAPI Admin — Responsive Helper
+   Di-load via @vite atau @push('styles') di layout admin
+   Breakpoint utama: < 1024px = mobile/laptop kecil
+   ============================================================ */
+
+/* ── 1. FORM GRID (1fr 300px / 1fr 320px)
+        Dipakai di: advisor, board, expert, blog, news, mitra form
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    /* Grid 2 kolom inline style → stack jadi 1 kolom */
+    [style*="grid-template-columns:1fr 300px"],
+    [style*="grid-template-columns:1fr 320px"],
+    [style*="grid-template-columns: 1fr 300px"],
+    [style*="grid-template-columns: 1fr 320px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Grid 2 kolom sejajar dalam card (gelar + jabatan, dll) */
+    [style*="grid-template-columns:1fr 1fr"],
+    [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── 2. TABEL — semua tabel admin dibungkus overflow-x-auto
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    /* Wrapper tabel yang pakai inline style overflow:hidden */
+    [style*="overflow:hidden"] > table,
+    .card table,
+    div > table {
+        min-width: 600px;
+    }
+
+    /* Bungkus otomatis semua div yang langsung berisi table */
+    [style*="border:1px solid #D6E8F7"][style*="border-radius:6px"][style*="overflow:hidden"] {
+        overflow-x: auto !important;
+    }
+
+    /* Untuk card Tailwind yang pakai overflow-hidden */
+    .card.overflow-hidden {
+        overflow-x: auto !important;
+    }
+}
+
+/* ── 3. DASHBOARD — stat cards & grid 1fr 1fr
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Stat cards: 2 kolom di mobile kecil */
+    [style*="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))"],
+    [style*="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    /* Dashboard main grid 1fr 1fr → stack */
+    [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Bar chart label lebar fixed 220px → fleksibel */
+    [style*="grid-template-columns:220px 1fr"] {
+        grid-template-columns: 140px 1fr !important;
+    }
+}
+
+@media (max-width: 479px) {
+    [style*="grid-template-columns:220px 1fr"] {
+        grid-template-columns: 100px 1fr !important;
+    }
+
+    /* Stat cards: 1 kolom di HP kecil banget */
+    [style*="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))"],
+    [style*="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── 4. HEADER HALAMAN — flex row judul + tombol tambah
+        Biar tombol gak ketabrak judul di mobile
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Flex row judul + tombol → stack */
+    [style*="display:flex"][style*="align-items:center"][style*="justify-content:space-between"] {
+        flex-wrap: wrap !important;
+        gap: 0.75rem !important;
+    }
+}
+
+/* ── 5. FILTER BAR — form filter di index pages
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Input flex di filter bar */
+    [style*="display:flex"][style*="gap:0.75rem"][style*="flex-wrap:wrap"] input[type="text"],
+    [style*="display:flex"][style*="gap:0.75rem"][style*="flex-wrap:wrap"] select {
+        width: 100% !important;
+        min-width: 0 !important;
+        flex: 1 1 100% !important;
+    }
+}
+
+/* ── 6. DETAIL ANGGOTA — grid 1fr 320px
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    /* Info grid 2 kolom dalam card detail */
+    [style*="grid-template-columns:1fr 1fr"][style*="gap:0.75rem 1.5rem"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── 7. SEMINAR — tabel dengan table-fixed & colgroup
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    table.table-fixed {
+        table-layout: auto !important;
+        min-width: 700px;
+    }
+}
+
+/* ── 8. PADDING KONTEN UTAMA — lebih kecil di mobile
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* div.p-6 yang bukan dari Tailwind utility */
+    .p-6 {
+        padding: 1rem !important;
+    }
+}
+
+/* ── 9. MODAL — pastikan gak overflow di mobile
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Modal inline style width:420px / 440px */
+    [style*="width:420px"],
+    [style*="width:440px"],
+    [style*="width:480px"] {
+        width: 92vw !important;
+        max-width: 92vw !important;
+    }
+}
+
+/* ── 10. MITRA — tab kategori scroll horizontal
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    [style*="border-bottom:2px solid #D6E8F7"][style*="overflow-x:auto"] {
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    [style*="border-bottom:2px solid #D6E8F7"][style*="overflow-x:auto"]::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ── 11. BLOG/NEWS FORM — toolbar editor jangan overflow
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    #editor-toolbar,
+    [style*="display:flex"][style*="flex-wrap:wrap"][style*="gap:0.25rem"][style*="background:#F8FAFC"] {
+        gap: 0.2rem !important;
+    }
+}
+
+/* ── 12. QUICK LINKS dashboard — wrap rapi
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 479px) {
+    [style*="display:flex"][style*="flex-wrap:wrap"][style*="gap:0.75rem"] > a[style*="font-size:0.72rem"] {
+        flex: 1 1 calc(50% - 0.375rem) !important;
+        text-align: center !important;
+    }
+}

@@ -16,30 +16,62 @@
 
 <body class="bg-neutral-100 font-sans antialiased">
 
-    <div class="flex h-screen overflow-hidden">
+    {{-- Alpine.js state: sidebarOpen untuk drawer di < lg --}}
+    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
+
+        {{-- ── OVERLAY (mobile/tablet, muncul saat sidebar terbuka) ── --}}
+        <div
+            x-show="sidebarOpen"
+            x-transition:enter="transition-opacity ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="sidebarOpen = false"
+            class="fixed inset-0 z-20 bg-black/50 lg:hidden"
+            style="display: none;">
+        </div>
 
         {{-- ── SIDEBAR ── --}}
-        <aside class="w-64 flex-shrink-0 bg-navy flex flex-col overflow-y-auto">
+        {{--
+            Desktop (lg+)  : selalu tampil, posisi static dalam flex
+            Mobile/tablet  : posisi fixed, slide dari kiri via translate
+        --}}
+        <aside
+            class="fixed inset-y-0 left-0 z-30 w-64 flex-shrink-0 bg-navy flex flex-col overflow-y-auto
+                   transform transition-transform duration-200 ease-in-out
+                   lg:relative lg:translate-x-0 lg:z-auto"
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
 
             {{-- Logo --}}
-            <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+            <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10 flex-shrink-0">
                 <img src="{{ asset('images/logo-aspapi.png') }}" alt="Logo ASPAPI"
                     class="h-9 w-auto object-contain flex-shrink-0"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                 <div class="hidden w-9 h-9 bg-primary rounded-full items-center justify-center flex-shrink-0">
                     <span class="text-white font-black text-2xs tracking-tight">ASP</span>
                 </div>
-                <div>
+                <div class="flex-1 min-w-0">
                     <p class="text-white font-extrabold text-sm leading-none tracking-wide">ASPAPI</p>
                     <p class="text-neutral-400 text-2xs tracking-wider uppercase mt-0.5">Admin Panel</p>
                 </div>
+                {{-- Tombol tutup sidebar (mobile only) --}}
+                <button
+                    @click="sidebarOpen = false"
+                    class="lg:hidden ml-auto text-neutral-400 hover:text-white transition-colors p-1 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
 
             {{-- Nav --}}
-            <nav class="flex-1 py-4 px-3">
+            <nav class="flex-1 py-4 px-3 overflow-y-auto">
 
                 <p class="sidebar-section-title">Dashboard</p>
                 <a href="{{ route('admin.dashboard') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -50,6 +82,7 @@
 
                 <p class="sidebar-section-title">Profil Organisasi</p>
                 <a href="{{ route('admin.boards.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.boards.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -58,6 +91,7 @@
                     Pengurus
                 </a>
                 <a href="{{ route('admin.advisors.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.advisors.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -66,6 +100,7 @@
                     Dewan Penasihat
                 </a>
                 <a href="{{ route('admin.experts.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.experts.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -76,6 +111,7 @@
 
                 <p class="sidebar-section-title">Konten</p>
                 <a href="{{ route('admin.news.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.news.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -84,6 +120,7 @@
                     Berita
                 </a>
                 <a href="{{ route('admin.blogs.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.blogs.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -91,7 +128,8 @@
                     </svg>
                     Blog
                 </a>
-                <a href ="{{ route('admin.agenda.index') }}"
+                <a href="{{ route('admin.agenda.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.agenda.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -100,6 +138,7 @@
                     Agenda
                 </a>
                 <a href="{{ route('admin.documents.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.documents.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -110,6 +149,7 @@
 
                 <p class="sidebar-section-title">Keanggotaan</p>
                 <a href="{{ route('admin.members.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.members.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -118,6 +158,7 @@
                     Data Anggota
                 </a>
                 <a href="{{ route('admin.regions.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.regions.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -130,7 +171,8 @@
 
                 <p class="sidebar-section-title">Program</p>
                 <a href="{{ route('admin.seminar.index') }}"
-                class="sidebar-link text-xs {{ request()->routeIs('admin.seminar.index') ? 'sidebar-link-active' : '' }}">
+                    @click="sidebarOpen = false"
+                    class="sidebar-link text-xs {{ request()->routeIs('admin.seminar.index') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                     </svg>
@@ -139,6 +181,7 @@
 
                 <p class="sidebar-section-title">Kemitraan</p>
                 <a href="{{ route('admin.partners.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('admin.partners.*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -148,21 +191,22 @@
                 </a>
 
                 @if(auth()->user()->role === 'superadmin')
-<p class="sidebar-section-title" style="margin-top:0.75rem;">Super Admin</p>
-<a href="{{ route('admin.superadmin.users') }}"
-   class="sidebar-link {{ request()->routeIs('admin.superadmin.*') ? 'sidebar-link-active' : '' }}">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-    </svg>
-    Kelola Akun
-</a>
-@endif
+                <p class="sidebar-section-title" style="margin-top:0.75rem;">Super Admin</p>
+                <a href="{{ route('admin.superadmin.users') }}"
+                    @click="sidebarOpen = false"
+                    class="sidebar-link {{ request()->routeIs('admin.superadmin.*') ? 'sidebar-link-active' : '' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Kelola Akun
+                </a>
+                @endif
 
             </nav>
 
             {{-- User info --}}
-            <div class="border-t border-white/10 px-4 py-4">
+            <div class="border-t border-white/10 px-4 py-4 flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                         <span class="text-white text-xs font-bold">
@@ -174,7 +218,7 @@
                         <p class="text-neutral-500 text-2xs truncate">{{ auth()->user()->email ?? '' }}</p>
                     </div>
                 </div>
-                
+
                 <a href="{{ route('account.settings') }}"
                    class="mt-3 flex items-center gap-1.5 text-2xs font-bold tracking-widest uppercase text-neutral-500 hover:text-white transition-colors duration-200 {{ request()->routeIs('account.*') ? 'text-white' : '' }}">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,7 +228,7 @@
                     </svg>
                     Pengaturan Akun
                 </a>
-                
+
                 <form method="POST" action="{{ route('logout') }}" class="mt-3">
                     @csrf
                     <button type="submit"
@@ -196,13 +240,22 @@
         </aside>
 
         {{-- ── MAIN AREA ── --}}
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
 
             {{-- Top Bar --}}
-            <header
-                class="bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between shadow-sm flex-shrink-0">
-                <div>
-                    <h1 class="text-base font-bold text-navy">
+            <header class="bg-white border-b border-neutral-200 px-4 lg:px-6 py-3 lg:py-4 flex items-center gap-3 shadow-sm flex-shrink-0">
+
+                {{-- Hamburger (hanya muncul di < lg) --}}
+                <button
+                    @click="sidebarOpen = true"
+                    class="lg:hidden flex-shrink-0 p-1.5 rounded-md text-navy hover:bg-neutral-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-sm lg:text-base font-bold text-navy truncate">
                         {{ $title ?? 'Dashboard' }}
                     </h1>
                     {{-- Breadcrumb --}}
@@ -223,15 +276,24 @@
                     @endif
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <a href="{{ url('/') }}" target="_blank" class="btn btn-ghost btn-sm">
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <a href="{{ url('/') }}" target="_blank" class="btn btn-ghost btn-sm hidden sm:inline-flex">
                         Lihat Website ↗
+                    </a>
+                    {{-- Versi icon saja untuk mobile --}}
+                    <a href="{{ url('/') }}" target="_blank"
+                        class="sm:hidden p-1.5 rounded-md text-neutral-500 hover:bg-neutral-100 transition-colors"
+                        title="Lihat Website">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
                     </a>
                 </div>
             </header>
 
             {{-- Page Content --}}
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-4 lg:p-6">
 
                 {{-- Flash Messages --}}
                 @if (session('success'))
