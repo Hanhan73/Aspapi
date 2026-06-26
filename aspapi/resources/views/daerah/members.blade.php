@@ -5,34 +5,40 @@
 
 {{-- Filter --}}
 <div class="bg-white border border-neutral-200 rounded-lg px-5 py-4 mb-5">
-    <form method="GET" action="{{ route('daerah.members') }}" class="flex flex-wrap gap-3 items-center">
-        <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="Cari nama, email, institusi..."
-               class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary w-64"/>
+    <form method="GET" action="{{ route('daerah.members') }}">
+        {{-- Baris 1: Search --}}
+        <div class="mb-3">
+            <input type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Cari nama, email, institusi..."
+                   class="w-full px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary"/>
+        </div>
 
-        <select name="status"
-                class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
-            <option value="">Semua Status</option>
-            <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>Aktif</option>
-            <option value="pending"  {{ request('status') === 'pending'  ? 'selected' : '' }}>Pending</option>
-            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
-        </select>
+        {{-- Baris 2: Selects + Tombol --}}
+        <div class="flex flex-wrap gap-2 items-center">
+            <select name="status"
+                    class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
+                <option value="">Semua Status</option>
+                <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>Aktif</option>
+                <option value="pending"  {{ request('status') === 'pending'  ? 'selected' : '' }}>Pending</option>
+                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
+            </select>
 
-        <select name="dues"
-                class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
-            <option value="">Semua Iuran</option>
-            <option value="lunas" {{ request('dues') === 'lunas' ? 'selected' : '' }}>Lunas</option>
-            <option value="belum" {{ request('dues') === 'belum' ? 'selected' : '' }}>Belum Lunas</option>
-        </select>
+            <select name="dues"
+                    class="px-3 py-2 border border-neutral-200 rounded text-sm text-navy outline-none focus:border-primary">
+                <option value="">Semua Iuran</option>
+                <option value="lunas" {{ request('dues') === 'lunas' ? 'selected' : '' }}>Lunas</option>
+                <option value="belum" {{ request('dues') === 'belum' ? 'selected' : '' }}>Belum Lunas</option>
+            </select>
 
-        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-        <a href="{{ route('daerah.members') }}" class="btn btn-ghost btn-sm">Reset</a>
+            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+            <a href="{{ route('daerah.members') }}" class="btn btn-ghost btn-sm">Reset</a>
+        </div>
 
-        <div class="ml-auto flex gap-2">
-            {{-- Export Excel --}}
+        {{-- Baris 3: Export + Batch --}}
+        <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-neutral-100">
             <a href="{{ route('daerah.members.export', request()->query()) }}"
                class="btn btn-sm"
-               style="background:#276749;color:#fff;border:none;display:inline-flex;align-items:center;gap:0.3rem;">
+               style="background:#276749;color:#fff;border:none;">
                 <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -57,78 +63,80 @@
 </div>
 @endif
 
-{{-- Tabel --}}
+{{-- Tabel — wrapper overflow-x:auto agar bisa scroll horizontal di mobile --}}
 <div class="bg-white border border-neutral-200 rounded-lg overflow-hidden">
-    <table class="w-full border-collapse">
-        <thead>
-            <tr class="bg-neutral-50">
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Nama</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Institusi</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Kontak</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Iuran</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Status</th>
-                <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary">Terdaftar</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-neutral-100">
-            @forelse ($members as $member)
-            <tr class="hover:bg-blue-50 transition-colors cursor-pointer"
-                onclick="openMemberModal({{ $member->id }})">
-                <td class="px-4 py-3.5">
-                    <p class="text-sm font-semibold text-navy">{{ $member->full_name_with_title }}</p>
-                    <p class="text-xs text-neutral-400">{{ $member->email }}</p>
-                </td>
-                <td class="px-4 py-3.5 text-sm text-neutral-600">{{ $member->institution ?? '—' }}</td>
-                <td class="px-4 py-3.5 text-sm text-neutral-600">{{ $member->phone ?? '—' }}</td>
-                <td class="px-4 py-3.5">
-                    @if ($member->dues_paid)
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold bg-green-50 text-green-700">Lunas</span>
-                    @else
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold bg-red-50 text-red-700">Belum</span>
-                    @endif
-                </td>
-                <td class="px-4 py-3.5">
-                    @php
-                        $statusClass = match($member->status) {
-                            'active'   => 'bg-green-50 text-green-700',
-                            'pending'  => 'bg-yellow-50 text-yellow-700',
-                            'inactive' => 'bg-neutral-100 text-neutral-500',
-                            default    => 'bg-neutral-100 text-neutral-500',
-                        };
-                        $statusLabel = match($member->status) {
-                            'active'   => 'Aktif',
-                            'pending'  => 'Pending',
-                            'inactive' => 'Tidak Aktif',
-                            default    => ucfirst($member->status),
-                        };
-                    @endphp
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold {{ $statusClass }}">
-                        {{ $statusLabel }}
-                    </span>
-                </td>
-                <td class="px-4 py-3.5 text-sm text-neutral-500">{{ $member->created_at->format('d M Y') }}</td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" class="px-4 py-12 text-center text-sm text-neutral-400">
-                    @if (request()->hasAny(['search', 'status', 'dues']))
-                        Tidak ada anggota yang cocok dengan filter.
-                        <a href="{{ route('daerah.members') }}" class="text-primary font-semibold">Reset filter</a>
-                    @else
-                        Belum ada anggota di wilayah ini.
-                    @endif
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse" style="min-width: 600px;">
+            <thead>
+                <tr class="bg-neutral-50">
+                    <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary whitespace-nowrap">Nama</th>
+                    <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary whitespace-nowrap">Institusi</th>
+                    <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary whitespace-nowrap">Kontak</th>
+                    <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary whitespace-nowrap">Iuran</th>
+                    <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary whitespace-nowrap">Status</th>
+                    <th class="px-4 py-3 text-left text-2xs font-bold tracking-widest uppercase text-primary whitespace-nowrap">Terdaftar</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100">
+                @forelse ($members as $member)
+                <tr class="hover:bg-blue-50 transition-colors cursor-pointer"
+                    onclick="openMemberModal({{ $member->id }})">
+                    <td class="px-4 py-3.5" style="min-width: 180px;">
+                        <p class="text-sm font-semibold text-navy">{{ $member->full_name_with_title }}</p>
+                        <p class="text-xs text-neutral-400">{{ $member->email }}</p>
+                    </td>
+                    <td class="px-4 py-3.5 text-sm text-neutral-600" style="min-width: 140px;">{{ $member->institution ?? '—' }}</td>
+                    <td class="px-4 py-3.5 text-sm text-neutral-600 whitespace-nowrap">{{ $member->phone ?? '—' }}</td>
+                    <td class="px-4 py-3.5 whitespace-nowrap">
+                        @if ($member->dues_paid)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold bg-green-50 text-green-700">Lunas</span>
+                        @else
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold bg-red-50 text-red-700">Belum</span>
+                        @endif
+                    </td>
+                    <td class="px-4 py-3.5 whitespace-nowrap">
+                        @php
+                            $statusClass = match($member->status) {
+                                'active'   => 'bg-green-50 text-green-700',
+                                'pending'  => 'bg-yellow-50 text-yellow-700',
+                                'inactive' => 'bg-neutral-100 text-neutral-500',
+                                default    => 'bg-neutral-100 text-neutral-500',
+                            };
+                            $statusLabel = match($member->status) {
+                                'active'   => 'Aktif',
+                                'pending'  => 'Pending',
+                                'inactive' => 'Tidak Aktif',
+                                default    => ucfirst($member->status),
+                            };
+                        @endphp
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-2xs font-bold {{ $statusClass }}">
+                            {{ $statusLabel }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3.5 text-sm text-neutral-500 whitespace-nowrap">{{ $member->created_at->format('d M Y') }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="px-4 py-12 text-center text-sm text-neutral-400">
+                        @if (request()->hasAny(['search', 'status', 'dues']))
+                            Tidak ada anggota yang cocok dengan filter.
+                            <a href="{{ route('daerah.members') }}" class="text-primary font-semibold">Reset filter</a>
+                        @else
+                            Belum ada anggota di wilayah ini.
+                        @endif
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @if ($members->hasPages())
 <div class="mt-4 flex justify-end">{{ $members->links() }}</div>
 @endif
 
-{{-- ══ DATA ANGGOTA — embed sebagai JSON untuk modal ══ --}}
+{{-- DATA JSON untuk modal --}}
 <script>
 const MEMBERS_DATA = {
     @foreach ($members as $member)
@@ -184,28 +192,29 @@ const MEMBERS_DATA = {
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 </script>
 
-{{-- ══ MODAL: Detail Anggota ══ --}}
+{{-- MODAL: Detail Anggota --}}
 <div id="modal-member-detail"
      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:center;justify-content:center;padding:1rem;">
-    <div style="background:#fff;border-radius:10px;width:720px;max-width:98vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="background:#fff;border-radius:10px;width:720px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
 
         {{-- Header --}}
         <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-            <div style="display:flex;align-items:center;gap:1rem;">
+            <div style="display:flex;align-items:center;gap:1rem;min-width:0;">
                 <div id="md-avatar" style="width:48px;height:48px;border-radius:50%;background:#EEF4FB;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:2px solid #D6E8F7;"></div>
-                <div>
-                    <p id="md-name" style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:#1A2A3A;margin:0;"></p>
-                    <p id="md-email" style="font-size:0.78rem;color:#5C6B78;margin:0.1rem 0 0;"></p>
+                <div style="min-width:0;">
+                    <p id="md-name" style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:#1A2A3A;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></p>
+                    <p id="md-email" style="font-size:0.78rem;color:#5C6B78;margin:0.1rem 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></p>
                     <p id="md-nomer" style="font-size:0.72rem;font-family:monospace;color:#2A7FC1;font-weight:700;margin:0.1rem 0 0;letter-spacing:0.08em;display:none;"></p>
                 </div>
             </div>
             <button onclick="closeMemberModal()"
-                    style="background:none;border:none;font-size:1.3rem;color:#8A97A4;cursor:pointer;line-height:1;">✕</button>
+                    style="background:none;border:none;font-size:1.3rem;color:#8A97A4;cursor:pointer;line-height:1;flex-shrink:0;margin-left:0.5rem;">✕</button>
         </div>
 
         {{-- Body --}}
         <div style="overflow-y:auto;flex:1;padding:1.5rem;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+            {{-- Di mobile: stack 1 kolom. Di desktop: 2 kolom --}}
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;" class="modal-grid">
 
                 {{-- Kolom Kiri --}}
                 <div style="display:flex;flex-direction:column;gap:1.25rem;">
@@ -239,7 +248,7 @@ const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
         </div>
 
         {{-- Footer --}}
-        <div style="padding:1rem 1.5rem;border-top:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#F8FAFC;">
+        <div style="padding:1rem 1.5rem;border-top:1px solid #EEF4FB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#F8FAFC;gap:0.75rem;flex-wrap:wrap;">
             <div id="md-footer-actions"></div>
             <button onclick="closeMemberModal()"
                     style="padding:0.625rem 1.5rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.75rem;font-weight:700;color:#4A6580;background:#fff;cursor:pointer;">
@@ -249,6 +258,15 @@ const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 
     </div>
 </div>
+
+{{-- CSS modal grid responsive --}}
+<style>
+@media (max-width: 600px) {
+    .modal-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
 
 @push('scripts')
 <script>
