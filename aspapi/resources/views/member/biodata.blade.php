@@ -483,9 +483,9 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                     <div>
                         <label
                             style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Program
-                            Studi / Jabatan</label>
+                            Studi / Unit Kerja</label>
                         <input type="text" name="position" value="{{ old('position', $member?->position) }}"
-                            placeholder="Prodi / Jabatan di instansi..."
+                            placeholder="Prodi / Unit Kerja di instansi..."
                             style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('position') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
                             onfocus="this.style.borderColor='#2A7FC1'"
                             onblur="this.style.borderColor='{{ $b('position') }}'" />
