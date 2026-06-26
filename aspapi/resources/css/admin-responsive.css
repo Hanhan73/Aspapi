@@ -169,3 +169,284 @@
         text-align: center !important;
     }
 }
+
+/* ============================================================
+   ASPAPI Daerah — Tambahan Responsive
+   Append ke resources/css/admin-responsive.css yang sudah ada
+   ============================================================ */
+ 
+/* ── 1. BATCH FORM — grid 1fr 300px ── */
+@media (max-width: 1023px) {
+    /* Grid utama batch form & detail batch */
+    [style*="grid-template-columns:1fr 300px"][style*="align-items:start"] {
+        grid-template-columns: 1fr !important;
+    }
+ 
+    /* Grid iuran kolektif */
+    .grid[style*="grid-template-columns: 1fr 300px"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 2. TABEL BATCH — wrap otomatis ── */
+@media (max-width: 1023px) {
+    [style*="overflow-x:auto"] table,
+    div[style*="overflow:hidden"] > div[style*="overflow-x:auto"] table {
+        min-width: 500px;
+    }
+}
+ 
+/* ── 3. VERIFIKASI MODAL — grid 2 kolom data ── */
+@media (max-width: 639px) {
+    /* Grid identitas/kontak/keanggotaan/pekerjaan di modal verify */
+    [style*="grid-template-columns:1fr 1fr"][style*="gap:1.25rem"] {
+        grid-template-columns: 1fr !important;
+    }
+ 
+    /* Modal member detail — grid 2 kolom */
+    #modal-member-detail [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 4. DASHBOARD DAERAH — grid 3 kolom stats ── */
+@media (max-width: 639px) {
+    /* Grid 3 kolom stat cards → 1 kolom */
+    .grid.grid-cols-1.sm\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 5. FILTER BAR DATA ANGGOTA — tombol ml-auto stack ── */
+@media (max-width: 767px) {
+    /* Tombol Export + Daftar Batch di filter bar */
+    .flex.flex-wrap.gap-3.items-center .ml-auto {
+        margin-left: 0 !important;
+        width: 100%;
+        display: flex;
+        gap: 0.5rem;
+    }
+}
+ 
+/* ── 6. TABEL VERIFIKASI — overflow ── */
+@media (max-width: 1023px) {
+    [style*="background:#fff"][style*="border:1px solid #D6E8F7"][style*="overflow:hidden"] {
+        overflow-x: auto !important;
+    }
+}
+ 
+/* ── 7. MODAL UPLOAD BATCH — lebar fixed ── */
+@media (max-width: 767px) {
+    #modal-upload > div,
+    #modal-duplicate > div {
+        width: 94vw !important;
+        max-width: 94vw !important;
+    }
+ 
+    /* Preview tabel dalam modal upload */
+    #modal-upload table {
+        min-width: 480px;
+    }
+}
+ 
+/* ── 8. BAYAR IURAN KOLEKTIF — list anggota scroll ── */
+@media (max-width: 1023px) {
+    .grid.gap-6[style*="grid-template-columns: 1fr 300px"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 9. DETAIL BATCH — grid sidebar ── */
+@media (max-width: 1023px) {
+    .grid[style*="grid-template-columns:1fr 300px"][style*="align-items:start"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 10. FORMAT KOLOM EXCEL — tabel contoh scroll ── */
+@media (max-width: 639px) {
+    #format-info table {
+        min-width: 480px;
+    }
+    #format-info > div:first-child {
+        overflow-x: auto;
+    }
+}
+
+/* ============================================================
+   ASPAPI Bendahara — Tambahan Responsive
+   Append ke resources/css/admin-responsive.css yang sudah ada
+   ============================================================ */
+ 
+/* ── 1. DETAIL BATCH — grid 1fr 320px ── */
+@media (max-width: 1023px) {
+    [style*="grid-template-columns:1fr 320px"][style*="align-items:start"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 2. DASHBOARD — tombol quick action wrap ── */
+@media (max-width: 639px) {
+    /* Flex row tombol "Kelola Pembayaran" + "Kelola Batch" */
+    [style*="display:flex"][style*="gap:0.75rem"] > a[style*="padding:0.75rem 1.25rem"] {
+        flex: 1 1 auto;
+        text-align: center;
+        font-size: 0.65rem !important;
+    }
+}
+ 
+/* ── 3. REKAP PEMASUKAN — filter transaksi wrap ── */
+@media (max-width: 767px) {
+    /* Filter form di header tabel transaksi */
+    [style*="display:flex"][style*="justify-content:space-between"][style*="flex-wrap:wrap"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+ 
+    /* Input search di filter rekap */
+    [style*="width:180px"][style*="padding:0.375rem 0.75rem"] {
+        width: 100% !important;
+    }
+}
+ 
+/* ── 4. STATUS IURAN — summary cards ── */
+@media (max-width: 479px) {
+    /* auto-fill minmax(180px) → 2 kolom di HP kecil */
+    [style*="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+ 
+/* ── 5. FILTER BAR — input search lebar penuh di mobile ── */
+@media (max-width: 639px) {
+    [style*="width:220px"][style*="padding:0.5rem 0.875rem"] {
+        width: 100% !important;
+    }
+}
+ 
+/* ── 6. MODAL REJECT PAYMENT ── */
+@media (max-width: 479px) {
+    #reject-pay-modal > div,
+    [id$="-modal"] > div[style*="width:400px"] {
+        width: 92vw !important;
+        max-width: 92vw !important;
+    }
+}
+
+/* ============================================================
+   ASPAPI Member Portal — Tambahan Responsive
+   Append ke resources/css/admin-responsive.css yang sudah ada
+   ============================================================ */
+ 
+/* ── 1. BIODATA FORM — grid 1fr 280px ── */
+@media (max-width: 1023px) {
+    [style*="grid-template-columns:1fr 280px"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 2. BIODATA — grid 2 kolom dalam card (gelar, nik+gender, dll) ── */
+@media (max-width: 639px) {
+    /* Grid 2 kolom dalam card biodata */
+    [style*="display:grid"][style*="grid-template-columns:1fr 1fr"][style*="gap:1rem"] {
+        grid-template-columns: 1fr !important;
+    }
+ 
+    /* Grid preview biodata terkunci */
+    [style*="grid-template-columns:1fr 1fr"][style*="gap:0.75rem 1.5rem"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+ 
+/* ── 3. DASHBOARD MEMBER — progress steps terlalu kecil di HP ── */
+@media (max-width: 479px) {
+    /* Step label dan desc bisa terpotong */
+    [style*="display:flex"][style*="gap:0"][style*="position:relative"] > div {
+        min-width: 0;
+    }
+ 
+    /* Progress steps text lebih kecil */
+    [style*="flex:1;text-align:center;position:relative"] p:first-of-type {
+        font-size: 0.6rem !important;
+    }
+ 
+    [style*="flex:1;text-align:center;position:relative"] p:last-of-type {
+        display: none;
+    }
+}
+ 
+/* ── 4. KARTU ANGGOTA — preview card fixed width ── */
+@media (max-width: 399px) {
+    /* KTA preview 340x194 → scale down */
+    [style*="width:340px"][style*="height:194px"] {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 340 / 194;
+    }
+}
+ 
+/* ── 5. PEMBAYARAN — grid form + rekening info wrap ── */
+@media (max-width: 639px) {
+    /* Grid jenis + bukti di form upload */
+    [style*="display:grid"][style*="grid-template-columns:1fr 1fr"][style*="gap:1rem"][style*="margin-bottom:1.25rem"] {
+        grid-template-columns: 1fr !important;
+    }
+ 
+    /* Info rekening flex wrap */
+    [style*="display:flex"][style*="gap:2rem"][style*="margin-top:1rem"][style*="flex-wrap:wrap"] > div {
+        flex: 1 1 40%;
+    }
+}
+ 
+/* ── 6. SEMINAR — enrollment card ── */
+@media (max-width: 479px) {
+    /* Enrollment card: thumbnail + konten jadi stack */
+    .bg-white.border.border-neutral-200.rounded-xl.overflow-hidden > .flex.items-stretch {
+        flex-direction: column !important;
+    }
+ 
+    /* Thumbnail enrollment card */
+    .bg-white.border.border-neutral-200.rounded-xl.overflow-hidden > .flex > .w-28 {
+        width: 100% !important;
+        height: 160px !important;
+    }
+}
+ 
+/* ── 7. SEMINAR SHOW — stepper wrap ── */
+@media (max-width: 479px) {
+    /* Label stepper terlalu panjang di HP kecil */
+    .flex.items-center > .flex.flex-col.items-center > span.text-2xs {
+        font-size: 0.55rem !important;
+    }
+}
+ 
+/* ── 8. PRE/POST TEST — kolom soal + navigasi ── */
+@media (max-width: 1023px) {
+    /* grid lg:col-span-2 + sidebar → stack di < lg */
+    .grid.grid-cols-1.lg\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+ 
+    /* Sticky sidebar navigasi soal → tidak sticky di mobile */
+    .space-y-4.lg\:sticky {
+        position: static !important;
+    }
+}
+ 
+/* ── 9. MODAL UNLOCK BIODATA ── */
+@media (max-width: 479px) {
+    #unlock-modal > div {
+        width: 92vw !important;
+        max-width: 92vw !important;
+        padding: 1.25rem !important;
+    }
+}
+ 
+/* ── 10. DASHBOARD QUICK ACTIONS — wrap rapi ── */
+@media (max-width: 479px) {
+    [style*="display:flex"][style*="flex-wrap:wrap"][style*="gap:0.75rem"] > a[style*="gap:0.5rem"][style*="padding:0.625rem"] {
+        flex: 1 1 calc(50% - 0.375rem);
+        text-align: center;
+        justify-content: center;
+    }
+}

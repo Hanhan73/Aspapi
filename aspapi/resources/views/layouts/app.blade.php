@@ -1,174 +1,212 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 
-    <title>
-        {{ isset($title) ? $title . ' — ASPAPI' : 'ASPAPI — Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia' }}
-    </title>
-
-    {{-- SEO Meta --}}
-    <meta name="description"
-        content="{{ $metaDescription ?? ($description ?? 'ASPAPI adalah asosiasi profesi yang menghimpun sarjana dan praktisi administrasi perkantoran Indonesia. Competent, Competitive and Collaborative.') }}" />
-    <meta name="keywords"
-        content="{{ $metaKeywords ?? 'ASPAPI, administrasi perkantoran, asosiasi profesi, manajemen perkantoran, sertifikasi, keanggotaan' }}" />
-    <link rel="canonical" href="{{ url()->current() }}" />
-
-    {{-- Open Graph --}}
-    <meta property="og:type" content="{{ $ogType ?? 'website' }}" />
-    <meta property="og:title"
-        content="{{ isset($title) ? $title . ' — ASPAPI' : 'ASPAPI — Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia' }}" />
-    <meta property="og:description"
-        content="{{ $metaDescription ?? ($description ?? 'ASPAPI adalah asosiasi profesi yang menghimpun sarjana dan praktisi administrasi perkantoran Indonesia.') }}" />
-    <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="og:site_name" content="ASPAPI" />
-    <meta property="og:image" content="{{ $ogImage ?? asset('images/logo-aspapi.png') }}" />
-    <meta property="og:locale" content="id_ID" />
-
-    {{-- Twitter Card --}}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ isset($title) ? $title . ' — ASPAPI' : 'ASPAPI' }}" />
-    <meta name="twitter:description"
-        content="{{ $metaDescription ?? ($description ?? 'ASPAPI — Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia.') }}" />
-    <meta name="twitter:image" content="{{ $ogImage ?? asset('images/logo-aspapi.png') }}" />
-    <!-- Favicon -->
+    <title>{{ isset($title) ? $title . ' — Bendahara ASPAPI' : 'Bendahara — ASPAPI' }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logo-aspapi.png') }}" />
 
-    <!-- Fonts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     @stack('styles')
-
-    <style>
-    /* ── Rich editor output styling ───────────────────────────────────────────── */
-    /* Berlaku untuk semua container yang menampilkan output dari rich editor     */
-
-    .rich-output p,
-    .desc-content p,
-    .seminar-desc p,
-    .seminar-modal-desc p,
-    #modal-desc p {
-        margin-bottom: 0.7em;
-    }
-
-    .rich-output p:last-child,
-    .desc-content p:last-child,
-    .seminar-desc p:last-child,
-    .seminar-modal-desc p:last-child,
-    #modal-desc p:last-child {
-        margin-bottom: 0;
-    }
-
-    .rich-output strong,
-    .desc-content strong,
-    .seminar-desc strong,
-    .seminar-modal-desc strong,
-    #modal-desc strong {
-        font-weight: 700;
-        color: inherit;
-    }
-
-    .rich-output em,
-    .desc-content em,
-    .seminar-desc em,
-    .seminar-modal-desc em,
-    #modal-desc em {
-        font-style: italic;
-    }
-
-    .rich-output u,
-    .desc-content u,
-    .seminar-desc u,
-    .seminar-modal-desc u,
-    #modal-desc u {
-        text-decoration: underline;
-    }
-
-    .rich-output ul,
-    .desc-content ul,
-    .seminar-desc ul,
-    .seminar-modal-desc ul,
-    #modal-desc ul {
-        list-style: disc;
-        padding-left: 1.25rem;
-        margin-bottom: 0.7em;
-    }
-
-    .rich-output ol,
-    .desc-content ol,
-    .seminar-desc ol,
-    .seminar-modal-desc ol,
-    #modal-desc ol {
-        list-style: decimal;
-        padding-left: 1.25rem;
-        margin-bottom: 0.7em;
-    }
-
-    .rich-output li,
-    .desc-content li,
-    .seminar-desc li,
-    .seminar-modal-desc li,
-    #modal-desc li {
-        margin-bottom: 0.25em;
-    }
-
-    .rich-output a,
-    .desc-content a,
-    .seminar-desc a,
-    .seminar-modal-desc a,
-    #modal-desc a {
-        color: #2A7FC1;
-        text-decoration: underline;
-        text-underline-offset: 2px;
-    }
-
-    /* Khusus: jika editor menghasilkan <br> antar paragraf (browser lama) */
-    .rich-output br,
-    .desc-content br,
-    .seminar-desc br,
-    .seminar-modal-desc br,
-    #modal-desc br {
-        display: block;
-        content: '';
-        margin-top: 0.5em;
-    }
-
-    [x-cloak] { display: none !important; }
-    </style>
 </head>
+<body class="bg-neutral-100 font-sans antialiased">
 
-<body class="bg-neutral-50 font-sans antialiased">
+<div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
 
-    {{-- ── NAVBAR ── --}}
-    @include('components.navbar')
-
-    {{-- ── PAGE CONTENT ── --}}
-    <main>
-        @yield('content')
-    </main>
-
-    {{-- ── FOOTER ── --}}
-    @include('components.footer')
-
-    {{-- ── FLASH MESSAGES ── --}}
-    @if (session('success'))
-    <div id="flash-success" class="fixed bottom-6 right-6 z-50 alert alert-success shadow-lg max-w-sm"
-        x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition>
-        {{ session('success') }}
+    {{-- ── OVERLAY (mobile/tablet) ── --}}
+    <div
+        x-show="sidebarOpen"
+        x-transition:enter="transition-opacity ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click="sidebarOpen = false"
+        class="fixed inset-0 z-20 bg-black/50 lg:hidden"
+        style="display: none;">
     </div>
-    @endif
 
-    @if (session('error'))
-    <div id="flash-error" class="fixed bottom-6 right-6 z-50 alert alert-danger shadow-lg max-w-sm"
-        x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition>
-        {{ session('error') }}
+    {{-- ── SIDEBAR ── --}}
+    <aside
+        class="fixed inset-y-0 left-0 z-30 w-64 flex-shrink-0 bg-navy flex flex-col overflow-hidden
+               transform transition-transform duration-200 ease-in-out
+               lg:relative lg:translate-x-0 lg:z-auto"
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+
+        {{-- Logo --}}
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10 flex-shrink-0">
+            <img src="{{ asset('images/logo-aspapi.png') }}" alt="Logo ASPAPI"
+                class="h-9 w-auto object-contain flex-shrink-0"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+            <div class="hidden w-9 h-9 bg-primary rounded-full items-center justify-center flex-shrink-0">
+                <span class="text-white font-black text-2xs tracking-tight">ASP</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-white font-extrabold text-sm leading-none tracking-wide">ASPAPI</p>
+                <p class="text-neutral-400 text-2xs tracking-wider uppercase mt-0.5">Bendahara</p>
+            </div>
+            {{-- Tombol tutup (mobile only) --}}
+            <button
+                @click="sidebarOpen = false"
+                class="lg:hidden ml-auto text-neutral-400 hover:text-white transition-colors p-1 flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        {{-- Nav — scrollable --}}
+        <nav class="flex-1 py-4 px-3 overflow-y-auto">
+
+            <p class="sidebar-section-title">Utama</p>
+            <a href="{{ route('bendahara.dashboard') }}"
+               @click="sidebarOpen = false"
+               class="sidebar-link {{ request()->routeIs('bendahara.dashboard') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Dashboard
+            </a>
+
+            <p class="sidebar-section-title">Pembayaran</p>
+            <a href="{{ route('bendahara.payments') }}"
+               @click="sidebarOpen = false"
+               class="sidebar-link {{ request()->routeIs('bendahara.payments*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                Pembayaran Mandiri
+            </a>
+            <a href="{{ route('bendahara.batches') }}"
+               @click="sidebarOpen = false"
+               class="sidebar-link {{ request()->routeIs('bendahara.batches*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                Batch Kolektif
+            </a>
+
+            <p class="sidebar-section-title">Laporan</p>
+            <a href="{{ route('bendahara.rekap') }}"
+               @click="sidebarOpen = false"
+               class="sidebar-link {{ request()->routeIs('bendahara.rekap*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Rekap Pemasukan
+            </a>
+            <a href="{{ route('bendahara.iuran') }}"
+               @click="sidebarOpen = false"
+               class="sidebar-link {{ request()->routeIs('bendahara.iuran*') ? 'sidebar-link-active' : '' }}">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Status Iuran Anggota
+            </a>
+
+        </nav>
+
+        {{-- User info — SELALU di bawah --}}
+        <div class="flex-shrink-0 border-t border-white/10 px-4 py-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <span class="text-white text-xs font-bold">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'B', 0, 1)) }}
+                    </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->name ?? 'Bendahara' }}</p>
+                    <p class="text-neutral-500 text-2xs truncate">{{ auth()->user()->email ?? '' }}</p>
+                </div>
+            </div>
+            <a href="{{ route('account.settings') }}"
+               class="mt-3 flex items-center gap-1.5 text-2xs font-bold tracking-widest uppercase text-neutral-500 hover:text-white transition-colors duration-200 {{ request()->routeIs('account.*') ? 'text-white' : '' }}">
+                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Pengaturan Akun
+            </a>
+            <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                @csrf
+                <button type="submit"
+                        class="w-full text-left text-2xs font-bold tracking-widest uppercase text-neutral-500 hover:text-accent-red transition-colors duration-200">
+                    Keluar
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    {{-- ── MAIN AREA ── --}}
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+        {{-- Top Bar --}}
+        <header class="bg-white border-b border-neutral-200 px-4 lg:px-6 py-3 lg:py-4 flex items-center gap-3 shadow-sm flex-shrink-0">
+
+            {{-- Hamburger (mobile only) --}}
+            <button
+                @click="sidebarOpen = true"
+                class="lg:hidden flex-shrink-0 p-1.5 rounded-md text-navy hover:bg-neutral-100 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <div class="flex-1 min-w-0">
+                <h1 class="text-sm lg:text-base font-bold text-navy truncate">{{ $title ?? 'Dashboard' }}</h1>
+                @if(isset($breadcrumbs))
+                <nav class="flex items-center gap-1.5 mt-0.5">
+                    @foreach ($breadcrumbs as $crumb)
+                        @if (!$loop->last)
+                            <a href="{{ $crumb['url'] }}" class="text-2xs text-neutral-400 hover:text-primary transition-colors">{{ $crumb['label'] }}</a>
+                            <span class="text-neutral-300 text-2xs">›</span>
+                        @else
+                            <span class="text-2xs text-primary font-semibold">{{ $crumb['label'] }}</span>
+                        @endif
+                    @endforeach
+                </nav>
+                @endif
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="{{ url('/') }}" target="_blank" class="btn btn-ghost btn-sm hidden sm:inline-flex">
+                    Lihat Website ↗
+                </a>
+                <a href="{{ url('/') }}" target="_blank"
+                    class="sm:hidden p-1.5 rounded-md text-neutral-500 hover:bg-neutral-100 transition-colors"
+                    title="Lihat Website">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                </a>
+            </div>
+        </header>
+
+        {{-- Page Content --}}
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+            @if (session('success'))
+                <div class="alert alert-success mb-5">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger mb-5">{{ session('error') }}</div>
+            @endif
+
+            @yield('content')
+        </main>
     </div>
-    @endif
 
-    @stack('scripts')
+</div>
+
+@stack('scripts')
 </body>
-
 </html>

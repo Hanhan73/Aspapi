@@ -12,123 +12,96 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     <style>
-/* ── Rich editor output styling ───────────────────────────────────────────── */
-/* Berlaku untuk semua container yang menampilkan output dari rich editor     */
- 
-.rich-output p,
-.desc-content p,
-.seminar-desc p,
-.seminar-modal-desc p,
-#modal-desc p {
-    margin-bottom: 0.7em;
+/* ── Rich editor output styling ─────────────────────────────── */
+.rich-output p, .desc-content p, .seminar-desc p,
+.seminar-modal-desc p, #modal-desc p { margin-bottom: 0.7em; }
+
+.rich-output p:last-child, .desc-content p:last-child,
+.seminar-desc p:last-child, .seminar-modal-desc p:last-child,
+#modal-desc p:last-child { margin-bottom: 0; }
+
+.rich-output strong, .desc-content strong, .seminar-desc strong,
+.seminar-modal-desc strong, #modal-desc strong { font-weight: 700; color: inherit; }
+
+.rich-output em, .desc-content em, .seminar-desc em,
+.seminar-modal-desc em, #modal-desc em { font-style: italic; }
+
+.rich-output u, .desc-content u, .seminar-desc u,
+.seminar-modal-desc u, #modal-desc u { text-decoration: underline; }
+
+.rich-output ul, .desc-content ul, .seminar-desc ul,
+.seminar-modal-desc ul, #modal-desc ul {
+    list-style: disc; padding-left: 1.25rem; margin-bottom: 0.7em;
 }
- 
-.rich-output p:last-child,
-.desc-content p:last-child,
-.seminar-desc p:last-child,
-.seminar-modal-desc p:last-child,
-#modal-desc p:last-child {
-    margin-bottom: 0;
+
+.rich-output ol, .desc-content ol, .seminar-desc ol,
+.seminar-modal-desc ol, #modal-desc ol {
+    list-style: decimal; padding-left: 1.25rem; margin-bottom: 0.7em;
 }
- 
-.rich-output strong,
-.desc-content strong,
-.seminar-desc strong,
-.seminar-modal-desc strong,
-#modal-desc strong {
-    font-weight: 700;
-    color: inherit;
+
+.rich-output li, .desc-content li, .seminar-desc li,
+.seminar-modal-desc li, #modal-desc li { margin-bottom: 0.25em; }
+
+.rich-output a, .desc-content a, .seminar-desc a,
+.seminar-modal-desc a, #modal-desc a {
+    color: #2A7FC1; text-decoration: underline; text-underline-offset: 2px;
 }
- 
-.rich-output em,
-.desc-content em,
-.seminar-desc em,
-.seminar-modal-desc em,
-#modal-desc em {
-    font-style: italic;
+
+.rich-output br, .desc-content br, .seminar-desc br,
+.seminar-modal-desc br, #modal-desc br {
+    display: block; content: ''; margin-top: 0.5em;
 }
- 
-.rich-output u,
-.desc-content u,
-.seminar-desc u,
-.seminar-modal-desc u,
-#modal-desc u {
-    text-decoration: underline;
-}
- 
-.rich-output ul,
-.desc-content ul,
-.seminar-desc ul,
-.seminar-modal-desc ul,
-#modal-desc ul {
-    list-style: disc;
-    padding-left: 1.25rem;
-    margin-bottom: 0.7em;
-}
- 
-.rich-output ol,
-.desc-content ol,
-.seminar-desc ol,
-.seminar-modal-desc ol,
-#modal-desc ol {
-    list-style: decimal;
-    padding-left: 1.25rem;
-    margin-bottom: 0.7em;
-}
- 
-.rich-output li,
-.desc-content li,
-.seminar-desc li,
-.seminar-modal-desc li,
-#modal-desc li {
-    margin-bottom: 0.25em;
-}
- 
-.rich-output a,
-.desc-content a,
-.seminar-desc a,
-.seminar-modal-desc a,
-#modal-desc a {
-    color: #2A7FC1;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-}
- 
-/* Khusus: jika editor menghasilkan <br> antar paragraf (browser lama) */
-.rich-output br,
-.desc-content br,
-.seminar-desc br,
-.seminar-modal-desc br,
-#modal-desc br {
-    display: block;
-    content: '';
-    margin-top: 0.5em;
-}
-</style>
+    </style>
 </head>
 
 <body class="bg-neutral-100 font-sans antialiased">
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: false }">
+
+        {{-- ── OVERLAY (mobile/tablet) ── --}}
+        <div
+            x-show="sidebarOpen"
+            x-transition:enter="transition-opacity ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="sidebarOpen = false"
+            class="fixed inset-0 z-20 bg-black/50 lg:hidden"
+            style="display: none;">
+        </div>
 
         {{-- ── SIDEBAR ── --}}
-        <aside class="w-64 flex-shrink-0 bg-navy flex flex-col overflow-hidden">
+        <aside
+            class="fixed inset-y-0 left-0 z-30 w-64 flex-shrink-0 bg-navy flex flex-col overflow-hidden
+                   transform transition-transform duration-200 ease-in-out
+                   lg:relative lg:translate-x-0 lg:z-auto"
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
 
             {{-- Logo --}}
-            <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+            <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10 flex-shrink-0">
                 <img src="{{ asset('images/logo-aspapi.png') }}" alt="Logo ASPAPI"
                     class="h-9 w-auto object-contain flex-shrink-0"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
                 <div class="hidden w-9 h-9 bg-primary rounded-full items-center justify-center flex-shrink-0">
                     <span class="text-white font-black text-2xs tracking-tight">ASP</span>
                 </div>
-                <div>
+                <div class="flex-1 min-w-0">
                     <p class="text-white font-extrabold text-sm leading-none tracking-wide">ASPAPI</p>
                     @php $region = auth()->user()->region ?? null; @endphp
                     <p class="text-neutral-400 text-2xs tracking-wider uppercase mt-0.5">
                         {{ $region?->province ?? 'Daerah' }}
                     </p>
                 </div>
+                {{-- Tombol tutup (mobile only) --}}
+                <button
+                    @click="sidebarOpen = false"
+                    class="lg:hidden ml-auto text-neutral-400 hover:text-white transition-colors p-1 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
 
             {{-- Nav — scrollable --}}
@@ -136,6 +109,7 @@
 
                 <p class="sidebar-section-title">Utama</p>
                 <a href="{{ route('daerah.dashboard') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('daerah.dashboard') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -146,6 +120,7 @@
 
                 <p class="sidebar-section-title">Keanggotaan</p>
                 <a href="{{ route('daerah.members') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('daerah.members') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -154,6 +129,7 @@
                     Data Anggota
                 </a>
                 <a href="{{ route('daerah.verify.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('daerah.verify*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -161,13 +137,13 @@
                     </svg>
                     Verifikasi Biodata
                     @php $pc = \App\Models\Member::where('registered_by_region_id',
-                    auth()->user()->region?->id)->where('biodata_status','pending')->count(); @endphp
+                        auth()->user()->region?->id)->where('biodata_status','pending')->count(); @endphp
                     @if ($pc > 0)
-                    <span
-                        style="margin-left:auto;font-size:0.6rem;font-weight:700;background:#C0392B;color:#fff;border-radius:9999px;padding:0.1rem 0.4rem;">{{ $pc }}</span>
+                    <span style="margin-left:auto;font-size:0.6rem;font-weight:700;background:#C0392B;color:#fff;border-radius:9999px;padding:0.1rem 0.4rem;">{{ $pc }}</span>
                     @endif
                 </a>
                 <a href="{{ route('daerah.batch.form') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('daerah.batch*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -178,6 +154,7 @@
 
                 <p class="sidebar-section-title">Pembayaran</p>
                 <a href="{{ route('daerah.pay.form') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('daerah.pay.form') || request()->routeIs('daerah.pay.store') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -186,6 +163,7 @@
                     Bayar Iuran Kolektif
                 </a>
                 <a href="{{ route('daerah.pay.batches') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('daerah.pay.batches') || request()->routeIs('daerah.pay.batch.show') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -196,10 +174,11 @@
 
                 <p class="sidebar-section-title">Konten</p>
                 <a href="{{ route('daerah.agenda.index') }}"
+                    @click="sidebarOpen = false"
                     class="sidebar-link {{ request()->routeIs('daerah.agenda*') ? 'sidebar-link-active' : '' }}">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />  
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     Agenda
                 </a>
@@ -215,8 +194,7 @@
                         </span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-white text-xs font-semibold truncate">
-                            {{ auth()->user()->name ?? 'Pengurus Daerah' }}</p>
+                        <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->name ?? 'Pengurus Daerah' }}</p>
                         <p class="text-neutral-500 text-2xs truncate">{{ auth()->user()->email ?? '' }}</p>
                     </div>
                 </div>
@@ -225,8 +203,7 @@
                     <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     Pengaturan Akun
                 </a>
@@ -241,13 +218,22 @@
         </aside>
 
         {{-- ── MAIN AREA ── --}}
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
 
             {{-- Top Bar --}}
-            <header
-                class="bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between shadow-sm flex-shrink-0">
-                <div>
-                    <h1 class="text-base font-bold text-navy">{{ $title ?? 'Dashboard' }}</h1>
+            <header class="bg-white border-b border-neutral-200 px-4 lg:px-6 py-3 lg:py-4 flex items-center gap-3 shadow-sm flex-shrink-0">
+
+                {{-- Hamburger (mobile only) --}}
+                <button
+                    @click="sidebarOpen = true"
+                    class="lg:hidden flex-shrink-0 p-1.5 rounded-md text-navy hover:bg-neutral-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-sm lg:text-base font-bold text-navy truncate">{{ $title ?? 'Dashboard' }}</h1>
                     @if(isset($breadcrumbs))
                     <nav class="flex items-center gap-1.5 mt-0.5">
                         @foreach ($breadcrumbs as $crumb)
@@ -262,11 +248,24 @@
                     </nav>
                     @endif
                 </div>
-                <a href="{{ url('/') }}" target="_blank" class="btn btn-ghost btn-sm">Lihat Website ↗</a>
+
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <a href="{{ url('/') }}" target="_blank" class="btn btn-ghost btn-sm hidden sm:inline-flex">
+                        Lihat Website ↗
+                    </a>
+                    <a href="{{ url('/') }}" target="_blank"
+                        class="sm:hidden p-1.5 rounded-md text-neutral-500 hover:bg-neutral-100 transition-colors"
+                        title="Lihat Website">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
             </header>
 
             {{-- Page Content --}}
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-4 lg:p-6">
                 @if (session('success'))
                 <div class="alert alert-success mb-5">{{ session('success') }}</div>
                 @endif

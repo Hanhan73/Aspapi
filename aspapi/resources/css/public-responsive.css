@@ -1,0 +1,250 @@
+/* ============================================================
+   ASPAPI Public Pages — Responsive CSS
+   Simpan sebagai: resources/css/public-responsive.css
+   Import di app.css: @import './public-responsive.css';
+   ============================================================ */
+
+/* ──────────────────────────────────────────────────────────────
+   1. HERO SECTIONS — filter bar wrap di mobile
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Filter bar di Agenda, Blog, Berita, Dokumen */
+    .bg-white.border-b.border-neutral-200.sticky form {
+        flex-direction: column !important;
+    }
+
+    /* Input search full width */
+    .bg-white.border-b.border-neutral-200.sticky form .relative.flex-1 {
+        width: 100% !important;
+    }
+
+    /* Select filter full width */
+    .bg-white.border-b.border-neutral-200.sticky form select {
+        width: 100% !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   2. HALAMAN BERANDA — CTA tombol hero wrap
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 479px) {
+    /* CTA buttons di hero section */
+    section .flex.flex-wrap.items-center.gap-4 > a {
+        flex: 1 1 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   3. BLOG & BERITA SHOW — sidebar sticky jadi stack di mobile
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    /* Grid 1fr 300px → stack di < lg */
+    .grid.grid-cols-1.lg\:grid-cols-\[1fr_300px\] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Sidebar tidak sticky di mobile */
+    aside.lg\:sticky {
+        position: static !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   4. DIREKTORI ANGGOTA — tabel overflow + stats hero wrap
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Stats bar di hero direktori anggota */
+    .flex.flex-wrap.gap-6 > .flex.items-center.gap-3 {
+        flex: 1 1 calc(50% - 1.5rem);
+    }
+
+    /* Divider stats hilang di mobile */
+    .w-px.h-10.bg-white\/20.hidden.sm\:block {
+        display: none !important;
+    }
+}
+
+@media (max-width: 639px) {
+    /* Filter bar direktori anggota */
+    #filter-form {
+        flex-direction: column !important;
+    }
+    #filter-form .relative.flex-1,
+    #filter-form select {
+        width: 100% !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   5. STATISTIK CHART — chart daerah overflow di HP kecil
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Wrapper chart jadi scrollable horizontal */
+    .card canvas#chartDaerah {
+        min-width: 480px;
+    }
+
+    /* Wrapper canvas scrollable */
+    div[style*="position:relative"] > canvas#chartDaerah {
+        overflow-x: auto;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   6. MITRA ASPAPI — tab bar scroll + partner card grid
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Grid mitra 2x2 di HP (default 2 kolom = ok, tapi 5 kolom terlalu banyak) */
+    .grid.grid-cols-2.sm\:grid-cols-3.lg\:grid-cols-4.xl\:grid-cols-5 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 359px) {
+    /* HP sangat kecil: 1 kolom */
+    .grid.grid-cols-2.sm\:grid-cols-3.lg\:grid-cols-4.xl\:grid-cols-5 {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   7. PENDAFTARAN — dua jalur grid → stack di mobile
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    /* Grid dua kolom jalur A + B → stack */
+    .grid.grid-cols-1.lg\:grid-cols-2.gap-8 {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   8. DAERAH GRID — foto ketua terlalu tinggi di HP
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Batasi max-height foto ketua daerah */
+    [style*="aspect-ratio:3/4"][style*="max-height:460px"] {
+        max-height: 280px !important;
+    }
+
+    /* Pengurus & dewan pakar juga */
+    [style*="aspect-ratio:3/4"][style*="max-height:360px"] {
+        max-height: 240px !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   9. INISIATOR GRID — foto 220px → lebih kecil di HP
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 479px) {
+    [style*="height:220px"][style*="background:#EEF4FB"] {
+        height: 180px !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   10. REKENING INFO — info rekening daftar anggota
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Flex row info rekening → column */
+    .py-10.bg-primary-100 > .max-w-7xl > .flex {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   11. DOKUMEN — filter kategori pill overflow
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Pill kategori dokumen scroll horizontal */
+    .bg-white.border-b.border-neutral-200.sticky .flex.items-center.gap-2.flex-wrap {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding-bottom: 0.25rem;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   12. VISI MISI & SEJARAH — grid content + label kiri → stack
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Flex row visi/misi label + konten → column */
+    .flex.flex-col.md\:flex-row.gap-10.items-start {
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+    }
+
+    /* Label kiri (md:w-48) tidak perlu min-width di mobile */
+    .flex-shrink-0.md\:w-48 {
+        width: auto !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   13. KONGRES TIMELINE — card overflow di HP
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Flex gap timeline lebih kecil di HP */
+    .relative.flex.gap-6.md\:gap-10 {
+        gap: 0.75rem !important;
+    }
+
+    /* Circle nomor meeting lebih kecil */
+    .relative.flex.gap-6 .w-12.h-12.rounded-full {
+        width: 2rem !important;
+        height: 2rem !important;
+        font-size: 0.875rem !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   14. AGENDA MODAL — foto 1:1 terlalu besar di mobile
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+    /* Modal agenda maksimal 90vw */
+    #modal-agenda > div {
+        max-width: 94vw !important;
+    }
+
+    /* Foto di modal jangan sampai setengah layar */
+    #modal-photo,
+    #modal-no-photo {
+        aspect-ratio: 16/9 !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   15. DEWAN PAKAR & PENASIHAT — grid auto-fill terlalu lebar
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 479px) {
+    /* Grid person cards → 1 kolom di HP sangat kecil */
+    [style*="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))"],
+    [style*="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))"],
+    [style*="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+    /* 2 kolom di tablet kecil */
+    [style*="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))"],
+    [style*="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))"],
+    [style*="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   16. LSP PAGE — perjalanan nama grid → stack di mobile
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Grid 3 kolom perjalanan nama LSP → stack */
+    .grid.grid-cols-1.md\:grid-cols-3.items-center.gap-4 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Panah rotasi vertikal sudah handled Tailwind (rotate-90 md:rotate-0) */
+}
