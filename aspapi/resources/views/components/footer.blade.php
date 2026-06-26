@@ -120,20 +120,6 @@
                     <li><a href="{{ route('members.register') }}" class="text-sm text-neutral-400 hover:text-accent-yellow transition-colors duration-200">Pendaftaran Anggota</a></li>
                     <li><a href="{{ route('members.directory') }}" class="text-sm text-neutral-400 hover:text-accent-yellow transition-colors duration-200">Daftar Anggota</a></li>
                 </ul>
-
-                {{-- CTA Login --}}
-                <div class="mt-8">
-                    <p class="text-2xs font-bold tracking-widest uppercase text-white mb-3">Portal</p>
-                    <a href="{{ route('login') }}"
-                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded text-xs font-bold tracking-widest uppercase transition-all hover:opacity-90"
-                       style="background:#2A7FC1;color:#fff;">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                        </svg>
-                        Login Portal
-                    </a>
-                </div>
             </div>
 
         </div>
