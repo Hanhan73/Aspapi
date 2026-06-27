@@ -286,11 +286,58 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                         <label
                             style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tanggal
                             Lahir *</label>
-                        <input type="date" name="birth_date"
-                            value="{{ old('birth_date', $member?->birth_date?->format('Y-m-d')) }}" required
-                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#2A7FC1'"
-                            onblur="this.style.borderColor='{{ $b('birth_date') }}'" />
+
+                        @php
+                            $bdValue = old('birth_date', $member?->birth_date?->format('Y-m-d'));
+                            $bdParts = $bdValue ? explode('-', $bdValue) : ['', '', ''];
+                            $bdYear  = $bdParts[0] ?? '';
+                            $bdMonth = $bdParts[1] ?? '';
+                            $bdDay   = $bdParts[2] ?? '';
+                        @endphp
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:0.5rem;">
+                            {{-- Hari --}}
+                            <select id="bd-day"
+                                style="padding:0.625rem 0.5rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#2A7FC1'"
+                                onblur="this.style.borderColor='{{ $b('birth_date') }}'"
+                                onchange="syncBirthDate()">
+                                <option value="">DD</option>
+                                @for ($d = 1; $d <= 31; $d++)
+                                <option value="{{ str_pad($d, 2, '0', STR_PAD_LEFT) }}"
+                                    {{ $bdDay == str_pad($d, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                    {{ str_pad($d, 2, '0', STR_PAD_LEFT) }}
+                                </option>
+                                @endfor
+                            </select>
+
+                            {{-- Bulan --}}
+                            <select id="bd-month"
+                                style="padding:0.625rem 0.5rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#2A7FC1'"
+                                onblur="this.style.borderColor='{{ $b('birth_date') }}'"
+                                onchange="syncBirthDate()">
+                                <option value="">MM</option>
+                                @foreach(['01'=>'Jan','02'=>'Feb','03'=>'Mar','04'=>'Apr','05'=>'Mei','06'=>'Jun','07'=>'Jul','08'=>'Agu','09'=>'Sep','10'=>'Okt','11'=>'Nov','12'=>'Des'] as $mv => $ml)
+                                <option value="{{ $mv }}" {{ $bdMonth == $mv ? 'selected' : '' }}>{{ $ml }}</option>
+                                @endforeach
+                            </select>
+
+                            {{-- Tahun --}}
+                            <select id="bd-year"
+                                style="padding:0.625rem 0.5rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#2A7FC1'"
+                                onblur="this.style.borderColor='{{ $b('birth_date') }}'"
+                                onchange="syncBirthDate()">
+                                <option value="">YYYY</option>
+                                @for ($y = date('Y') - 17; $y >= 1940; $y--)
+                                <option value="{{ $y }}" {{ $bdYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                @endfor
+                            </select>
+                        </div>
+
+                        <input type="hidden" name="birth_date" id="birth_date_hidden" value="{{ $bdValue }}" />
+
                         @error('birth_date')
                         <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
                         @enderror
@@ -407,7 +454,7 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                 </div>
 
                 {{-- Pilihan ASPAPI Daerah --}}
-                <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;">
+                <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;margin-top:1.25rem;">
                     <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Keanggotaan Daerah</p>
 
                     <div>
@@ -623,6 +670,16 @@ function loadCities(provinceId) {
                 select.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
             });
         });
+}
+
+function syncBirthDate() {
+    const day   = document.getElementById('bd-day')?.value;
+    const month = document.getElementById('bd-month')?.value;
+    const year  = document.getElementById('bd-year')?.value;
+    const hidden = document.getElementById('birth_date_hidden');
+    if (hidden) {
+        hidden.value = (day && month && year) ? `${year}-${month}-${day}` : '';
+    }
 }
 
 function toggleOccupationOther(val) {
