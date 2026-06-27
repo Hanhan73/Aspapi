@@ -50,7 +50,10 @@
 
 [x-cloak] { display: none !important; }
     </style>
+
+     @stack('head')
 </head>
+
 <body class="bg-neutral-100 font-sans antialiased">
 @include('components.impersonate-banner')
 
