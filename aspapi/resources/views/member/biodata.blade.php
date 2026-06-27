@@ -3,7 +3,6 @@
 $title = 'Biodata Saya';
 $isImpersonating = session()->has('impersonator_id');
 
-// Kalau diimpersonate, anggap selalu editable
 $isLocked = !$isImpersonating && in_array($member?->biodata_status, ['pending', 'verified']);
 $isVerified = $member?->biodata_status === 'verified';
 $isPending = $member?->biodata_status === 'pending';
@@ -16,9 +15,17 @@ $occupationInList = in_array($currentOccupation, $occupationOptions);
 $selectedOccupation = $occupationInList ? $currentOccupation : ($currentOccupation ? 'Lainnya' : '');
 $customOccupation = (!$occupationInList && $currentOccupation) ? $currentOccupation : '';
 
-// Helper: border color per field
 $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
 @endphp
+
+@push('head')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+.flatpickr-input.form-input { background: #fff !important; }
+.flatpickr-day.selected { background: #2A7FC1 !important; border-color: #2A7FC1 !important; }
+.flatpickr-day:hover { background: #EEF4FB !important; }
+</style>
+@endpush
 
 @section('content')
 
@@ -155,7 +162,7 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                     'Pendidikan' => $member?->last_education_label,
                     'Provinsi' => $member?->provinceModel?->name,
                     'Kota' => $member?->cityModel?->name,
-                    'ASPAPI Daerah'  => $member?->registeredByRegion?->province
+                    'ASPAPI Daerah' => $member?->registeredByRegion?->province
                                         ? 'ASPAPI ' . $member->registeredByRegion->province
                                         : '—',
                     'Pekerjaan' => $member?->occupation,
@@ -286,58 +293,11 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                         <label
                             style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Tanggal
                             Lahir *</label>
-
-                        @php
-                            $bdValue = old('birth_date', $member?->birth_date?->format('Y-m-d'));
-                            $bdParts = $bdValue ? explode('-', $bdValue) : ['', '', ''];
-                            $bdYear  = $bdParts[0] ?? '';
-                            $bdMonth = $bdParts[1] ?? '';
-                            $bdDay   = $bdParts[2] ?? '';
-                        @endphp
-
-                        <div style="display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:0.5rem;">
-                            {{-- Hari --}}
-                            <select id="bd-day"
-                                style="padding:0.625rem 0.5rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                                onfocus="this.style.borderColor='#2A7FC1'"
-                                onblur="this.style.borderColor='{{ $b('birth_date') }}'"
-                                onchange="syncBirthDate()">
-                                <option value="">DD</option>
-                                @for ($d = 1; $d <= 31; $d++)
-                                <option value="{{ str_pad($d, 2, '0', STR_PAD_LEFT) }}"
-                                    {{ $bdDay == str_pad($d, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
-                                    {{ str_pad($d, 2, '0', STR_PAD_LEFT) }}
-                                </option>
-                                @endfor
-                            </select>
-
-                            {{-- Bulan --}}
-                            <select id="bd-month"
-                                style="padding:0.625rem 0.5rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                                onfocus="this.style.borderColor='#2A7FC1'"
-                                onblur="this.style.borderColor='{{ $b('birth_date') }}'"
-                                onchange="syncBirthDate()">
-                                <option value="">MM</option>
-                                @foreach(['01'=>'Jan','02'=>'Feb','03'=>'Mar','04'=>'Apr','05'=>'Mei','06'=>'Jun','07'=>'Jul','08'=>'Agu','09'=>'Sep','10'=>'Okt','11'=>'Nov','12'=>'Des'] as $mv => $ml)
-                                <option value="{{ $mv }}" {{ $bdMonth == $mv ? 'selected' : '' }}>{{ $ml }}</option>
-                                @endforeach
-                            </select>
-
-                            {{-- Tahun --}}
-                            <select id="bd-year"
-                                style="padding:0.625rem 0.5rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
-                                onfocus="this.style.borderColor='#2A7FC1'"
-                                onblur="this.style.borderColor='{{ $b('birth_date') }}'"
-                                onchange="syncBirthDate()">
-                                <option value="">YYYY</option>
-                                @for ($y = date('Y') - 17; $y >= 1940; $y--)
-                                <option value="{{ $y }}" {{ $bdYear == $y ? 'selected' : '' }}>{{ $y }}</option>
-                                @endfor
-                            </select>
-                        </div>
-
-                        <input type="hidden" name="birth_date" id="birth_date_hidden" value="{{ $bdValue }}" />
-
+                        <input type="text" name="birth_date"
+                            value="{{ old('birth_date', $member?->birth_date?->format('Y-m-d')) }}"
+                            id="birth_date_picker" required
+                            placeholder="DD/MM/YYYY"
+                            style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('birth_date') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;" />
                         @error('birth_date')
                         <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
                         @enderror
@@ -456,7 +416,6 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                 {{-- Pilihan ASPAPI Daerah --}}
                 <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.5rem;margin-top:1.25rem;">
                     <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#C0392B;margin-bottom:1.25rem;">Keanggotaan Daerah</p>
-
                     <div>
                         <label style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">ASPAPI Daerah</label>
                         <select name="registered_by_region_id"
@@ -490,12 +449,10 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                     <select name="occupation_select" id="occupation-select" onchange="toggleOccupationOther(this.value)"
                         style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('occupation') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;">
                         <option value="">Pilih</option>
-                        <option value="Dosen" {{ $selectedOccupation === 'Dosen'     ? 'selected' : '' }}>Dosen</option>
-                        <option value="Guru" {{ $selectedOccupation === 'Guru'      ? 'selected' : '' }}>Guru</option>
-                        <option value="Praktisi" {{ $selectedOccupation === 'Praktisi'  ? 'selected' : '' }}>Praktisi
-                        </option>
-                        <option value="Lainnya" {{ $selectedOccupation === 'Lainnya'   ? 'selected' : '' }}>Lainnya
-                        </option>
+                        <option value="Dosen" {{ $selectedOccupation === 'Dosen'    ? 'selected' : '' }}>Dosen</option>
+                        <option value="Guru" {{ $selectedOccupation === 'Guru'     ? 'selected' : '' }}>Guru</option>
+                        <option value="Praktisi" {{ $selectedOccupation === 'Praktisi' ? 'selected' : '' }}>Praktisi</option>
+                        <option value="Lainnya" {{ $selectedOccupation === 'Lainnya'  ? 'selected' : '' }}>Lainnya</option>
                     </select>
 
                     <div id="occupation-other-wrap"
@@ -559,14 +516,14 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                 $badgeStyle = match($member?->biodata_status) {
                 'verified' => 'background:#F0FFF4;color:#276749;',
                 'rejected' => 'background:#FDECEA;color:#C0392B;',
-                'pending' => 'background:#FEF8EC;color:#B8860B;',
-                default => 'background:#EEF4FB;color:#4A6580;',
+                'pending'  => 'background:#FEF8EC;color:#B8860B;',
+                default    => 'background:#EEF4FB;color:#4A6580;',
                 };
                 $badgeLabel = match($member?->biodata_status) {
                 'verified' => '✓ Terverifikasi',
                 'rejected' => '✗ Ditolak',
-                'pending' => '⏳ Menunggu Verifikasi',
-                default => '✎ Draft — Belum Diajukan',
+                'pending'  => '⏳ Menunggu Verifikasi',
+                default    => '✎ Draft — Belum Diajukan',
                 };
                 @endphp
                 <span
@@ -634,15 +591,24 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
 </form>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script>
-function openUnlockModal() {
-    const modal = document.getElementById('unlock-modal');
-    modal.style.display = 'flex';
-}
+flatpickr("#birth_date_picker", {
+    locale: "id",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    allowInput: true,
+    maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 17)),
+    minDate: "1940-01-01",
+});
 
+function openUnlockModal() {
+    document.getElementById('unlock-modal').style.display = 'flex';
+}
 function closeUnlockModal() {
-    const modal = document.getElementById('unlock-modal');
-    modal.style.display = 'none';
+    document.getElementById('unlock-modal').style.display = 'none';
 }
 document.getElementById('unlock-modal')?.addEventListener('click', function(e) {
     if (e.target === this) closeUnlockModal();
@@ -672,21 +638,10 @@ function loadCities(provinceId) {
         });
 }
 
-function syncBirthDate() {
-    const day   = document.getElementById('bd-day')?.value;
-    const month = document.getElementById('bd-month')?.value;
-    const year  = document.getElementById('bd-year')?.value;
-    const hidden = document.getElementById('birth_date_hidden');
-    if (hidden) {
-        hidden.value = (day && month && year) ? `${year}-${month}-${day}` : '';
-    }
-}
-
 function toggleOccupationOther(val) {
-    const wrap = document.getElementById('occupation-other-wrap');
-    const other = document.getElementById('occupation-other');
+    const wrap   = document.getElementById('occupation-other-wrap');
+    const other  = document.getElementById('occupation-other');
     const hidden = document.getElementById('occupation-hidden');
-
     if (val === 'Lainnya') {
         wrap.style.display = 'block';
         other.focus();
@@ -703,9 +658,8 @@ document.getElementById('occupation-other')?.addEventListener('input', function(
 
 document.getElementById('biodata-form')?.addEventListener('submit', function() {
     const select = document.getElementById('occupation-select');
-    const other = document.getElementById('occupation-other');
+    const other  = document.getElementById('occupation-other');
     const hidden = document.getElementById('occupation-hidden');
-
     if (select && select.value === 'Lainnya') {
         hidden.value = other?.value || '';
     } else if (select) {
