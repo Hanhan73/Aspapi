@@ -90,16 +90,17 @@
             position: absolute;
             top: 0;
             left: 30px;
-            width: 200px;
+            width: 270px;
             opacity: 0.85;
             z-index: 0;
+            margin-top: -20px;
         }
 
         .ttd-img {
             position: absolute;
             top: 50px;
-            left: 100px;
-            width: 170px;
+            left: 50px;
+            width: 220px;
             z-index: 1;
         }
 
