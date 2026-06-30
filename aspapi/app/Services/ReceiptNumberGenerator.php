@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Receipt;
 use App\Models\ReceiptCounter;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ReceiptNumberGenerator
@@ -11,21 +12,23 @@ class ReceiptNumberGenerator
     /**
      * Generate kwitansi baru dengan nomor urut yang aman dari race condition.
      * Format: {urut3digit}/ASPAPI/BD/{bulan2digit}/{tahun4digit}
-     * Urut reset ke 1 setiap pergantian tahun (berdasarkan tahun saat kwitansi diterbitkan).
+     * Urut reset ke 1 setiap pergantian tahun.
+     *
+     * $issuedAt: tanggal "resmi" kwitansi ini diterbitkan. Default sekarang,
+     * tapi untuk backfill data lama dipaksa pakai tanggal verifikasi aslinya
+     * supaya nomor urut & tahunnya tetap kronologis & akurat.
      */
-    public static function issue(array $data): Receipt
+    public static function issue(array $data, ?Carbon $issuedAt = null): Receipt
     {
-        $now  = now();
-        $year = $now->year;
+        $issuedAt = $issuedAt ?? now();
+        $year     = $issuedAt->year;
 
-        return DB::transaction(function () use ($data, $now, $year) {
-            $counter = ReceiptCounter::firstOrCreate(
+        return DB::transaction(function () use ($data, $issuedAt, $year) {
+            ReceiptCounter::firstOrCreate(
                 ['year' => $year],
                 ['last_sequence' => 0]
             );
 
-            // Kunci baris counter tahun ini supaya verifikasi yang nyaris bersamaan
-            // tetap antre dapat nomor urut berbeda.
             $counter = ReceiptCounter::where('year', $year)->lockForUpdate()->first();
 
             $nextSequence = $counter->last_sequence + 1;
@@ -34,15 +37,26 @@ class ReceiptNumberGenerator
             $receiptNumber = sprintf(
                 '%03d/ASPAPI/BD/%02d/%d',
                 $nextSequence,
-                $now->month,
+                $issuedAt->month,
                 $year
             );
 
-            return Receipt::create(array_merge($data, [
+            $receipt = Receipt::create(array_merge($data, [
                 'sequence'       => $nextSequence,
                 'year'           => $year,
                 'receipt_number' => $receiptNumber,
             ]));
+
+            // Supaya tanggal yang tercetak di kwitansi (created_at) ikut tanggal asli,
+            // bukan tanggal command backfill dijalankan.
+            if ($issuedAt->ne(now())) {
+                $receipt->forceFill([
+                    'created_at' => $issuedAt,
+                    'updated_at' => $issuedAt,
+                ])->saveQuietly();
+            }
+
+            return $receipt;
         });
     }
 }
