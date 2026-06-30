@@ -89,7 +89,7 @@
         .stempel {
             position: absolute;
             top: 0;
-            margin-left: -20px;
+            margin-left: -50px;
             width: 270px;
             opacity: 0.85;
             z-index: 0;
