@@ -128,7 +128,7 @@ class BendaharaController extends Controller
         return back()->with('success', 'Pembayaran berhasil diverifikasi.');
     }
 
-    /**
+/**
      * Terbitkan kwitansi untuk Payment mandiri yang baru verified.
      *
      * Aturan: uang_pangkal & iuran_tahunan SELALU digabung jadi SATU kwitansi
@@ -184,7 +184,7 @@ class BendaharaController extends Controller
                 'member_id'       => $member->id,
                 'payment_id_list' => [$payment->id, $pair->id],
                 'amount'          => $totalAmount,
-                'payer_name'      => $member->full_name,
+                'payer_name'      => $member->full_name_with_title,
                 'purpose'         => 'Uang Pangkal Anggota ASPAPI + ' . $iuranPeriodText(),
                 'issued_by'       => auth()->id(),
             ]);
@@ -203,7 +203,7 @@ class BendaharaController extends Controller
             'member_id'       => $member->id,
             'payment_id_list' => [$payment->id],
             'amount'          => $payment->amount,
-            'payer_name'      => $member->full_name,
+            'payer_name'      => $member->full_name_with_title,
             'purpose'         => $purpose,
             'issued_by'       => auth()->id(),
         ]);
