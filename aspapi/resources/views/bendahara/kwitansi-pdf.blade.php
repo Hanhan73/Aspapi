@@ -89,11 +89,11 @@
         .stempel {
             position: absolute;
             top: 0;
-            left: 30px;
+            left: 0;
             width: 270px;
             opacity: 0.85;
             z-index: 0;
-            margin-top: -20px;
+            margin-top: -75px;
         }
 
         .ttd-img {
