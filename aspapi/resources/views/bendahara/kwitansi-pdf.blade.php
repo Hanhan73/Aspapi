@@ -4,108 +4,109 @@
 <head>
     <meta charset="utf-8">
     <style>
-    @font-face {
-        font-family: 'DejaVu Sans';
-        src: local('DejaVu Sans');
-    }
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: local('DejaVu Sans');
+        }
 
-    body {
-        font-family: 'DejaVu Sans', sans-serif;
-        font-size: 12px;
-        color: #1A2A3A;
-        margin: 0;
-        padding: 0;
-    }
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 12px;
+            color: #1A2A3A;
+            margin: 0;
+            padding: 0;
+        }
 
-    .header img {
-        width: 100%;
-        display: block;
-    }
+        .header img {
+            width: 100%;
+            display: block;
+        }
 
-    .content {
-        padding: 10px 40px 0 40px;
-    }
+        .content {
+            padding: 10px 40px 0 40px;
+        }
 
-    h1.title {
-        text-align: center;
-        font-size: 22px;
-        letter-spacing: 2px;
-        margin: 25px 0 35px 0;
-    }
+        h1.title {
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 2px;
+            margin: 25px 0 35px 0;
+        }
 
-    table.fields {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 30px;
-    }
+        table.fields {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
 
-    table.fields td {
-        padding: 4px 0;
-        vertical-align: top;
-    }
+        table.fields td {
+            padding: 4px 0;
+            vertical-align: top;
+        }
 
-    table.fields td.label {
-        width: 160px;
-    }
+        table.fields td.label {
+            width: 160px;
+        }
 
-    table.fields td.colon {
-        width: 15px;
-    }
+        table.fields td.colon {
+            width: 15px;
+        }
 
-    .date-line {
-        text-align: right;
-        padding-right: 40px;
-        margin-bottom: 0;
-    }
+        .date-line {
+            width: 300px;
+            float: right;
+            text-align: left;
+            margin-bottom: 0;
+        }
 
-    .signature-block {
-        width: 100%;
-        margin-top: 10px;
-    }
+        .signature-block {
+            width: 100%;
+            margin-top: 10px;
+        }
 
-    .signature-right {
-        width: 300px;
-        float: right;
-        text-align: center;
-        position: relative;
-    }
+        .signature-right {
+            width: 300px;
+            float: right;
+            text-align: center;
+            position: relative;
+        }
 
-    .sign-area {
-        position: relative;
-        height: 195px;
-        /* dibesarin lagi biar muat stempel & ttd */
-    }
+        .sign-area {
+            position: relative;
+            height: 195px;
+            /* dibesarin lagi biar muat stempel & ttd */
+        }
 
-    .stempel {
-        position: absolute;
-        top: -20px;
-        left: 20px;
-        width: 220px;
-        /* sebelumnya 175 */
-        opacity: 0.85;
-        z-index: 0;
-    }
+        .stempel {
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            width: 220px;
+            /* sebelumnya 175 */
+            opacity: 0.85;
+            z-index: 0;
+        }
 
-    .ttd-img {
-        position: absolute;
-        top: 35px;
-        left: 95px;
-        width: 190px;
-        /* sebelumnya 150 */
-        z-index: 1;
-    }
+        .ttd-img {
+            position: absolute;
+            top: 35px;
+            left: 95px;
+            width: 190px;
+            /* sebelumnya 150 */
+            z-index: 1;
+        }
 
-    .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-    }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
 
-    .footer img {
-        width: 100%;
-        display: block;
-    }
+        .footer img {
+            width: 100%;
+            display: block;
+        }
     </style>
 </head>
 
