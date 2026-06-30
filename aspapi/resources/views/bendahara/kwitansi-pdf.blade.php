@@ -28,23 +28,28 @@
     table.fields td.colon { width: 15px; }
     .signature-block { width: 100%; margin-top: 10px; }
     .signature-right {
-        width: 280px;
+        width: 300px;
         float: right;
         text-align: center;
         position: relative;
     }
+    .sign-area {
+        position: relative;
+        height: 165px; /* dibesarin biar muat stempel & ttd yang lebih gede */
+    }
     .stempel {
         position: absolute;
-        top: -10px;
-        left: 30px;
-        width: 130px;
+        top: -15px;
+        left: 35px;
+        width: 175px; /* sebelumnya 130 */
         opacity: 0.85;
         z-index: 0;
     }
     .ttd-img {
-        width: 110px;
-        margin: 6px 0 -10px 0;
-        position: relative;
+        position: absolute;
+        top: 30px;
+        left: 90px;
+        width: 150px; /* sebelumnya 110 */
         z-index: 1;
     }
     .footer { position: fixed; bottom: 0; left: 0; right: 0; }
@@ -91,7 +96,7 @@
                 Periode 2022&ndash;2026<br>
                 Bendahara III,</p>
 
-                <div style="position: relative; height: 110px;">
+                <div class="sign-area">
                     <img class="stempel" src="{{ storage_path('app/kwitansi/kwitansi-stempel.png') }}">
                     <img class="ttd-img" src="{{ storage_path('app/kwitansi/kwitansi-ttd.png') }}">
                 </div>

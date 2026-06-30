@@ -130,35 +130,52 @@ class BendaharaController extends Controller
 
     /**
      * Terbitkan kwitansi untuk Payment mandiri yang baru verified.
-     * Khusus "gabungan" (uang_pangkal + iuran_tahunan dengan notes sama,
-     * dikirim dalam satu upload bukti): tunggu sampai DUA-DUANYA verified,
-     * baru terbit SATU kwitansi gabungan. Kalau pasangannya belum verified,
-     * payment ini ditandai "menunggu pasangan" dan kwitansi belum terbit.
+     *
+     * Aturan: uang_pangkal & iuran_tahunan SELALU digabung jadi SATU kwitansi
+     * kalau dua-duanya ada untuk member yang sama, sudah sama-sama verified,
+     * dan belum ada satupun yang kebagian nomor kwitansi.
+     *
+     * Untuk iuran_tahunan, teks "Untuk pembayaran" menampilkan rentang tanggal
+     * masa aktifnya, contoh: "Biaya perpanjangan anggota ASPAPI untuk satu
+     * tahun (20 Juni 2026 s.d. 20 Juni 2027)". Rentang ini dihitung dari
+     * active_until member yang SUDAH di-update di blok atas method verify(),
+     * jadi start date-nya tinggal active_until dikurangi 1 tahun.
      */
     private function issueReceiptForPayment(Payment $payment): void
     {
-        $member = $payment->member;
-        $isGabungan = $payment->notes === 'Pembayaran gabungan';
+        $member = $payment->member->fresh(); // pastikan active_until-nya yang sudah ter-update
 
-        if ($isGabungan) {
-            $pair = Payment::where('member_id', $payment->member_id)
-                ->where('id', '!=', $payment->id)
-                ->where('notes', 'Pembayaran gabungan')
-                ->where('receipt_path', $payment->receipt_path)
-                ->first();
+        $alreadyReceipted = fn (int $paymentId) => \App\Models\Receipt::where('source_type', 'payment')
+            ->whereJsonContains('payment_id_list', $paymentId)
+            ->exists();
 
-            // Pasangannya belum diupload/ditemukan atau belum verified -> tunda kwitansi
-            if (!$pair || $pair->status !== 'verified') {
-                return;
+        if ($alreadyReceipted($payment->id)) {
+            return;
+        }
+
+        $iuranPeriodText = function () use ($member) {
+            if (!$member->active_until) {
+                return 'Biaya perpanjangan anggota ASPAPI untuk satu tahun';
             }
+            $end   = $member->active_until->copy();
+            $start = $end->copy()->subYear();
 
-            // Hindari duplikat kalau verify() pasangan dipanggil duluan
-            if (\App\Models\Receipt::where('source_type', 'payment')
-                ->whereJsonContains('payment_id_list', $pair->id)
-                ->exists()) {
-                return;
-            }
+            return 'Biaya perpanjangan anggota ASPAPI untuk satu tahun ('
+                . $start->translatedFormat('d F Y') . ' s.d. ' . $end->translatedFormat('d F Y') . ')';
+        };
 
+        $otherType = $payment->type === 'uang_pangkal' ? 'iuran_tahunan' : 'uang_pangkal';
+
+        $pair = Payment::where('member_id', $payment->member_id)
+            ->where('id', '!=', $payment->id)
+            ->where('type', $otherType)
+            ->where('status', 'verified')
+            ->latest('verified_at')
+            ->get()
+            ->first(fn ($p) => !$alreadyReceipted($p->id));
+
+        if ($pair) {
+            // ── GABUNG: uang pangkal + iuran tahunan jadi 1 kwitansi ──
             $totalAmount = $payment->amount + $pair->amount;
 
             \App\Services\ReceiptNumberGenerator::issue([
@@ -168,16 +185,17 @@ class BendaharaController extends Controller
                 'payment_id_list' => [$payment->id, $pair->id],
                 'amount'          => $totalAmount,
                 'payer_name'      => $member->full_name,
-                'purpose'         => 'Uang Pangkal + Iuran Tahunan (Gabungan) Anggota ASPAPI',
+                'purpose'         => 'Uang Pangkal Anggota ASPAPI + ' . $iuranPeriodText(),
                 'issued_by'       => auth()->id(),
             ]);
 
             return;
         }
 
+        // ── SOLO: cuma 1 jenis, pasangannya belum ada/belum verified ──
         $purpose = $payment->type === 'uang_pangkal'
             ? 'Uang pangkal anggota ASPAPI'
-            : 'Iuran tahunan anggota ASPAPI tahun ' . $payment->payment_year;
+            : $iuranPeriodText();
 
         \App\Services\ReceiptNumberGenerator::issue([
             'source_type'     => 'payment',
@@ -190,7 +208,7 @@ class BendaharaController extends Controller
             'issued_by'       => auth()->id(),
         ]);
     }
-
+    
     public function reject(Request $request, int $id)
     {
         $request->validate(['reason' => 'required|string']);
