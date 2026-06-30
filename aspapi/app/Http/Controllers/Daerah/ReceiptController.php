@@ -22,7 +22,7 @@ class ReceiptController extends Controller
 
         $receipt->load('region');
 
-        $pdf = Pdf::loadView('kwitansi.pdf', compact('receipt'))
+        $pdf = Pdf::loadView('bendahara.kwitansi-pdf', compact('receipt'))
             ->setPaper('a4', 'portrait');
 
         $filename = 'Kwitansi-' . str_replace('/', '-', $receipt->receipt_number) . '.pdf';
