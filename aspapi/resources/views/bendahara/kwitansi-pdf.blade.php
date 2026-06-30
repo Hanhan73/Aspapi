@@ -98,9 +98,9 @@
 
         .ttd-img {
             position: absolute;
-            top: 50px;
+            top: 0;
             left: 50px;
-            width: 220px;
+            width: 200px;
             z-index: 1;
         }
 
