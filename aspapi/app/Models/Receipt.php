@@ -24,6 +24,10 @@ class Receipt extends Model
     protected $casts = [
         'payment_id_list' => 'array',
         'amount'          => 'decimal:2',
+        'member_id'       => 'integer',
+        'region_id'       => 'integer',
+        'sequence'        => 'integer',
+        'year'            => 'integer',
     ];
 
     public function member()

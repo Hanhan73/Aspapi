@@ -15,7 +15,7 @@ class ReceiptController extends Controller
 
         // ASPAPI Daerah cuma boleh lihat kwitansi batch kolektif miliknya sendiri
         abort_unless(
-            $receipt->source_type === 'payment_batch' && $receipt->region_id === $region->id,
+            $receipt->source_type === 'payment_batch' && $receipt->region_id == $region->id,
             403,
             'Anda tidak berhak mengakses kwitansi ini.'
         );
