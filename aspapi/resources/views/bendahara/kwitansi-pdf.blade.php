@@ -105,7 +105,7 @@
         }
 
         .signer-name {
-            margin-top: -120px;
+            margin-top: -130px;
             left: 150px;
             font-weight: bold;
             text-decoration: underline;
