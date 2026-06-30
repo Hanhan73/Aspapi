@@ -53,12 +53,24 @@
                         <p style="font-size:0.7rem;color:#C0392B;margin:0.25rem 0 0;">{{ $batch->reject_reason }}</p>
                         @endif
                     </td>
-                    <td style="padding:0.75rem 1rem;">
-                        <a href="{{ route('daerah.pay.batch.show', $batch->id) }}"
-                           style="font-size:0.7rem;font-weight:700;color:#2A7FC1;text-decoration:none;padding:0.3rem 0.75rem;border:1.5px solid #D6E8F7;border-radius:3px;white-space:nowrap;">
-                            Lihat Detail
-                        </a>
-                    </td>
+<td style="padding:0.75rem 1rem;">
+    <a href="{{ route('daerah.pay.batch.show', $batch->id) }}"
+       style="font-size:0.7rem;font-weight:700;color:#2A7FC1;text-decoration:none;padding:0.3rem 0.75rem;border:1.5px solid #D6E8F7;border-radius:3px;white-space:nowrap;">
+        Lihat Detail
+    </a>
+    @if ($batch->status === 'verified')
+        @php
+            $batchReceipt = \App\Models\Receipt::where('source_type', 'payment_batch')
+                ->where('source_id', $batch->id)->first();
+        @endphp
+        @if ($batchReceipt)
+        <a href="{{ route('daerah.kwitansi', $batchReceipt->id) }}" target="_blank"
+           style="font-size:0.7rem;font-weight:700;color:#fff;background:#2A7FC1;text-decoration:none;padding:0.3rem 0.75rem;border-radius:3px;white-space:nowrap;margin-left:0.375rem;">
+            🧾 Kwitansi
+        </a>
+        @endif
+    @endif
+</td>
                 </tr>
                 @empty
                 <tr>
