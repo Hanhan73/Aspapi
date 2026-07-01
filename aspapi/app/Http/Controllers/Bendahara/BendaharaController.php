@@ -319,7 +319,7 @@ class BendaharaController extends Controller
         $batch->loadMissing('region', 'payments');
 
         $verifiedAt = $batch->verified_at ?? now();
-        $start      = $verifiedAt->copy()->locale('id')->translatedFormat('d F Y');
+        $start      = $verifiedAt->copy()->translatedFormat('d F Y');
         $end        = $verifiedAt->copy()->addYear()->translatedFormat('d F Y');
 
         \App\Services\ReceiptNumberGenerator::issue([
