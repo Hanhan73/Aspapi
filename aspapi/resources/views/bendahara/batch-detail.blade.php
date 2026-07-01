@@ -142,6 +142,24 @@
                 </div>
                 @endif
             </div>
+
+            {{-- Tombol Kwitansi --}}
+            @if ($batch->status === 'verified')
+            @php
+                $batchReceipt = \App\Models\Receipt::where('source_type', 'payment_batch')
+                    ->where('source_id', $batch->id)
+                    ->first();
+            @endphp
+            @if ($batchReceipt)
+            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #EEF4FB;">
+                <a href="{{ route('bendahara.kwitansi', $batchReceipt->id) }}" target="_blank"
+                   style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;padding:0.625rem;background:#EEF4FB;color:#2A7FC1;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;box-sizing:border-box;">
+                    🧾 Cetak Kwitansi
+                    <span style="font-weight:400;font-size:0.65rem;text-transform:none;">({{ $batchReceipt->receipt_number }})</span>
+                </a>
+            </div>
+            @endif
+            @endif
         </div>
 
         {{-- Aksi Verifikasi --}}
@@ -157,7 +175,6 @@
                 </button>
             </form>
 
-            {{-- Tolak --}}
             <button onclick="document.getElementById('reject-form').classList.toggle('hidden')"
                     style="width:100%;padding:0.625rem;background:transparent;color:#C0392B;border:1.5px solid #C0392B;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
                 ✗ Tolak Batch
