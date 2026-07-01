@@ -30,7 +30,7 @@
             text-align: center;
             font-size: 22px;
             letter-spacing: 2px;
-            margin: 0 0 35px 0;
+            margin: -20px 0 35px 0;
         }
 
         table.fields {
