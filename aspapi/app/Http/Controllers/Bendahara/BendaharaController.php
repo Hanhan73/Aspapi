@@ -26,6 +26,7 @@ class BendaharaController extends Controller
     public function payments(Request $request)
     {
         $payments = Payment::with(['member', 'verifier'])
+            ->where('payment_method', '!=', 'kolektif') // kolektif tampil di halaman batch, bukan sini
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
             ->when($request->filled('type'),   fn($q) => $q->where('type', $request->type))
             ->when($request->filled('method'), fn($q) => $q->where('payment_method', $request->method))
