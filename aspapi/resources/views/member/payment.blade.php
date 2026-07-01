@@ -206,10 +206,11 @@ $hampirKadaluarsa = !$bisaIuran && $member->isDuesExpiringSoon(30);
                         ->first();
                         @endphp
                         @if ($receipt)
-                        <br>
                         <a href="{{ route('member.kwitansi', $receipt->id) }}" target="_blank"
                             style="font-size:0.7rem;color:#276749;font-weight:700;">🧾 Kwitansi</a>
                         @endif
+                        @else
+                        <span style="color:#B0CCDF;font-size:0.8rem;">—</span>
                         @endif
                     </td>
                 </tr>
