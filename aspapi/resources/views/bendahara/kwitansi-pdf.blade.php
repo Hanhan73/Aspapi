@@ -66,12 +66,12 @@
         font-weight: 700;
         padding: 5px 8px;
         text-align: left;
-        border: 1px solid #D6E8F7;
+        border: 1px solid #3a98e6;
     }
 
     table.member-table td {
         padding: 4px 8px;
-        border: 1px solid #D6E8F7;
+        border: 1px solid #3a98e6;
         vertical-align: top;
     }
 
@@ -196,7 +196,6 @@
                 <tr>
                     <th class="no-col">No.</th>
                     <th>Nama Lengkap</th>
-                    <th>Instansi</th>
                 </tr>
             </thead>
             <tbody>
@@ -204,7 +203,6 @@
                 <tr>
                     <td class="no-col">{{ $i + 1 }}</td>
                     <td>{{ $m->full_name_with_title ?? $m->full_name }}</td>
-                    <td>{{ $m->institution ?? '-' }}</td>
                 </tr>
                 @endforeach
             </tbody>
