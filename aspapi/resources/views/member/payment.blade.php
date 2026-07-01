@@ -157,6 +157,9 @@ $hampirKadaluarsa = !$bisaIuran && $member->isDuesExpiringSoon(30);
                     <th
                         style="padding:0.625rem 1rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;white-space:nowrap;">
                         Bukti</th>
+                    <th
+                        style="padding:0.625rem 1rem;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2A7FC1;white-space:nowrap;">
+                        Kwitansi</th>
                 </tr>
             </thead>
             <tbody>
@@ -194,10 +197,9 @@ $hampirKadaluarsa = !$bisaIuran && $member->isDuesExpiringSoon(30);
                         @else
                         <span style="color:#B0CCDF;font-size:0.8rem;">—</span>
                         @endif
-
-                        {{-- Link kwitansi sengaja cuma muncul saat admin impersonate anggota ini.
-                             Belum ditampilkan ke anggota asli sampai dites lebih lanjut. --}}
-                        @if ($pay->status === 'verified' && session()->has('impersonator_id'))
+                    </td>
+                    <td style="padding:0.75rem 1rem;">
+                        @if ($pay->status === 'verified')
                         @php
                         $receipt = \App\Models\Receipt::where('source_type', 'payment')
                         ->whereJsonContains('payment_id_list', $pay->id)
