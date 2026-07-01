@@ -51,7 +51,6 @@ class BendaharaController extends Controller
     {
         $payment = Payment::with('member')->findOrFail($id);
 
-        // Guard idempoten: jangan proses ulang jika sudah verified
         if ($payment->status === 'verified') {
             return back()->with('info', 'Pembayaran ini sudah diverifikasi sebelumnya.');
         }
@@ -65,7 +64,6 @@ class BendaharaController extends Controller
         $member = $payment->member;
 
         if ($payment->type === 'iuran_tahunan') {
-            // Cek apakah member sudah punya iuran aktif untuk tahun ini dari payment lain
             $alreadyExtended = Payment::where('member_id', $member->id)
                 ->where('id', '!=', $payment->id)
                 ->where('type', 'iuran_tahunan')
@@ -85,7 +83,6 @@ class BendaharaController extends Controller
                     'active_until' => $baseDate->addYear(),
                 ]);
             } else {
-                // Tetap update status/dues_paid tapi jangan extend active_until lagi
                 $member->update([
                     'status'    => 'active',
                     'dues_paid' => true,
@@ -107,7 +104,6 @@ class BendaharaController extends Controller
 
         $this->issueReceiptForPayment($payment);
 
-        // Notif ke anggota
         try {
             Mail::send(
                 'emails.payment-verified',
@@ -128,22 +124,14 @@ class BendaharaController extends Controller
         return back()->with('success', 'Pembayaran berhasil diverifikasi.');
     }
 
-/**
+    /**
      * Terbitkan kwitansi untuk Payment mandiri yang baru verified.
-     *
-     * Aturan: uang_pangkal & iuran_tahunan SELALU digabung jadi SATU kwitansi
-     * kalau dua-duanya ada untuk member yang sama, sudah sama-sama verified,
-     * dan belum ada satupun yang kebagian nomor kwitansi.
-     *
-     * Untuk iuran_tahunan, teks "Untuk pembayaran" menampilkan rentang tanggal
-     * masa aktifnya, contoh: "Biaya perpanjangan anggota ASPAPI untuk satu
-     * tahun (20 Juni 2026 s.d. 20 Juni 2027)". Rentang ini dihitung dari
-     * active_until member yang SUDAH di-update di blok atas method verify(),
-     * jadi start date-nya tinggal active_until dikurangi 1 tahun.
+     * uang_pangkal & iuran_tahunan digabung jadi SATU kwitansi kalau keduanya
+     * ada untuk member yang sama dan belum punya nomor kwitansi masing-masing.
      */
     private function issueReceiptForPayment(Payment $payment): void
     {
-        $member = $payment->member->fresh(); // pastikan active_until-nya yang sudah ter-update
+        $member = $payment->member->fresh();
 
         $alreadyReceipted = fn (int $paymentId) => \App\Models\Receipt::where('source_type', 'payment')
             ->whereJsonContains('payment_id_list', $paymentId)
@@ -175,7 +163,6 @@ class BendaharaController extends Controller
             ->first(fn ($p) => !$alreadyReceipted($p->id));
 
         if ($pair) {
-            // ── GABUNG: uang pangkal + iuran tahunan jadi 1 kwitansi ──
             $totalAmount = $payment->amount + $pair->amount;
 
             \App\Services\ReceiptNumberGenerator::issue([
@@ -192,7 +179,6 @@ class BendaharaController extends Controller
             return;
         }
 
-        // ── SOLO: cuma 1 jenis, pasangannya belum ada/belum verified ──
         $purpose = $payment->type === 'uang_pangkal'
             ? 'Uang pangkal anggota ASPAPI'
             : $iuranPeriodText();
@@ -208,7 +194,7 @@ class BendaharaController extends Controller
             'issued_by'       => auth()->id(),
         ]);
     }
-    
+
     public function reject(Request $request, int $id)
     {
         $request->validate(['reason' => 'required|string']);
@@ -221,7 +207,6 @@ class BendaharaController extends Controller
             'verified_at'   => now(),
         ]);
 
-        // Notif ke anggota
         try {
             Mail::send(
                 'emails.payment-rejected',
@@ -260,7 +245,56 @@ class BendaharaController extends Controller
         return view('bendahara.batches', compact('batches', 'regions'));
     }
 
-    $batch->update([
+    public function verifyBatch(Request $request, int $id)
+    {
+        $batch = PaymentBatch::with('payments.member')->findOrFail($id);
+
+        if ($batch->status === 'verified') {
+            return back()->with('info', 'Batch ini sudah diverifikasi sebelumnya.');
+        }
+
+        $now = now();
+
+        $paymentYear = $batch->payment_year ?? $now->year;
+        $alreadyExtendedMemberIds = Payment::whereIn('member_id', $batch->payments->pluck('member_id'))
+            ->whereNotIn('id', $batch->payments->pluck('id'))
+            ->where('type', 'iuran_tahunan')
+            ->where('status', 'verified')
+            ->where('payment_year', $paymentYear)
+            ->pluck('member_id')
+            ->unique()
+            ->toArray();
+
+        $batch->payments()->update([
+            'status'      => 'verified',
+            'verified_by' => auth()->id(),
+            'verified_at' => $now,
+        ]);
+
+        foreach ($batch->payments as $payment) {
+            $member = $payment->member;
+
+            if (in_array($member->id, $alreadyExtendedMemberIds)) {
+                $member->update([
+                    'status'    => 'active',
+                    'dues_paid' => true,
+                ]);
+                continue;
+            }
+
+            $baseDate = ($member->active_until && $member->active_until->isFuture())
+                ? $member->active_until->copy()
+                : $now->copy();
+
+            $member->update([
+                'status'       => 'active',
+                'dues_paid'    => true,
+                'dues_paid_at' => $now,
+                'active_until' => $baseDate->addYear(),
+            ]);
+        }
+
+        $batch->update([
             'status'      => 'verified',
             'verified_by' => auth()->id(),
             'verified_at' => $now,
@@ -279,7 +313,7 @@ class BendaharaController extends Controller
         if (\App\Models\Receipt::where('source_type', 'payment_batch')
             ->where('source_id', $batch->id)
             ->exists()) {
-            return; // sudah pernah diterbitkan, jangan dobel
+            return;
         }
 
         $batch->loadMissing('region', 'payments');
