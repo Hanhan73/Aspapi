@@ -66,12 +66,12 @@
         font-weight: 700;
         padding: 5px 8px;
         text-align: left;
-        border: 1px solid #3a98e6;
+        border: 1px solid #adc7dd;
     }
 
     table.member-table td {
         padding: 4px 8px;
-        border: 1px solid #3a98e6;
+        border: 1px solid #adc7dd;
         vertical-align: top;
     }
 
