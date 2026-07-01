@@ -318,6 +318,10 @@ class BendaharaController extends Controller
 
         $batch->loadMissing('region', 'payments');
 
+        $verifiedAt = $batch->verified_at ?? now();
+        $start      = $verifiedAt->copy()->locale('id')->translatedFormat('d F Y');
+        $end        = $verifiedAt->copy()->addYear()->translatedFormat('d F Y');
+
         \App\Services\ReceiptNumberGenerator::issue([
             'source_type'     => 'payment_batch',
             'source_id'       => $batch->id,
@@ -326,7 +330,8 @@ class BendaharaController extends Controller
             'amount'          => $batch->total_amount,
             'payer_name'      => 'ASPAPI Daerah ' . ($batch->region->province ?? $batch->region->name ?? '-')
                                   . ' (' . $batch->member_count . ' anggota)',
-            'purpose'         => 'Iuran tahunan kolektif ' . $batch->member_count . ' anggota tahun ' . $batch->payment_year,
+            'purpose'         => 'Iuran tahunan kolektif ' . $batch->member_count . ' anggota ASPAPI '
+                                  . 'untuk satu tahun (' . $start . ' s.d. ' . $end . ')',
             'issued_by'       => auth()->id(),
         ]);
     }

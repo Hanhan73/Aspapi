@@ -4,124 +4,156 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @font-face {
-            font-family: 'DejaVu Sans';
-            src: local('DejaVu Sans');
-        }
+    @font-face {
+        font-family: 'DejaVu Sans';
+        src: local('DejaVu Sans');
+    }
 
-        body {
-            font-family: 'DejaVu Sans', sans-serif;
-            font-size: 12px;
-            color: #1A2A3A;
-            margin: 0;
-            padding: 0;
-        }
+    body {
+        font-family: 'DejaVu Sans', sans-serif;
+        font-size: 12px;
+        color: #1A2A3A;
+        margin: 0;
+        padding: 0;
+    }
 
-        .header img {
-            width: 100%;
-            display: block;
-        }
+    .header img {
+        width: 100%;
+        display: block;
+    }
 
-        .content {
-            padding: 10px 40px 0 40px;
-        }
+    .content {
+        padding: 10px 40px 0 40px;
+    }
 
-        h1.title {
-            text-align: center;
-            font-size: 22px;
-            letter-spacing: 2px;
-            margin: -20px 0 35px 0;
-        }
+    h1.title {
+        text-align: center;
+        font-size: 22px;
+        letter-spacing: 2px;
+        margin: -20px 0 35px 0;
+    }
 
-        table.fields {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
+    table.fields {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
 
-        table.fields td {
-            padding: 4px 0;
-            vertical-align: top;
-        }
+    table.fields td {
+        padding: 4px 0;
+        vertical-align: top;
+    }
 
-        table.fields td.label {
-            width: 160px;
-        }
+    table.fields td.label {
+        width: 160px;
+    }
 
-        table.fields td.colon {
-            width: 15px;
-        }
+    table.fields td.colon {
+        width: 15px;
+    }
 
-        /* Blok tanda tangan pakai table, bukan float — float di DomPDF gampang
+    /* ── Tabel rincian anggota batch ── */
+    table.member-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 10px;
+    }
+
+    table.member-table th {
+        background: #EEF4FB;
+        color: #2A7FC1;
+        font-weight: 700;
+        padding: 5px 8px;
+        text-align: left;
+        border: 1px solid #D6E8F7;
+    }
+
+    table.member-table td {
+        padding: 4px 8px;
+        border: 1px solid #D6E8F7;
+        vertical-align: top;
+    }
+
+    table.member-table tr:nth-child(even) td {
+        background: #F8FAFC;
+    }
+
+    table.member-table td.no-col {
+        width: 30px;
+        text-align: center;
+    }
+
+    /* Blok tanda tangan pakai table, bukan float — float di DomPDF gampang
        kacau kalau ada lebih dari satu elemen yang float bertumpuk. Dengan
        table, kolom kanan (tanggal + a.n. + ttd + nama) otomatis jadi satu
        kolom yang sejajar rapi. */
-        table.signature-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+    table.signature-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
 
-        table.signature-table td {
-            vertical-align: top;
-        }
+    table.signature-table td {
+        vertical-align: top;
+    }
 
-        table.signature-table td.spacer {
-            width: 55%;
-        }
+    table.signature-table td.spacer {
+        width: 55%;
+    }
 
-        table.signature-table td.sign-col {
-            width: 45%;
-            text-align: center;
-        }
+    table.signature-table td.sign-col {
+        width: 45%;
+        text-align: center;
+    }
 
-        .date-line {
-            text-align: center;
-            margin: 0 0 10px 0;
-        }
+    .date-line {
+        text-align: center;
+        margin: 0 0 10px 0;
+    }
 
-        .sign-area {
-            position: relative;
-            height: 200px;
-            /* ruang buat cap + ttd, jangan dikecilin biar gak numpuk sama nama */
-        }
+    .sign-area {
+        position: relative;
+        height: 200px;
+        /* ruang buat cap + ttd, jangan dikecilin biar gak numpuk sama nama */
+    }
 
-        .stempel {
-            position: absolute;
-            top: 0;
-            margin-left: -50px;
-            width: 270px;
-            opacity: 0.85;
-            z-index: 0;
-            margin-top: -75px;
-        }
+    .stempel {
+        position: absolute;
+        top: 0;
+        margin-left: -50px;
+        width: 270px;
+        opacity: 0.85;
+        z-index: 0;
+        margin-top: -75px;
+    }
 
-        .ttd-img {
-            position: absolute;
-            top: 0;
-            left: 50px;
-            width: 200px;
-            z-index: 1;
-        }
+    .ttd-img {
+        position: absolute;
+        top: 0;
+        left: 50px;
+        width: 200px;
+        z-index: 1;
+    }
 
-        .signer-name {
-            margin-top: -130px;
-            left: 150px;
-            font-weight: bold;
-            text-decoration: underline;
-        }
+    .signer-name {
+        margin-top: -130px;
+        left: 150px;
+        font-weight: bold;
+        text-decoration: underline;
+    }
 
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
 
-        .footer img {
-            width: 100%;
-            display: block;
-        }
+    .footer img {
+        width: 100%;
+        display: block;
+    }
     </style>
 </head>
 
@@ -156,6 +188,28 @@
                 <td>{{ $receipt->purpose }}</td>
             </tr>
         </table>
+
+        {{-- Tabel rincian anggota — hanya untuk kwitansi batch kolektif --}}
+        @if ($receipt->source_type === 'payment_batch' && $batchMembers->isNotEmpty())
+        <table class="member-table">
+            <thead>
+                <tr>
+                    <th class="no-col">No.</th>
+                    <th>Nama Lengkap</th>
+                    <th>Instansi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($batchMembers as $i => $m)
+                <tr>
+                    <td class="no-col">{{ $i + 1 }}</td>
+                    <td>{{ $m->full_name_with_title ?? $m->full_name }}</td>
+                    <td>{{ $m->institution ?? '-' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @endif
 
         <table class="signature-table">
             <tr>
