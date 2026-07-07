@@ -7,10 +7,12 @@ use App\Helpers\NotificationEmail;
 use App\Models\Province;
 use App\Models\City;
 use App\Models\Region;
+use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class BiodataController extends Controller
 {
@@ -24,6 +26,25 @@ class BiodataController extends Controller
             : collect();
 
         return view('member.biodata', compact('member', 'provinces', 'cities', 'regions'));
+    }
+
+    /**
+     * Cek ketersediaan email secara realtime (dipanggil via AJAX dari form biodata).
+     * Mengecualikan member yang sedang login sendiri dari pengecekan unique.
+     */
+    public function checkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        $member = auth()->user()->member;
+
+        $exists = Member::where('email', $request->query('email'))
+            ->when($member, fn ($q) => $q->where('id', '!=', $member->id))
+            ->exists();
+
+        return response()->json(['available' => ! $exists]);
     }
 
     public function update(Request $request)
@@ -43,7 +64,12 @@ class BiodataController extends Controller
             'birth_place'             => 'required|string|max:100',
             'birth_date'              => 'required|date|before:today',
             'phone'                   => 'required|string|max:20',
-            'email'                   => 'required|email|max:255',
+            'email'                   => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('members', 'email')->ignore($member->id),
+            ],
             'gender'                  => 'required|in:L,P',
             'last_education'          => 'required|in:sd,smp,sma,d3,s1,s2,s3,profesi,lainnya',
             'province_id'             => 'required|exists:provinces,id',
@@ -71,6 +97,7 @@ class BiodataController extends Controller
             'email.required'          => 'Email wajib diisi.',
             'email.email'             => 'Format email tidak valid.',
             'email.max'               => 'Email maksimal 255 karakter.',
+            'email.unique'            => 'Email ini sudah terdaftar untuk anggota lain. Gunakan email yang berbeda.',
             'gender.required'         => 'Jenis kelamin wajib dipilih.',
             'gender.in'               => 'Jenis kelamin tidak valid.',
             'last_education.required' => 'Pendidikan terakhir wajib dipilih.',

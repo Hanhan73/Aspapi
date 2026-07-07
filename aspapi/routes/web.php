@@ -76,6 +76,8 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'role:anggota'])->
     Route::get('/biodata',         [BiodataController::class, 'edit'])->name('biodata');
     Route::post('/biodata',        [BiodataController::class, 'update'])->name('biodata.update');
     Route::post('/biodata/unlock', [BiodataController::class, 'unlock'])->name('biodata.unlock');
+    Route::get('/biodata/check-email', [\App\Http\Controllers\Member\BiodataController::class, 'checkEmail'])
+    ->name('biodata.check-email');
     Route::get('/pembayaran',      [PaymentController::class, 'index'])->name('payment');
     Route::post('/pembayaran',     [PaymentController::class, 'store'])->name('payment.store');
     Route::get('/kwitansi/{receipt}', [\App\Http\Controllers\Member\ReceiptController::class, 'show'])->name('kwitansi');

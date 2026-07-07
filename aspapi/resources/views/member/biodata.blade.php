@@ -343,14 +343,22 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                     <label
                         style="display:block;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4A6580;margin-bottom:0.5rem;">Email
                         *</label>
-                    <input type="email" name="email"
+                    <input type="email" name="email" id="email-input"
+                        data-current-email="{{ $member?->email ?? $member?->user?->email }}"
                         value="{{ old('email', $member?->email ?? $member?->user?->email) }}" required
+                        autocomplete="off"
                         style="width:100%;padding:0.625rem 0.875rem;border:1.5px solid {{ $b('email') }};border-radius:4px;font-size:0.875rem;color:#1A2A3A;outline:none;box-sizing:border-box;"
                         onfocus="this.style.borderColor='#2A7FC1'"
                         onblur="this.style.borderColor='{{ $b('email') }}'" />
                     @error('email')
                     <p style="font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">{{ $message }}</p>
                     @enderror
+                    <p id="email-checking" style="display:none;font-size:0.7rem;color:#B0CCDF;margin-top:0.3rem;">
+                        Mengecek ketersediaan email...</p>
+                    <p id="email-warning" style="display:none;font-size:0.7rem;color:#C0392B;margin-top:0.3rem;">
+                        ✗ Email ini sudah terdaftar untuk anggota lain. Gunakan email yang berbeda.</p>
+                    <p id="email-ok" style="display:none;font-size:0.7rem;color:#276749;margin-top:0.3rem;">
+                        ✓ Email tersedia.</p>
                 </div>
             </div>
 
@@ -543,7 +551,7 @@ $b = fn($field) => $errors->has($field) ? '#C0392B' : '#D6E8F7';
                 <p style="font-size:0.7rem;color:#B0CCDF;margin-top:0.5rem;text-align:center;">Perlu verifikasi ulang
                     setelah diedit.</p>
                 @else
-                <button type="submit"
+                <button type="submit" id="biodata-submit-btn"
                     style="width:100%;padding:0.75rem;background:#2A7FC1;color:#fff;border:none;border-radius:4px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">
                     {{ $isRejected ? 'Simpan & Ajukan Ulang' : 'Simpan & Ajukan Verifikasi' }}
                 </button>
@@ -666,6 +674,87 @@ document.getElementById('biodata-form')?.addEventListener('submit', function() {
         hidden.value = select.value;
     }
 });
+
+// ── Realtime cek ketersediaan email ──
+(function() {
+    const emailInput   = document.getElementById('email-input');
+    if (!emailInput) return;
+
+    const checkingEl = document.getElementById('email-checking');
+    const warningEl  = document.getElementById('email-warning');
+    const okEl       = document.getElementById('email-ok');
+    const submitBtn  = document.getElementById('biodata-submit-btn');
+
+    let debounceTimer = null;
+    let emailTaken    = false;
+
+    function hideAllStatus() {
+        checkingEl.style.display = 'none';
+        warningEl.style.display  = 'none';
+        okEl.style.display       = 'none';
+    }
+
+    function setEmailBorder(color) {
+        emailInput.style.borderColor = color;
+    }
+
+    function checkEmail(value) {
+        const currentEmail = emailInput.dataset.currentEmail || '';
+
+        // Kalau email sama persis dengan yang sudah tersimpan (belum diubah), skip cek.
+        if (value.trim().toLowerCase() === currentEmail.trim().toLowerCase()) {
+            hideAllStatus();
+            emailTaken = false;
+            setEmailBorder('#D6E8F7');
+            return;
+        }
+
+        // Validasi format dasar dulu sebelum hit server
+        const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        if (!isValidFormat) {
+            hideAllStatus();
+            emailTaken = false;
+            return;
+        }
+
+        hideAllStatus();
+        checkingEl.style.display = 'block';
+
+        fetch('{{ route('member.biodata.check-email') }}?email=' + encodeURIComponent(value))
+            .then(r => r.json())
+            .then(data => {
+                hideAllStatus();
+                if (data.available) {
+                    emailTaken = false;
+                    okEl.style.display = 'block';
+                    setEmailBorder('#2A7FC1');
+                } else {
+                    emailTaken = true;
+                    warningEl.style.display = 'block';
+                    setEmailBorder('#C0392B');
+                }
+            })
+            .catch(() => {
+                hideAllStatus();
+            });
+    }
+
+    emailInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const value = this.value;
+        debounceTimer = setTimeout(() => checkEmail(value), 500);
+    });
+
+    document.getElementById('biodata-form')?.addEventListener('submit', function(e) {
+        if (emailTaken) {
+            e.preventDefault();
+            warningEl.style.display = 'block';
+            setEmailBorder('#C0392B');
+            emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            emailInput.focus();
+        }
+    });
+})();
 </script>
 @endpush
 
