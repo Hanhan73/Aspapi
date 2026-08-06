@@ -46,6 +46,7 @@ use App\Http\Controllers\Daerah\RegionMemberController;
 use App\Http\Controllers\AccountController;
 
 use App\Http\Controllers\Admin\ImpersonateController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 
 
@@ -61,6 +62,12 @@ Route::post('/daftar/lama',    [RegisterController::class, 'storeOld'])->name('r
 Route::get('/verifikasi-email/{token}', [RegisterController::class, 'verifyEmail'])->name('verify.email');
 Route::get('/login',           [App\Http\Controllers\Admin\AuthController::class, 'showLogin'])->name('login');
 Route::post('/login',          [App\Http\Controllers\Admin\AuthController::class, 'loginMember'])->name('login.member');
+
+// ── Lupa Password ──
+Route::get('/lupa-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/lupa-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 Route::get('/api/cities/{provinceId}', function ($provinceId) {
     return response()->json(
