@@ -24,6 +24,11 @@ class Agenda extends Model
         return $this->belongsTo(Region::class);
     }
 
+    public function galleryAlbums()
+    {
+        return $this->hasMany(GalleryAlbum::class);
+    }
+
     public function scopeApproved($query)
     {
         return $query->where('status', 'approved');

@@ -96,7 +96,7 @@
                 {{-- Publikasi Dropdown --}}
                 <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                     <button class="nav-link flex items-center gap-1
-                                   {{ request()->is('publikasi*') || request()->routeIs('news.*') || request()->routeIs('blog.*') || request()->routeIs('documents.*') || request()->routeIs('public.agenda') || request()->routeIs('public.seminars') ? 'nav-link-active' : '' }}">
+                                   {{ request()->is('publikasi*') || request()->routeIs('news.*') || request()->routeIs('blog.*') || request()->routeIs('documents.*') || request()->routeIs('public.agenda') || request()->routeIs('public.seminars') || request()->routeIs('galleries.*') ? 'nav-link-active' : '' }}">
                         Publikasi
                         <svg class="w-3 h-3 transition-transform duration-200" :class="{ 'rotate-180': open }"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,6 +126,11 @@
                             class="flex items-center px-4 py-2.5 text-xs text-neutral-600 hover:bg-primary-100 hover:text-primary transition-colors duration-150
                                    {{ request()->routeIs('public.agenda') ? 'text-primary font-semibold' : '' }}">
                             Agenda
+                        </a>
+                        <a href="{{ route('galleries.index') }}"
+                            class="flex items-center px-4 py-2.5 text-xs text-neutral-600 hover:bg-primary-100 hover:text-primary transition-colors duration-150
+                                   {{ request()->routeIs('galleries.*') ? 'text-primary font-semibold' : '' }}">
+                            Galeri
                         </a>
                         <a href="{{ route('public.seminars') }}"
                             class="flex items-center px-4 py-2.5 text-xs text-neutral-600 hover:bg-primary-100 hover:text-primary transition-colors duration-150
@@ -258,7 +263,7 @@
             {{-- Publikasi accordion --}}
             <div x-data="{ open: false }">
                 <button @click="open = !open"
-                    class="w-full flex items-center justify-between py-3 text-xs font-bold tracking-wider uppercase {{ request()->is('publikasi*') || request()->routeIs('news.*') || request()->routeIs('blog.*') || request()->routeIs('documents.*') || request()->routeIs('public.agenda') || request()->routeIs('public.seminars') ? 'text-primary' : 'text-neutral-600' }} hover:text-primary">
+                    class="w-full flex items-center justify-between py-3 text-xs font-bold tracking-wider uppercase {{ request()->is('publikasi*') || request()->routeIs('news.*') || request()->routeIs('blog.*') || request()->routeIs('documents.*') || request()->routeIs('public.agenda') || request()->routeIs('public.seminars') || request()->routeIs('galleries.*') ? 'text-primary' : 'text-neutral-600' }} hover:text-primary">
                     Publikasi
                     <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': open }"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,6 +274,7 @@
                     <a href="{{ route('news.index') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Berita</a>
                     <a href="{{ route('blog.index') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Blog</a>
                     <a href="{{ route('public.agenda') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Agenda</a>
+                    <a href="{{ route('galleries.index') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Galeri</a>
                     <a href="{{ route('public.seminars') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Seminar & Pelatihan</a>
                     <a href="{{ route('documents.index') }}" class="py-2 text-xs text-neutral-500 hover:text-primary">Download</a>
                 </div>

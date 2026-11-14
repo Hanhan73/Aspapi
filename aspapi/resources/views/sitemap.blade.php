@@ -83,6 +83,11 @@
         <priority>0.7</priority>
     </url>
     <url>
+        <loc>{{ route('galleries.index') }}</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
         <loc>{{ route('documents.index') }}</loc>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
@@ -115,6 +120,16 @@
         <lastmod>{{ $blog->updated_at->toAtomString() }}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
+    </url>
+    @endforeach
+
+    {{-- Galeri --}}
+    @foreach ($albums as $album)
+    <url>
+        <loc>{{ route('galleries.show', $album->slug) }}</loc>
+        <lastmod>{{ $album->updated_at->toAtomString() }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     @endforeach
 

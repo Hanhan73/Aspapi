@@ -15,7 +15,11 @@ class AgendaPublicController extends Controller
         $regions = Region::where('is_active', true)->orderBy('name')->get();
 
         $agendas = Agenda::approved()
-            ->with('region')
+            ->with([
+                'region',
+                'galleryAlbums' => fn ($q) => $q->published()->has('photos')->latestEvent()
+                    ->with(['photos' => fn ($p) => $p->limit(4)]),
+            ])
             ->when($request->search, fn($q) => $q->where('title', 'like', '%' . $request->search . '%'))
             ->when($request->region, function ($q) use ($request) {
                 if ($request->region === 'pusat') {

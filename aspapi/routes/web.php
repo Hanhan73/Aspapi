@@ -10,6 +10,7 @@ use App\Http\Controllers\Public\MemberController;
 use App\Http\Controllers\Public\RegionController;
 use App\Http\Controllers\Public\LspController;
 use App\Http\Controllers\Public\NewsController;
+use App\Http\Controllers\Public\GalleryController;
 use App\Http\Controllers\Public\BlogController;
 use App\Http\Controllers\Public\DocumentController;
 use App\Http\Controllers\Public\PartnerController;
@@ -22,6 +23,8 @@ use App\Http\Controllers\Admin\BoardController;
 use App\Http\Controllers\Admin\AdvisorController;
 use App\Http\Controllers\Admin\ExpertController;
 use App\Http\Controllers\Admin\NewsAdminController;
+use App\Http\Controllers\Admin\GalleryAdminController;
+use App\Http\Controllers\Admin\GalleryPhotoAdminController;
 use App\Http\Controllers\Admin\BlogAdminController;
 use App\Http\Controllers\Admin\DocumentAdminController;
 use App\Http\Controllers\Admin\MemberAdminController;
@@ -218,6 +221,12 @@ Route::prefix('berita')->name('news.')->group(function () {
     Route::get('/{slug}', [NewsController::class, 'show'])->name('show');
 });
 
+// ── GALERI (PUBLIC) ──
+Route::prefix('galeri')->name('galleries.')->group(function () {
+    Route::get('/',       [GalleryController::class, 'index'])->name('index');
+    Route::get('/{slug}', [GalleryController::class, 'show'])->name('show');
+});
+
 // ── BLOG (PUBLIC) ──
 Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/',       [BlogController::class, 'index'])->name('index');
@@ -283,6 +292,22 @@ Route::prefix('admin')
         Route::resource('berita', NewsAdminController::class)
             ->names('news')
             ->parameters(['berita' => 'news']);
+
+        // Galeri — kelola foto per album
+        Route::prefix('galeri/{album}/foto')->name('gallery.photos.')->scopeBindings()->group(function () {
+            Route::get('/',                [GalleryPhotoAdminController::class, 'index'])->name('index');
+            Route::post('/',               [GalleryPhotoAdminController::class, 'store'])->name('store');
+            Route::post('/urutan',         [GalleryPhotoAdminController::class, 'reorder'])->name('reorder');
+            Route::patch('/{photo}',       [GalleryPhotoAdminController::class, 'update'])->name('update');
+            Route::post('/{photo}/cover',  [GalleryPhotoAdminController::class, 'cover'])->name('cover');
+            Route::delete('/{photo}',      [GalleryPhotoAdminController::class, 'destroy'])->name('destroy');
+        });
+
+        // Galeri
+        Route::resource('galeri', GalleryAdminController::class)
+            ->except('show')
+            ->names('gallery')
+            ->parameters(['galeri' => 'album']);
 
         // Blog — FIX: parameter 'blog' supaya tidak di-pluralize aneh
         Route::resource('blog', BlogAdminController::class)

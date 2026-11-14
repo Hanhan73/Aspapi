@@ -89,6 +89,11 @@ $description = 'Kumpulan kegiatan dan agenda dari seluruh ASPAPI Daerah di Indon
 
             {{-- Hidden div untuk isi modal — HARUS di luar kartu, HARUS punya id --}}
             <div id="agenda-desc-{{ $agenda->id }}" style="display:none;">{!! $agenda->description !!}</div>
+            @if ($agenda->galleryAlbums->isNotEmpty())
+            <div id="agenda-docs-{{ $agenda->id }}" style="display:none;">
+                @include('public.gallery._documentation', ['albums' => $agenda->galleryAlbums])
+            </div>
+            @endif
 
             <div class="card card-top-blue card-hover flex flex-col overflow-hidden cursor-pointer group"
                  onclick="openAgendaModal({{ $agenda->id }})"
@@ -118,6 +123,13 @@ $description = 'Kumpulan kegiatan dan agenda dari seluruh ASPAPI Daerah di Indon
                             {{ $agenda->region->name ?? 'ASPAPI Pusat' }}
                         </span>
                     </div>
+                    @if ($agenda->galleryAlbums->isNotEmpty())
+                    <div style="position:absolute;bottom:10px;right:10px;">
+                        <span style="background:rgba(26,42,58,0.75);color:#fff;font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:3px 8px;border-radius:4px;">
+                            Ada dokumentasi
+                        </span>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="p-5 flex flex-col flex-1">
@@ -235,6 +247,8 @@ $description = 'Kumpulan kegiatan dan agenda dari seluruh ASPAPI Daerah di Indon
                     <div id="modal-desc" class="desc-content text-sm text-neutral-600 leading-relaxed"></div>
                 </div>
             </div>
+
+            <div id="modal-docs" class="mt-4" style="display:none;"></div>
         </div>
 
         <div class="px-6 py-4 border-t border-neutral-100">
@@ -294,6 +308,12 @@ function openAgendaModal(id) {
     } else {
         descWrap.style.display = 'none';
     }
+
+    // Dokumentasi galeri (markup server-side, sudah di-escape Blade)
+    const docsSrc = document.getElementById('agenda-docs-' + id);
+    const docsEl  = document.getElementById('modal-docs');
+    docsEl.innerHTML     = docsSrc ? docsSrc.innerHTML : '';
+    docsEl.style.display = docsSrc ? '' : 'none';
 
     document.getElementById('modal-agenda').classList.remove('hidden');
     document.body.style.overflow = 'hidden';

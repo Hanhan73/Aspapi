@@ -265,6 +265,39 @@ $description = 'ASPAPI adalah wadah resmi sarjana dan praktisi administrasi perk
 @endif
 
 {{-- ══════════════════════════════════════════════
+     GALERI KEGIATAN
+══════════════════════════════════════════════ --}}
+@if(isset($latestAlbums) && $latestAlbums->isNotEmpty())
+<section class="py-12 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <p class="section-label">Dokumentasi</p>
+                <h2 class="section-title mt-1">Galeri Kegiatan</h2>
+                <div class="section-divider"></div>
+            </div>
+            <a href="{{ route('galleries.index') }}"
+                class="text-xs font-bold tracking-widest uppercase text-primary border-b-2 border-accent-yellow pb-0.5 hover:text-primary-600 transition-colors hidden sm:block">
+                Lihat Semua Galeri →
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach ($latestAlbums as $album)
+                @include('public.gallery._card', ['album' => $album])
+            @endforeach
+        </div>
+
+        <div class="mt-8 text-center sm:hidden">
+            <a href="{{ route('galleries.index') }}" class="btn btn-outline">Lihat Semua Galeri</a>
+        </div>
+
+    </div>
+</section>
+@endif
+
+{{-- ══════════════════════════════════════════════
      BLOG TERBARU
 ══════════════════════════════════════════════ --}}
 
