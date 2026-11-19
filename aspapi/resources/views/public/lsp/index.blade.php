@@ -39,7 +39,7 @@ $description = 'LSP-KAP adalah lembaga sertifikasi profesi administrasi perkanto
         </p>
 
         <div class="flex flex-wrap items-center gap-4">
-            <a href="https://lsp-kap.com/profil-lsp/"
+            <a href="https://lspkap.com"
                target="_blank"
                rel="noopener"
                class="btn btn-accent-yellow btn-lg inline-flex items-center gap-2">
@@ -112,7 +112,7 @@ $description = 'LSP-KAP adalah lembaga sertifikasi profesi administrasi perkanto
                     Perjalanan panjang pendirian Lembaga Sertifikasi Profesi Administrasi Perkantoran
                     yang kini menjadi LSP-KAP berlisensi BNSP.
                 </p>
-                <a href="https://lsp-kap.com/profil-lsp/"
+                <a href="https://lspkap.com"
                    target="_blank"
                    rel="noopener"
                    class="btn btn-outline inline-flex items-center gap-2">
@@ -374,14 +374,14 @@ $description = 'LSP-KAP adalah lembaga sertifikasi profesi administrasi perkanto
                 jadwal uji kompetensi, prosedur pendaftaran, dan daftar asesor bersertifikat.
             </p>
             <div class="flex flex-wrap gap-4">
-                <a href="https://lsp-kap.com/profil-lsp/"
+                <a href="https://lspkap.com"
                    target="_blank"
                    rel="noopener"
                    class="btn btn-accent-yellow btn-lg inline-flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                     </svg>
-                    Kunjungi lsp-kap.com
+                    Kunjungi lspkap.com
                 </a>
                 <a href="{{ route('members.register') }}"
                    class="btn btn-lg border-2 border-white/30 text-white hover:bg-white/10">
