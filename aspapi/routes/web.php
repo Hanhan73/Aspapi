@@ -334,6 +334,7 @@ Route::prefix('admin')
             ->name('members.assign-region');
 
         Route::post('/anggota/{member}/convert-to-old', [MemberAdminController::class, 'convertToOldMember'])
+            ->middleware('role:superadmin')
             ->name('members.convert-to-old');
 
         // ASPAPI Daerah

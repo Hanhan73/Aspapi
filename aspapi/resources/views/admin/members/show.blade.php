@@ -227,8 +227,8 @@
             @endforeach
         </div>
 
-        {{-- Tipe Registrasi --}}
-        @if ($member->registration_type === 'baru')
+        {{-- Tipe Registrasi (khusus superadmin) --}}
+        @if ($member->registration_type === 'baru' && auth()->user()->role === 'superadmin')
         @php
             // Terdaftar "baru", iuran tahunan sudah aktif, tapi tidak ada uang pangkal terverifikasi
             // → kemungkinan besar anggota lama yang salah daftar lewat form anggota baru.
