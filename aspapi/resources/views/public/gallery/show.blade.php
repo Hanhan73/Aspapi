@@ -4,8 +4,7 @@
     $title           = $album->title;
     $metaDescription = $album->metaDescription();
     $ogType          = 'article';
-    $coverUrl        = $album->coverUrl();
-    $ogImage         = $coverUrl ? url($coverUrl) : null;
+    $ogImage         = \App\Services\OgImage::url($album->coverPhoto()?->path);
 @endphp
 
 @push('styles')

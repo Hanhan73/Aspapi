@@ -3,7 +3,7 @@
 @php
 $title = $blog->title;
 $description = $blog->excerpt ?? Str::limit(strip_tags($blog->body), 155);
-$ogImage = $blog->thumbnail ? Storage::url($blog->thumbnail) : null;
+$ogImage = \App\Services\OgImage::url($blog->thumbnail);
 $ogType = 'article';
 @endphp
 

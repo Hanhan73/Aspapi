@@ -25,7 +25,21 @@
         content="{{ $metaDescription ?? ($description ?? 'ASPAPI adalah asosiasi profesi yang menghimpun sarjana dan praktisi administrasi perkantoran Indonesia.') }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:site_name" content="ASPAPI" />
-    <meta property="og:image" content="{{ $ogImage ?? asset('images/logo-aspapi.png') }}" />
+    @php
+        $shareImage = $ogImage ?? null;
+        $shareImage = $shareImage ? url($shareImage) : asset('images/logo-aspapi.png');
+        $shareIsOg  = str_contains($shareImage, '/storage/og/');
+    @endphp
+    <meta property="og:image" content="{{ $shareImage }}" />
+    @if (str_starts_with($shareImage, 'https://'))
+    <meta property="og:image:secure_url" content="{{ $shareImage }}" />
+    @endif
+    @if ($shareIsOg)
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="{{ \App\Services\OgImage::WIDTH }}" />
+    <meta property="og:image:height" content="{{ \App\Services\OgImage::HEIGHT }}" />
+    @endif
+    <meta property="og:image:alt" content="{{ $title ?? 'ASPAPI' }}" />
     <meta property="og:locale" content="id_ID" />
 
     {{-- Twitter Card --}}
@@ -33,7 +47,7 @@
     <meta name="twitter:title" content="{{ isset($title) ? $title . ' — ASPAPI' : 'ASPAPI' }}" />
     <meta name="twitter:description"
         content="{{ $metaDescription ?? ($description ?? 'ASPAPI — Asosiasi Sarjana dan Praktisi Administrasi Perkantoran Indonesia.') }}" />
-    <meta name="twitter:image" content="{{ $ogImage ?? asset('images/logo-aspapi.png') }}" />
+    <meta name="twitter:image" content="{{ $shareImage }}" />
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo-aspapi.png') }}" />
 

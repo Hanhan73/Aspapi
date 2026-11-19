@@ -7,6 +7,8 @@ use App\Models\GalleryAlbum;
 use App\Models\Region;
 use App\Models\Seminar;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class GalleryPublicTest extends TestCase
@@ -86,8 +88,29 @@ class GalleryPublicTest extends TestCase
             ->assertSee('/storage/gallery/' . $album->id . '/p1.webp', false)
             ->getContent();
 
-        $this->assertMatchesRegularExpression('#<meta property="og:image" content="http[^"]+/storage/gallery/\d+/p1\.webp"#', $html);
+        // File foto tidak ada di disk → preview share jatuh ke logo (URL absolut).
+        $this->assertMatchesRegularExpression('#<meta property="og:image" content="http[^"]+/images/logo-aspapi\.png"#', $html);
         $this->assertStringNotContainsString('<b>ketua</b>', $html);
+    }
+
+    public function test_show_share_preview_uses_generated_jpeg(): void
+    {
+        Storage::fake('public');
+        $album = $this->album();
+        $source = UploadedFile::fake()->image('p1.webp', 1600, 1067);
+        Storage::disk('public')->put("gallery/{$album->id}/p1.webp", $source->getContent());
+
+        $html = $this->get(route('galleries.show', 'rakernas'))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('#<meta property="og:image" content="http[^"]+/storage/og/[0-9a-f]{40}\.jpg"#', $html);
+        $this->assertStringContainsString('<meta property="og:image:width" content="1200"', $html);
+        $this->assertStringContainsString('<meta property="og:image:height" content="630"', $html);
+        $this->assertStringContainsString('<meta name="twitter:image" content="http', $html);
+
+        $files = Storage::disk('public')->files('og');
+        $this->assertCount(1, $files);
+        [$w, $h, $type] = getimagesizefromstring(Storage::disk('public')->get($files[0]));
+        $this->assertSame([1200, 630, IMAGETYPE_JPEG], [$w, $h, $type]);
     }
 
     public function test_home_sitemap_agenda_seminar_integration(): void
