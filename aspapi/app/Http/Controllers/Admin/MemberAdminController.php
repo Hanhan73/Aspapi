@@ -78,6 +78,55 @@ class MemberAdminController extends Controller
         return back()->with('success', $message);
     }
 
+    /**
+     * Ubah tipe registrasi anggota dari "baru" menjadi "lama".
+     *
+     * Kasus: anggota sebenarnya anggota lama tapi mendaftar lewat form anggota baru,
+     * lalu hanya membayar iuran tahunan (Rp 120.000). Karena tercatat "baru",
+     * sistem menuntut uang pangkal sehingga kartu tidak bisa digenerate.
+     * Dengan diubah ke "lama", syarat kartu cukup iuran tahunan aktif —
+     * pembayaran yang sudah diverifikasi tetap dipakai, tidak perlu daftar/bayar ulang.
+     */
+    public function convertToOldMember(Request $request, Member $member)
+    {
+        if ($member->registration_type === 'lama') {
+            return back()->with('error', 'Anggota ini sudah tercatat sebagai anggota lama.');
+        }
+
+        $data = $request->validate([
+            'claimed_join_year' => 'nullable|integer|min:1980|max:' . now()->year,
+        ]);
+
+        $year = $data['claimed_join_year'] ?? null;
+
+        $updates = [
+            'registration_type' => 'lama',
+            'claims_old_member' => true,
+        ];
+
+        if ($year) {
+            $updates['claimed_join_year'] = $year;
+            $updates['registered_at']     = now()->setYear((int) $year);
+        }
+
+        $member->update($updates);
+
+        \App\Models\MemberVerificationLog::create([
+            'member_id'   => $member->id,
+            'verified_by' => auth()->id(),
+            'action'      => 'approve_old_member',
+            'note'        => 'Diubah admin dari anggota baru menjadi anggota lama'
+                . ($year ? ' (bergabung sejak ' . $year . ')' : ''),
+        ]);
+
+        $message = 'Anggota berhasil diubah menjadi anggota lama.';
+        $message .= $member->fresh()->canGenerateCard()
+            ? ' Anggota sekarang sudah bisa generate kartu.'
+            : ' Namun kartu belum bisa digenerate: pastikan biodata terverifikasi dan iuran tahunan masih aktif.';
+
+        return back()->with('success', $message);
+    }
+
     public function export(Request $request)
 {
     $filename = 'anggota-aspapi-' . now()->format('Ymd-His') . '.xlsx';

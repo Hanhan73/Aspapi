@@ -301,6 +301,9 @@ Route::prefix('admin')
         Route::post('/anggota/{member}/assign-region', [MemberAdminController::class, 'assignRegion'])
             ->name('members.assign-region');
 
+        Route::post('/anggota/{member}/convert-to-old', [MemberAdminController::class, 'convertToOldMember'])
+            ->name('members.convert-to-old');
+
         // ASPAPI Daerah
         Route::resource('daerah', AdminRegionController::class)
             ->names('regions')

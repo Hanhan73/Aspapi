@@ -227,6 +227,50 @@
             @endforeach
         </div>
 
+        {{-- Tipe Registrasi --}}
+        @if ($member->registration_type === 'baru')
+        @php
+            // Terdaftar "baru", iuran tahunan sudah aktif, tapi tidak ada uang pangkal terverifikasi
+            // → kemungkinan besar anggota lama yang salah daftar lewat form anggota baru.
+            $stuckAsNew = $member->hasPaidIuranTahunan() && !$member->hasPaidUangPangkal();
+        @endphp
+        <div style="background:#fff;border:1px solid {{ $stuckAsNew ? '#E8B84B' : '#D6E8F7' }};border-radius:8px;padding:1.25rem;">
+            <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 0.75rem;">
+                Tipe Registrasi
+            </p>
+
+            @if ($stuckAsNew)
+            <div style="background:#FEF8EC;border-left:3px solid #E8B84B;border-radius:4px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.78rem;color:#8B6914;">
+                ⚠ Tercatat <strong>Anggota Baru</strong> tetapi hanya membayar iuran tahunan (tanpa uang pangkal),
+                sehingga <strong>tidak bisa generate kartu</strong>. Jika ini anggota lama, ubah tipenya di bawah —
+                pembayaran yang sudah diverifikasi tetap terpakai.
+            </div>
+            @else
+            <p style="font-size:0.78rem;color:#5C6B78;margin:0 0 1rem;">
+                Saat ini: <strong>Anggota Baru</strong>. Ubah jika anggota ini sebenarnya anggota lama.
+            </p>
+            @endif
+
+            <form method="POST" action="{{ route('admin.members.convert-to-old', $member) }}"
+                  onsubmit="return confirm('Ubah {{ addslashes($member->full_name) }} menjadi Anggota Lama?')">
+                @csrf
+                <label style="display:block;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A97A4;margin-bottom:0.4rem;">
+                    Tahun Bergabung (opsional)
+                </label>
+                <input type="number" name="claimed_join_year" min="1980" max="{{ now()->year }}"
+                       value="{{ old('claimed_join_year', $member->claimed_join_year) }}" placeholder="mis. 2019"
+                       style="width:100%;padding:0.5rem 0.75rem;border:1.5px solid #D6E8F7;border-radius:4px;font-size:0.8rem;color:#1A2A3A;outline:none;background:#fff;margin-bottom:0.625rem;box-sizing:border-box;"/>
+                @error('claimed_join_year')
+                    <p style="font-size:0.72rem;color:#C0392B;margin:-0.25rem 0 0.5rem;">{{ $message }}</p>
+                @enderror
+                <button type="submit"
+                        style="width:100%;padding:0.5rem;background:#B8860B;color:#fff;border:none;border-radius:4px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">
+                    Ubah ke Anggota Lama
+                </button>
+            </form>
+        </div>
+        @endif
+
         {{-- ASPAPI Daerah --}}
         <div style="background:#fff;border:1px solid #D6E8F7;border-radius:8px;padding:1.25rem;">
             <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8A97A4;margin:0 0 1rem;">
