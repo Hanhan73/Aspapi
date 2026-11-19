@@ -169,6 +169,12 @@ $description = 'Ikuti program seminar dan pelatihan ASPAPI untuk meningkatkan ko
                         </span>
                     </div>
 
+                    @if ($seminar->galleryAlbums->isNotEmpty())
+                    <div class="pb-3 border-b border-neutral-100 mb-3">
+                        @include('public.gallery._documentation', ['albums' => $seminar->galleryAlbums->take(1), 'compact' => true])
+                    </div>
+                    @endif
+
                     {{-- CTA --}}
                     <a href="{{ route('login') }}"
                        class="block text-center text-xs font-bold py-2 px-4 rounded-lg bg-primary text-white hover:bg-primary/90 transition">

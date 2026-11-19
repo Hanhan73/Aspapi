@@ -17,6 +17,8 @@ class SeminarPublicController extends Controller
  
         $seminars = Seminar::where('is_active', true)
             ->withCount('questions')
+            ->with(['galleryAlbums' => fn ($q) => $q->published()->has('photos')->latestEvent()->limit(10)
+                ->with(['photos' => fn ($p) => $p->limit(4)])])
             ->when($request->search, fn($q) => $q->where('title', 'like', '%' . $request->search . '%'))
             ->when($request->category, fn($q) => $q->where('category', $request->category))
             ->latest()

@@ -19,7 +19,7 @@ $description = 'ASPAPI adalah wadah resmi sarjana dan praktisi administrasi perk
     <div class="absolute -right-16 -bottom-24 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
     <div class="absolute left-1/2 top-1/3 w-48 h-48 rounded-full bg-accent-yellow/5 pointer-events-none"></div>
 
-    <div class="relative max-w-7xl mx-auto px-6 py-16 w-full">
+    <div class="relative max-w-7xl mx-auto px-6 py-16 w-full grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-center">
         <div class="max-w-2xl">
 
             {{-- Label --}}
@@ -58,6 +58,28 @@ $description = 'ASPAPI adalah wadah resmi sarjana dan praktisi administrasi perk
                     Tentang ASPAPI
                 </a>
             </div>
+        </div>
+
+        {{-- Poster Kongres ASPAPI --}}
+        <div class="relative mx-auto w-full max-w-[18rem] sm:max-w-xs lg:max-w-sm">
+            {{-- Glow di belakang poster --}}
+            <div class="absolute -inset-4 rounded-3xl bg-gradient-to-br from-accent-yellow/30 via-primary/20 to-accent-red/20 blur-2xl pointer-events-none"></div>
+
+            <a href="{{ asset('images/Kongres_ASPAPI.jpeg') }}" target="_blank" rel="noopener"
+                class="group relative block overflow-hidden rounded-2xl ring-1 ring-white/20 shadow-2xl bg-navy-dark transition-transform duration-300 hover:-translate-y-1">
+                {{-- Poster tampil utuh, tanpa overlay --}}
+                <img src="{{ asset('images/Kongres_ASPAPI.jpeg') }}"
+                    alt="Poster Kongres V ASPAPI, Makassar 20–22 November 2026"
+                    width="1057" height="1600" loading="eager"
+                    class="block w-full h-auto">
+
+                {{-- Keterangan di bawah poster --}}
+                <div class="px-4 py-3 border-t border-white/10 bg-gradient-to-r from-navy-dark to-primary-600/60">
+                    <p class="text-accent-yellow text-2xs font-bold tracking-widest uppercase">Agenda Terdekat</p>
+                    <p class="text-white font-semibold leading-snug">Kongres V ASPAPI</p>
+                    <p class="text-primary-200 text-xs">Makassar, 20–22 November 2026</p>
+                </div>
+            </a>
         </div>
     </div>
 </section>
@@ -258,6 +280,39 @@ $description = 'ASPAPI adalah wadah resmi sarjana dan praktisi administrasi perk
         {{-- Mobile: lihat semua --}}
         <div class="mt-8 text-center sm:hidden">
             <a href="{{ route('news.index') }}" class="btn btn-outline">Lihat Semua Berita</a>
+        </div>
+
+    </div>
+</section>
+@endif
+
+{{-- ══════════════════════════════════════════════
+     GALERI KEGIATAN
+══════════════════════════════════════════════ --}}
+@if(isset($latestAlbums) && $latestAlbums->isNotEmpty())
+<section class="py-12 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <div class="flex items-end justify-between mb-8">
+            <div>
+                <p class="section-label">Dokumentasi</p>
+                <h2 class="section-title mt-1">Galeri Kegiatan</h2>
+                <div class="section-divider"></div>
+            </div>
+            <a href="{{ route('galleries.index') }}"
+                class="text-xs font-bold tracking-widest uppercase text-primary border-b-2 border-accent-yellow pb-0.5 hover:text-primary-600 transition-colors hidden sm:block">
+                Lihat Semua Galeri →
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach ($latestAlbums as $album)
+                @include('public.gallery._card', ['album' => $album])
+            @endforeach
+        </div>
+
+        <div class="mt-8 text-center sm:hidden">
+            <a href="{{ route('galleries.index') }}" class="btn btn-outline">Lihat Semua Galeri</a>
         </div>
 
     </div>

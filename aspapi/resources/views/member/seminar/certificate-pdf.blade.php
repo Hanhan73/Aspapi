@@ -49,24 +49,24 @@
         color: #1a1a1a;
     }
 
-    /* Nama penerima */
-.recipient-name {
-    position: absolute;
-    top: 95mm;
-    left: 55mm;
-    right: 20mm;
-    font-size: 36pt;
-    font-weight: bolder;
-    font-family: 'Oswald', sans-serif;
-    color: #38B6FF;
-    line-height: 1.2;
-    text-align: left;
-}
+    /* Nama penerima — font-size & top dinamis dari controller */
+    .recipient-name {
+        position: absolute;
+        top: {{ $nameTop }}mm;
+        left: 55mm;
+        right: 20mm;
+        font-size: {{ $nameFontSize }}pt;
+        font-weight: bolder;
+        font-family: 'Oswald', sans-serif;
+        color: #38B6FF;
+        line-height: 1.2;
+        text-align: left;
+    }
 
-    /* Kalimat partisipasi */
+    /* Kalimat partisipasi — top dinamis mengikuti panjang nama */
     .atas-partisipasi {
         position: absolute;
-        top: 112mm;
+        top: {{ $atasPartisipasiTop }}mm;
         left: 55mm;
         right: 20mm;
         font-size: 12pt;
@@ -74,10 +74,10 @@
         line-height: 1.6;
     }
 
-    /* Judul seminar */
+    /* Judul seminar — top dinamis mengikuti panjang nama */
     .tema-value {
         position: absolute;
-        top: 128mm;
+        top: {{ $temaTop }}mm;
         left: 55mm;
         right: 20mm;
         font-size: 11pt;

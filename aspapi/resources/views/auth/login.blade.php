@@ -109,6 +109,10 @@
                                 style="width:14px;height:14px;accent-color:#2A7FC1;" />
                             <span style="font-size:0.8rem;color:#4A6580;">Ingat saya</span>
                         </label>
+                        <a href="{{ route('password.request') }}"
+                            style="font-size:0.8rem;color:#2A7FC1;text-decoration:none;font-weight:600;">
+                            Lupa password?
+                        </a>
                     </div>
 
                     <button type="submit"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\Blog;
+use App\Models\GalleryAlbum;
 use App\Models\Member;
 use App\Models\Region;
 
@@ -21,6 +22,14 @@ class HomeController extends Controller
             ->limit(3)
             ->get();
 
+        $latestAlbums = GalleryAlbum::published()
+            ->has('photos')
+            ->with(['cover', 'firstPhoto', 'region'])
+            ->withCount('photos')
+            ->latestEvent()
+            ->limit(3)
+            ->get();
+
         $stats = [
             'members' => Member::where('status', 'active')->count(),
             'regions' => Region::where('is_active', true)->count(),
@@ -28,6 +37,6 @@ class HomeController extends Controller
             'congress' => 4,
         ];
 
-        return view('public.home.index', compact('latestNews', 'latestBlog', 'stats'));
+        return view('public.home.index', compact('latestNews', 'latestBlog', 'latestAlbums', 'stats'));
     }
 }

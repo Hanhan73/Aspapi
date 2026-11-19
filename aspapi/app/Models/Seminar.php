@@ -38,6 +38,11 @@ class Seminar extends Model
         return $this->hasMany(SeminarMaterial::class)->orderBy('sort_order');
     }
 
+    public function galleryAlbums()
+    {
+        return $this->hasMany(GalleryAlbum::class);
+    }
+
     // ── Accessors ──────────────────────────────────────────────────────────────
 
     public function getThumbnailUrlAttribute(): string

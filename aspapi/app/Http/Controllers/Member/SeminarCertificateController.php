@@ -25,11 +25,20 @@ class SeminarCertificateController extends Controller
         $memberData     = $enrollment->member;
         $templateBase64 = $this->imageToBase64(public_path('images/sertifikat-template.jpg'));
 
+        // Hitung ukuran font nama & posisi teks di bawahnya secara dinamis
+        // supaya nama yang panjang (banyak gelar) tidak nabrak ke baris berikutnya.
+        $nameLength = mb_strlen($memberData->full_name_with_title);
+        [$nameFontSize, $nameTop, $atasPartisipasiTop, $temaTop] = $this->calculateNameLayout($nameLength);
+
         $pdf = Pdf::loadView('member.seminar.certificate-pdf', compact(
             'certificate',
             'enrollment',
             'memberData',
-            'templateBase64'
+            'templateBase64',
+            'nameFontSize',
+            'nameTop',
+            'atasPartisipasiTop',
+            'temaTop'
         ))
         ->setPaper('a4', 'landscape')
         ->setOption([
@@ -49,6 +58,24 @@ class SeminarCertificateController extends Controller
     }
 
     // ── Helper ────────────────────────────────────────────────────────────────
+
+    /**
+     * Tentukan font-size nama & posisi top untuk baris di bawahnya
+     * berdasarkan panjang nama+gelar, supaya tidak overlap.
+     *
+     * @return array{0:int,1:float,2:float,3:float} [fontSize(pt), nameTop(mm), atasPartisipasiTop(mm), temaTop(mm)]
+     */
+    private function calculateNameLayout(int $length): array
+    {
+        return match (true) {
+            $length <= 20 => [36, 95, 112, 128],
+            $length <= 30 => [30, 96, 110, 126],
+            $length <= 40 => [26, 96, 109, 125],
+            $length <= 50 => [22, 97, 109, 125],
+            $length <= 60 => [19, 97, 110, 126],
+            default        => [16, 97, 111, 127],
+        };
+    }
 
     private function imageToBase64(?string $path): ?string
     {
